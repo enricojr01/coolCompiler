@@ -90,12 +90,12 @@ SEMICOLON:      ';'             -> skip;
 BLOCKCOMMENT:   '(*' .*?  '*)'  -> skip;
 INLINECOMMENT:  '--' ~[\r\n]*   -> skip;
 // should I even be skipping these?
-LARROW:         '<-'    -> skip;
-DARROW:         '=>'    -> skip;
-LPAREN:         '('     -> skip;
-RPAREN:         ')'     -> skip;
-LCURLY:         '{'     -> skip;
-RCURLY:         '}'     -> skip;
+LARROW:         '<-'            -> skip;
+DARROW:         '=>'            -> skip;
+LPAREN:         '('             -> skip;
+RPAREN:         ')'             -> skip;
+LCURLY:         '{'             -> skip;
+RCURLY:         '}'             -> skip;
 
 fragment CAPITAL: [A-Z];
 fragment LOWERCA: [a-z];
