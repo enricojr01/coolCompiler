@@ -15,27 +15,27 @@ attribute:          ID ':' TYPE ('<-' expr)?  SEMICOLON?;
 methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
 
 expr   
-    :   ID '<-' expr ';'?                                               # assign
-    |   ID '(' (expr (',' expr)*)? ')' ';'?                             # methodDispatch
-    |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?     # atMethodDispatch
-    |   expr '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?              # dotMethodDispatch
-    |   'if' expr 'then' expr 'else' expr 'fi'                          # ifStatement
-    |   'while' expr 'loop' expr+ 'pool'                                # whileStatement
-    |   'let' attribute (',' attribute)* 'in' expr                      # letStatement
-    |   'case' expr 'of' (formal '=>' expr ';')+ 'esac'                 # caseStatement 
-    |   'new' TYPE                                                      # instantiate
-    |   'isVoid' TYPE                                                   # isVoid
+    :   ID LARROW expr SEMICOLON?                                         # assign
+    |   ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?                       # methodDispatch
+    |   expr '@' TYPE '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?     # atMethodDispatch
+    |   expr '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?              # dotMethodDispatch
+    |   IF expr THEN expr ELSE expr FI                                  # ifStatement
+    |   WHILE expr LOOP expr+ POOL                                      # whileStatement
+    |   LET attribute (',' attribute)* IN expr                          # letStatement
+    |   CASE expr OF (formal DARROW expr SEMICOLON)+ ESAC                       # caseStatement 
+    |   NEW TYPE                                                        # instantiate
+    |   ISVOID TYPE                                                     # isVoid
     |   '{' expr+ '}'                                                   # codeBlock
-    |   expr '+' expr                                                   # add
-    |   expr '-' expr                                                   # subtract
-    |   expr '*' expr                                                   # multiply
-    |   expr '/' expr                                                   # divide
-    |   '~' expr                                                        # complement
-    |   expr '<' expr                                                   # lt
-    |   expr '>' expr                                                   # gt
-    |   expr '<=' expr                                                  # lte
-    |   expr '>=' expr                                                  # gte
-    |   expr '=' expr                                                   # isEqual
+    |   expr PLUS expr                                                  # add
+    |   expr MINUS expr                                                 # subtract
+    |   expr MULT expr                                                  # multiply
+    |   expr DIV expr                                                   # divide
+    |   COMPLE expr                                                     # complement
+    |   expr LT expr                                                    # lt
+    |   expr GT expr                                                    # gt
+    |   expr LTE expr                                                   # lte
+    |   expr GTE expr                                                   # gte
+    |   expr EQUALS expr                                                # isEqual
     |   'not' expr                                                      # not
     |   '(' expr ')' SEMICOLON?                                         # parenthesisExpr
     |   ID                                                              # identifier
@@ -64,12 +64,23 @@ NEW:        [Nn][Ee][Ww];
 OF:         [Oo][Ff];
 NOT:        [Nn][Oo][Tt];
 
+PLUS:   '+';
+MINUS:  '-';
+MULT:   '*';
+DIV:    '/';
+LT:     '<';
+LTE:    '<=';
+GT:     '>';
+GTE:    '>=';
+EQUALS: '=';
+COMPLE: '~';
+
 SELF:           'self';
 SELF_TYPE:      'SELF_TYPE';
 TRUE:           'true';
 FALSE:          'false';
-TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)+;
-ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)+;
+TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
+ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
 INTEGER:        DIGITS+;
 STRING:         ('"' | '\'') .*? ('"' | '\'');
 
@@ -78,6 +89,13 @@ WHITESPACE:     [ \t\r\n\f]+    -> skip;
 SEMICOLON:      ';'             -> skip;
 BLOCKCOMMENT:   '(*' .*?  '*)'  -> skip;
 INLINECOMMENT:  '--' ~[\r\n]*   -> skip;
+// should I even be skipping these?
+LARROW:         '<-'    -> skip;
+DARROW:         '=>'    -> skip;
+LPAREN:         '('     -> skip;
+RPAREN:         ')'     -> skip;
+LCURLY:         '{'     -> skip;
+RCURLY:         '}'     -> skip;
 
 fragment CAPITAL: [A-Z];
 fragment LOWERCA: [a-z];
