@@ -15,35 +15,35 @@ attribute:          ID ':' TYPE ('<-' expr)?  SEMICOLON?;
 methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
 
 expr   
-    :   ID LARROW expr SEMICOLON?                                         # assign
-    |   ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?                       # methodDispatch
-    |   expr '@' TYPE '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?     # atMethodDispatch
-    |   expr '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?              # dotMethodDispatch
-    |   IF expr THEN expr ELSE expr FI                                  # ifStatement
-    |   WHILE expr LOOP expr+ POOL                                      # whileStatement
-    |   LET attribute (',' attribute)* IN expr                          # letStatement
-    |   CASE expr OF (formal DARROW expr SEMICOLON)+ ESAC                       # caseStatement 
-    |   NEW TYPE                                                        # instantiate
-    |   ISVOID TYPE                                                     # isVoid
-    |   '{' expr+ '}'                                                   # codeBlock
-    |   expr PLUS expr                                                  # add
-    |   expr MINUS expr                                                 # subtract
-    |   expr MULT expr                                                  # multiply
-    |   expr DIV expr                                                   # divide
-    |   COMPLE expr                                                     # complement
-    |   expr LT expr                                                    # lt
-    |   expr GT expr                                                    # gt
-    |   expr LTE expr                                                   # lte
-    |   expr GTE expr                                                   # gte
-    |   expr EQUALS expr                                                # isEqual
-    |   'not' expr                                                      # not
-    |   '(' expr ')' SEMICOLON?                                         # parenthesisExpr
-    |   ID                                                              # identifier
-    |   INTEGER                                                         # integer
-    |   STRING                                                          # string
-    |   'self' SEMICOLON?                                               # self
-    |   'true' SEMICOLON?                                               # true
-    |   'false' SEMICOLON?                                              # false
+    :   ID LARROW expr SEMICOLON?                                           # assign
+    |   ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?                     # methodDispatch
+    |   expr '@' TYPE '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?   # atMethodDispatch
+    |   expr '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?            # dotMethodDispatch
+    |   IF expr THEN expr ELSE expr FI                                      # ifStatement
+    |   WHILE expr LOOP expr+ POOL                                          # whileStatement
+    |   LET attribute (',' attribute)* IN expr                              # letStatement
+    |   CASE expr OF (formal DARROW expr SEMICOLON)+ ESAC                   # caseStatement 
+    |   NEW TYPE                                                            # instantiate
+    |   ISVOID TYPE                                                         # isVoid
+    |   '{' expr+ '}'                                                       # codeBlock
+    |   expr PLUS expr                                                      # add
+    |   expr MINUS expr                                                     # subtract
+    |   expr MULT expr                                                      # multiply
+    |   expr DIV expr                                                       # divide
+    |   COMPLE expr                                                         # complement
+    |   expr LT expr                                                        # lt
+    |   expr GT expr                                                        # gt
+    |   expr LTE expr                                                       # lte
+    |   expr GTE expr                                                       # gte
+    |   expr EQUALS expr                                                    # isEqual
+    |   'not' expr                                                          # not
+    |   '(' expr ')' SEMICOLON?                                             # parenthesisExpr
+    |   ID                                                                  # identifier
+    |   INTEGER                                                             # integer
+    |   STRING                                                              # string
+    |   'self' SEMICOLON?                                                   # self
+    |   'true' SEMICOLON?                                                   # true
+    |   'false' SEMICOLON?                                                  # false
     ;
 
 CLASS:      [Cc][Ll][Aa][Ss][Ss];
