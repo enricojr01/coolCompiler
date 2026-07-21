@@ -5,8 +5,8 @@ prog:   class+;
 class:   CLASS TYPE (INHERITS TYPE)* '{' feature* '};' ;
 
 feature
-    :   methodDefinition                                                # methodDef
-    |   attribute                                                       # attributeDef
+    :   methodDefinition                                                    # methodDef
+    |   attribute                                                           # attributeDef
     ;
 
 paramList:          formal* (',' formal)*;
@@ -25,7 +25,7 @@ expr
     |   CASE expr OF (formal DARROW expr SEMICOLON)+ ESAC                   # caseStatement 
     |   NEW TYPE                                                            # instantiate
     |   ISVOID TYPE                                                         # isVoid
-    |   '{' expr+ '}'                                                       # codeBlock
+    |   LCURLY expr+ RCURLY                                                 # codeBlock
     |   expr PLUS expr                                                      # add
     |   expr MINUS expr                                                     # subtract
     |   expr MULT expr                                                      # multiply
@@ -37,7 +37,7 @@ expr
     |   expr GTE expr                                                       # gte
     |   expr EQUALS expr                                                    # isEqual
     |   'not' expr                                                          # not
-    |   '(' expr ')' SEMICOLON?                                             # parenthesisExpr
+    |   LPAREN expr RPAREN SEMICOLON?                                       # parenthesisExpr
     |   ID                                                                  # identifier
     |   INTEGER                                                             # integer
     |   STRING                                                              # string
@@ -74,6 +74,8 @@ GT:     '>';
 GTE:    '>=';
 EQUALS: '=';
 COMPLE: '~';
+LARROW: '<-';
+DARROW: '=>';
 
 SELF:           'self';
 SELF_TYPE:      'SELF_TYPE';
@@ -90,8 +92,6 @@ SEMICOLON:      ';'             -> skip;
 BLOCKCOMMENT:   '(*' .*?  '*)'  -> skip;
 INLINECOMMENT:  '--' ~[\r\n]*   -> skip;
 // should I even be skipping these?
-LARROW:         '<-'            -> skip;
-DARROW:         '=>'            -> skip;
 LPAREN:         '('             -> skip;
 RPAREN:         ')'             -> skip;
 LCURLY:         '{'             -> skip;
