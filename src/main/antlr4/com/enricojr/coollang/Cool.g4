@@ -1,13 +1,12 @@
 grammar Cool;
 
-
 prog:   coolClass+;
 
-coolClass:   'class' TYPE ('inherits' TYPE)? '{' feature* '};';
+coolClass:   CLASS TYPE (INHERITS TYPE)? '{' feature* '};';
 
 feature
-    :   methodDefinition                                                    # methodDef
-    |   attribute                                                           # attributeDef
+    :   attribute                                                           # attributeDef
+    |   methodDefinition                                                    # methodDef
     ;
 
 paramList:          formal* (',' formal)*;
@@ -17,16 +16,16 @@ methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
 
 expr   
     :   ID LARROW expr SEMICOLON?                                           # assign
-    |   ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?                     # methodDispatch
-    |   expr '@' TYPE '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?   # atMethodDispatch
-    |   expr '.' ID LPAREN (expr (',' expr)*)? RPAREN SEMICOLON?            # dotMethodDispatch
+    |   ID '(' (expr (',' expr)*)? ')' SEMICOLON?                     # methodDispatch
+    |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?   # atMethodDispatch
+    |   expr '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?            # dotMethodDispatch
     |   IF expr THEN expr ELSE expr FI                                      # ifStatement
     |   WHILE expr LOOP expr+ POOL                                          # whileStatement
     |   LET attribute (',' attribute)* IN expr                              # letStatement
     |   CASE expr OF (formal DARROW expr SEMICOLON)+ ESAC                   # caseStatement 
     |   NEW TYPE                                                            # instantiate
     |   ISVOID TYPE                                                         # isVoid
-    |   LCURLY expr+ RCURLY                                                 # codeBlock
+    |   '{' expr+ '}'                                                       # codeBlock
     |   expr PLUS expr                                                      # add
     |   expr MINUS expr                                                     # subtract
     |   expr MULT expr                                                      # multiply
@@ -38,7 +37,7 @@ expr
     |   expr GTE expr                                                       # gte
     |   expr EQUALS expr                                                    # isEqual
     |   'not' expr                                                          # not
-    |   LPAREN expr RPAREN SEMICOLON?                                       # parenthesisExpr
+    |   '(' expr ')' SEMICOLON?                                             # parenthesisExpr
     |   ID                                                                  # identifier
     |   INTEGER                                                             # integer
     |   STRING                                                              # string
@@ -93,10 +92,6 @@ SEMICOLON:      ';'             -> skip;
 BLOCKCOMMENT:   '(*' .*?  '*)'  -> skip;
 INLINECOMMENT:  '--' ~[\r\n]*   -> skip;
 // should I even be skipping these?
-LPAREN:         '('             -> skip;
-RPAREN:         ')'             -> skip;
-LCURLY:         '{'             -> skip;
-RCURLY:         '}'             -> skip;
 
 fragment CAPITAL: [A-Z];
 fragment LOWERCA: [a-z];
