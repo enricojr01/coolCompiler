@@ -1,50 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="target/classes" path="src/main/java">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-23"/>
+	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="ignore_optional_problems" value="true"/>
+			<attribute name="m2e-apt" value="true"/>
+			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="target/classes" path="target/generated-sources/antlr4">
 		<attributes>
 			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" output="target/classes" path="Projects/ANTLR/cooltarget/generated-sources">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="test" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="test" value="true"/>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
-		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -56,13 +24,482 @@
 			<attribute name="m2e-apt" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
+	<classpathentry kind="src" output="target/test-classes" path="src/test/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="test" value="true"/>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="ignore_optional_problems" value="true"/>
-			<attribute name="m2e-apt" value="true"/>
 			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/classes" path="src/main/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/antlr/antlr4-maven-plugin/4.3/antlr4-maven-plugin-4.3.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="antlr4-maven-plugin"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="4.3"/>
+			<attribute name="maven.groupId" value="org.antlr"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-plugin-api/3.0.5/maven-plugin-api-3.0.5.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-plugin-api"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.0.5"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-model/3.0.5/maven-model-3.0.5.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-model"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.0.5"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-artifact/3.0.5/maven-artifact-3.0.5.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-artifact"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.0.5"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/sisu-inject-plexus/2.3.0/sisu-inject-plexus-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="sisu-inject-plexus"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="plexus-component-annotations"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.5.5"/>
+			<attribute name="maven.groupId" value="org.codehaus.plexus"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/codehaus/plexus/plexus-classworlds/2.4/plexus-classworlds-2.4.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="plexus-classworlds"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.4"/>
+			<attribute name="maven.groupId" value="org.codehaus.plexus"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/sisu-inject-bean/2.3.0/sisu-inject-bean-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="sisu-inject-bean"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/sisu-guice/3.1.0/sisu-guice-3.1.0-no_aop.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="sisu-guice"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.1.0"/>
+			<attribute name="maven.classifier" value="no_aop"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/sisu-guava/0.9.9/sisu-guava-0.9.9.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="sisu-guava"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="0.9.9"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-bean-containers/2.3.0/guice-bean-containers-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-bean-containers"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-bean-inject/2.3.0/guice-bean-inject-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-bean-inject"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-plexus-shim/2.3.0/guice-plexus-shim-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-plexus-shim"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="javax.inject"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1"/>
+			<attribute name="maven.groupId" value="javax.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/sisu-guice/3.1.0/sisu-guice-3.1.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="sisu-guice"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.1.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="aopalliance"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.0"/>
+			<attribute name="maven.groupId" value="aopalliance"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-bean-reflect/2.3.0/guice-bean-reflect-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-bean-reflect"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-bean-locators/2.3.0/guice-bean-locators-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-bean-locators"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-bean-binders/2.3.0/guice-bean-binders-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-bean-binders"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/javax/enterprise/cdi-api/1.0/cdi-api-1.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="cdi-api"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.0"/>
+			<attribute name="maven.groupId" value="javax.enterprise"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="jsr250-api"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.0"/>
+			<attribute name="maven.groupId" value="javax.annotation"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-bean-scanners/2.3.0/guice-bean-scanners-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-bean-scanners"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-bean-converters/2.3.0/guice-bean-converters-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-bean-converters"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-plexus-metadata/2.3.0/guice-plexus-metadata-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-plexus-metadata"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-plexus-converters/2.3.0/guice-plexus-converters-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-plexus-converters"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-plexus-locators/2.3.0/guice-plexus-locators-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-plexus-locators"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-plexus-binders/2.3.0/guice-plexus-binders-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-plexus-binders"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-plexus-scanners/2.3.0/guice-plexus-scanners-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-plexus-scanners"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/sisu/inject/guice-plexus-lifecycles/2.3.0/guice-plexus-lifecycles-2.3.0.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="guice-plexus-lifecycles"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.3.0"/>
+			<attribute name="maven.groupId" value="org.sonatype.sisu.inject"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-project/2.2.1/maven-project-2.2.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-project"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.2.1"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-settings/2.2.1/maven-settings-2.2.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-settings"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.2.1"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-profile/2.2.1/maven-profile-2.2.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-profile"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.2.1"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-artifact-manager/2.2.1/maven-artifact-manager-2.2.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-artifact-manager"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.2.1"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-repository-metadata/2.2.1/maven-repository-metadata-2.2.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-repository-metadata"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.2.1"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/wagon/wagon-provider-api/1.0-beta-6/wagon-provider-api-1.0-beta-6.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="wagon-provider-api"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.0-beta-6"/>
+			<attribute name="maven.groupId" value="org.apache.maven.wagon"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/backport-util-concurrent/backport-util-concurrent/3.1/backport-util-concurrent-3.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="backport-util-concurrent"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.1"/>
+			<attribute name="maven.groupId" value="backport-util-concurrent"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/apache/maven/maven-plugin-registry/2.2.1/maven-plugin-registry-2.2.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="maven-plugin-registry"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.2.1"/>
+			<attribute name="maven.groupId" value="org.apache.maven"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.11/plexus-interpolation-1.11.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="plexus-interpolation"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.11"/>
+			<attribute name="maven.groupId" value="org.codehaus.plexus"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.15/plexus-utils-1.5.15.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="plexus-utils"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.5.15"/>
+			<attribute name="maven.groupId" value="org.codehaus.plexus"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="plexus-container-default"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.0-alpha-9-stable-1"/>
+			<attribute name="maven.groupId" value="org.codehaus.plexus"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="junit"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.8.1"/>
+			<attribute name="maven.groupId" value="junit"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/classworlds/classworlds/1.1-alpha-2/classworlds-1.1-alpha-2.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="classworlds"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.1-alpha-2"/>
+			<attribute name="maven.groupId" value="classworlds"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/codehaus/plexus/plexus-compiler-api/2.2/plexus-compiler-api-2.2.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="plexus-compiler-api"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="2.2"/>
+			<attribute name="maven.groupId" value="org.codehaus.plexus"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/sonatype/plexus/plexus-build-api/0.0.7/plexus-build-api-0.0.7.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="plexus-build-api"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="0.0.7"/>
+			<attribute name="maven.groupId" value="org.sonatype.plexus"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/antlr/antlr4/4.3/antlr4-4.3.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="antlr4"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="4.3"/>
+			<attribute name="maven.groupId" value="org.antlr"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/antlr/antlr4-runtime/4.3/antlr4-runtime-4.3.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="antlr4-runtime"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="4.3"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Enrico%20Tuvera%20Jr/.m2/repository/org/antlr/antlr4-runtime/4.3/antlr4-runtime-4.3-javadoc.jar!/"/>
+			<attribute name="maven.groupId" value="org.antlr"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/abego/treelayout/org.abego.treelayout.core/1.0.1/org.abego.treelayout.core-1.0.1.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="org.abego.treelayout.core"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="1.0.1"/>
+			<attribute name="maven.groupId" value="org.abego.treelayout"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/antlr/antlr4-annotations/4.3/antlr4-annotations-4.3.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="antlr4-annotations"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="4.3"/>
+			<attribute name="maven.groupId" value="org.antlr"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/antlr/antlr-runtime/3.5.2/antlr-runtime-3.5.2.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="antlr-runtime"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="3.5.2"/>
+			<attribute name="maven.groupId" value="org.antlr"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="c:/Users/Enrico Tuvera Jr/.m2/repository/org/antlr/ST4/4.0.8/ST4-4.0.8.jar">
+		<attributes>
+			<attribute name="maven.artifactId" value="ST4"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.scope" value="compile"/>
+			<attribute name="maven.version" value="4.0.8"/>
+			<attribute name="maven.groupId" value="org.antlr"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>

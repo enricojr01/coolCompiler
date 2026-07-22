@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 public class Test {
     public static void main(String[] args) throws Exception {
+        System.out.println("If you see this, it's working!");
         String inputFile = null;
         if (args.length > 0) {
             inputFile = args[0];

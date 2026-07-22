@@ -1,8 +1,9 @@
 grammar Cool;
 
+
 prog:   coolClass+;
 
-coolClass:   CLASS TYPE (INHERITS TYPE)* '{' feature* '};' ;
+coolClass:   'class' TYPE ('inherits' TYPE)? '{' feature* '};';
 
 feature
     :   methodDefinition                                                    # methodDef
