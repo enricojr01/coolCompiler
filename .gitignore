@@ -2,3 +2,4 @@
 .antlr
 .vscode
 output/*
+target/*
