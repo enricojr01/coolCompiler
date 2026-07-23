@@ -4,6 +4,43 @@ import com.enricojr.coollang.ast.expressions.CoolExpr;
 
 public class CoolAttribute extends CoolBaseNode {
     private String identifier;
+    private String typeName;
     private CoolClass type;
     private CoolExpr value;
+
+    public CoolAttribute() {}
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public CoolClass getType() {
+        return type;
+    }
+
+    public void setType(CoolClass type) {
+        this.type = type;
+    }
+
+    public CoolExpr getValue() {
+        return value;
+    }
+
+    public void setValue(CoolExpr value) {
+        this.value = value;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    
 }

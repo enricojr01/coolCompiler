@@ -16,9 +16,9 @@ methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
 
 expr   
     :   ID LARROW expr SEMICOLON?                                           # assign
-    |   ID '(' (expr (',' expr)*)? ')' SEMICOLON?                     # methodDispatch
-    |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?   # atMethodDispatch
-    |   expr '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?            # dotMethodDispatch
+    |   ID '(' (expr (',' expr)*)? ')' SEMICOLON?                           # methodDispatch
+    |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?         # atMethodDispatch
+    |   expr '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?                  # dotMethodDispatch
     |   IF expr THEN expr ELSE expr FI                                      # ifStatement
     |   WHILE expr LOOP expr+ POOL                                          # whileStatement
     |   LET attribute (',' attribute)* IN expr                              # letStatement
@@ -36,7 +36,7 @@ expr
     |   expr LTE expr                                                       # lte
     |   expr GTE expr                                                       # gte
     |   expr EQUALS expr                                                    # isEqual
-    |   'not' expr                                                          # not
+    |   NOT expr                                                            # not
     |   '(' expr ')' SEMICOLON?                                             # parenthesisExpr
     |   ID                                                                  # identifier
     |   INTEGER                                                             # integer
@@ -87,11 +87,11 @@ INTEGER:        DIGITS+;
 STRING:         ('"' | '\'') .*? ('"' | '\'');
 
 // skippables
+// NOTE TO SELF: You should NOT skip paren / curly brackets / square brackets.
 WHITESPACE:     [ \t\r\n\f]+    -> skip;
 SEMICOLON:      ';'             -> skip;
 BLOCKCOMMENT:   '(*' .*?  '*)'  -> skip;
 INLINECOMMENT:  '--' ~[\r\n]*   -> skip;
-// should I even be skipping these?
 
 fragment CAPITAL: [A-Z];
 fragment LOWERCA: [a-z];
