@@ -1,6 +1,5 @@
 package com.enricojr.coollang.ast;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -47,7 +46,17 @@ import com.enricojr.coollang.CoolParser.StringContext;
 import com.enricojr.coollang.CoolParser.SubtractContext;
 import com.enricojr.coollang.CoolParser.TrueContext;
 import com.enricojr.coollang.CoolParser.WhileStatementContext;
+import com.enricojr.coollang.ast.constants.CoolInteger;
+import com.enricojr.coollang.ast.constants.CoolString;
+import com.enricojr.coollang.ast.expressions.CoolAssign;
+import com.enricojr.coollang.ast.expressions.CoolBinaryOp;
+import com.enricojr.coollang.ast.expressions.CoolBlock;
+import com.enricojr.coollang.ast.expressions.CoolCase;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
+import com.enricojr.coollang.ast.expressions.CoolIf;
+import com.enricojr.coollang.ast.expressions.CoolLet;
+import com.enricojr.coollang.ast.expressions.CoolUnaryOp;
+import com.enricojr.coollang.ast.expressions.CoolWhile;
 import com.enricojr.coollang.ast.program.CoolAttribute;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
@@ -161,6 +170,75 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         return super.visitDotMethodDispatch(ctx);
     }
 
+    public CoolBaseNode visitExpression(ExprContext exc) {
+        CoolExpr expr = null;
+        if (exc instanceof AssignContext) {
+            expr = (CoolAssign) this.visitAssign((AssignContext) exc);
+        } else if (exc instanceof MethodDispatchContext) {
+            expr = null;
+        } else if (exc instanceof AtMethodDispatchContext) {
+            expr = null;
+        } else if (exc instanceof DotMethodDispatchContext) {
+            expr = null;
+        } else if (exc instanceof IfStatementContext) {
+            expr = (CoolIf) this.visitIfStatement((IfStatementContext) exc);
+        } else if (exc instanceof WhileStatementContext) {
+            expr = (CoolWhile) this.visitWhileStatement((WhileStatementContext) exc);
+        } else if (exc instanceof LetStatementContext) {
+            expr = (CoolLet) this.visitLetStatement((LetStatementContext) exc);
+        } else if (exc instanceof CaseStatementContext) {
+            expr = (CoolCase) this.visitCaseStatement((CaseStatementContext) exc);
+        } else if (exc instanceof InstantiateContext) {
+            expr = null;
+        } else if (exc instanceof IsVoidContext) {
+            expr = null;
+        } else if (exc instanceof CodeBlockContext) {
+            expr = (CoolBlock) this.visitCodeBlock((CodeBlockContext) exc);
+        } else if (exc instanceof AddContext) {
+            expr = (CoolBinaryOp) this.visitAdd((AddContext) exc);
+        } else if (exc instanceof SubtractContext) {
+            expr = (CoolBinaryOp) this.visitSubtract((SubtractContext) exc);
+        } else if (exc instanceof MultiplyContext) {
+            expr = (CoolBinaryOp) this.visitMultiply((MultiplyContext) exc);
+        } else if (exc instanceof DivideContext) {
+            expr = (CoolBinaryOp) this.visitDivide((DivideContext) exc);
+        } else if (exc instanceof ComplementContext) {
+            expr = (CoolUnaryOp) this.visitComplement((ComplementContext) exc);
+        } else if (exc instanceof LtContext) {
+            expr = (CoolBinaryOp) this.visitLt((LtContext) exc); 
+        } else if (exc instanceof LteContext) {
+            expr = (CoolBinaryOp) this.visitLte((LteContext) exc);
+        } else if (exc instanceof GtContext) {
+            expr = (CoolBinaryOp) this.visitGt((GtContext) exc);
+        } else if (exc instanceof GteContext) {
+            expr = (CoolBinaryOp) this.visitGte((GteContext) exc);
+        } else if (exc instanceof IsEqualContext) {
+            expr = (CoolBinaryOp) this.visitIsEqual((IsEqualContext) exc);
+        } else if (exc instanceof NotContext) {
+            expr = (CoolBinaryOp) this.visitNot((NotContext) exc);
+        } else if (exc instanceof ParenthesisExprContext) {
+            expr = null;
+        } else if (exc instanceof IdentifierContext) {
+            // TODO: change this! should be a CoolIdentiifer? 
+            expr = (CoolString) this.visitIdentifier((IdentifierContext) exc);
+        } else if (exc instanceof IntegerContext) {
+            expr = (CoolInteger) this.visitInteger((IntegerContext) exc);
+        } else if (exc instanceof StringContext) {
+            expr = (CoolString) this.visitString((StringContext) exc);
+        } else if (exc instanceof SelfContext) {
+            expr = null;
+        } else if (exc instanceof TrueContext) {
+            expr = null;
+        } else if (exc instanceof FalseContext) {
+            expr = null;
+        }
+        else {
+            // throw new WTFException;
+        }
+
+        return expr;
+    }
+
     @Override
     public CoolBaseNode visitFalse(FalseContext ctx) {
         // TODO Auto-generated method stub
@@ -257,36 +335,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         ArrayList<CoolExpr> cexp = new ArrayList<>();
 
         for (ExprContext exc : mdc.expr())  {
-            if (exc instanceof AssignContext) {}
-            else if (exc instanceof MethodDispatchContext) {}
-            else if (exc instanceof AtMethodDispatchContext) {}
-            else if (exc instanceof DotMethodDispatchContext) {}
-            else if (exc instanceof IfStatementContext) {}
-            else if (exc instanceof WhileStatementContext) {}
-            else if (exc instanceof LetStatementContext) {}
-            else if (exc instanceof CaseStatementContext) {}
-            else if (exc instanceof InstantiateContext) {}
-            else if (exc instanceof IsVoidContext) {}
-            else if (exc instanceof CodeBlockContext) {}
-            else if (exc instanceof AddContext) {}
-            else if (exc instanceof SubtractContext) {}
-            else if (exc instanceof MultiplyContext) {}
-            else if (exc instanceof DivideContext) {}
-            else if (exc instanceof ComplementContext) {}
-            else if (exc instanceof LtContext) {}
-            else if (exc instanceof LteContext) {}
-            else if (exc instanceof GtContext) {}
-            else if (exc instanceof GteContext) {}
-            else if (exc instanceof IsEqualContext) {}
-            else if (exc instanceof NotContext) {}
-            else if (exc instanceof ParenthesisExprContext) {}
-            else if (exc instanceof IdentifierContext) {}
-            else if (exc instanceof IntegerContext) {}
-            else if (exc instanceof StringContext) {}
-            else if (exc instanceof SelfContext) {}
-            else if (exc instanceof TrueContext) {}
-            else if (exc instanceof FalseContext) {}
-            else {}
         }
 
         cm.setParams(methodParams);
