@@ -21,6 +21,4 @@ public class CoolFormal extends CoolBaseNode {
     public void setType(CoolClass type) {
         this.type = type;
     }
-
-    
 }

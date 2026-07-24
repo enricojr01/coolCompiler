@@ -5,7 +5,6 @@ import com.enricojr.coollang.ast.expressions.CoolExpr;
 public class CoolAttribute extends CoolBaseNode {
     private String identifier;
     private String typeName;
-    private CoolClass type;
     private CoolExpr value;
 
     public CoolAttribute() {}
@@ -16,14 +15,6 @@ public class CoolAttribute extends CoolBaseNode {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
-    }
-
-    public CoolClass getType() {
-        return type;
-    }
-
-    public void setType(CoolClass type) {
-        this.type = type;
     }
 
     public CoolExpr getValue() {

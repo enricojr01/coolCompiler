@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast;
 
+// TODO: are there like aliases or something I can use to cut this down to size?
 import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -12,6 +13,7 @@ import com.enricojr.coollang.CoolParser.AssignContext;
 import com.enricojr.coollang.CoolParser.AtMethodDispatchContext;
 import com.enricojr.coollang.CoolParser.AttributeContext;
 import com.enricojr.coollang.CoolParser.AttributeDefContext;
+import com.enricojr.coollang.CoolParser.CaseBranchContext;
 import com.enricojr.coollang.CoolParser.CaseStatementContext;
 import com.enricojr.coollang.CoolParser.CodeBlockContext;
 import com.enricojr.coollang.CoolParser.ComplementContext;
@@ -74,44 +76,95 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitAdd(AddContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitAdd(ctx);
+        // expr '+' expr
+        CoolBinaryOp add = new CoolBinaryOp();
+        List<ExprContext> lhsrhs = ctx.expr();
+        CoolExpr lhs = this.visitExpression(lhsrhs.get(0));
+        CoolExpr rhs = this.visitExpression(lhsrhs.get(1));
+
+        add.setOp(CoolBinaryOp.OPERATOR.ADD);
+        add.setRhs(rhs);
+        add.setLhs(lhs);
+
+        return add;
     }
 
     @Override
     public CoolBaseNode visitAssign(AssignContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitAssign(ctx);
-    }
+        // ID LARROW expr SEMICOLON?
+        CoolAssign ca = new CoolAssign();
+        String name = ctx.ID().getText(); 
+        CoolExpr ce = this.visitExpression(ctx.expr());
 
-    @Override
-    public CoolBaseNode visitAtMethodDispatch(AtMethodDispatchContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitAtMethodDispatch(ctx);
-    }
-
-    @Override
-    public CoolBaseNode visitAttribute(AttributeContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitAttribute(ctx);
-    }
-
-    @Override
-    public CoolBaseNode visitAttributeDef(AttributeDefContext ctx) {
-        // attribute:          ID ':' TYPE ('<-' expr)?  SEMICOLON?;
-        CoolAttribute ca = new CoolAttribute();
-        AttributeContext ac = ctx.attribute();
-
-        ca.setIdentifier(ac.ID().getText());
-        ca.setTypeName(ac.TYPE().getText());
+        ca.setName(name);
+        ca.setExpression(ce);
 
         return ca;
     }
 
     @Override
+    public CoolBaseNode visitAtMethodDispatch(AtMethodDispatchContext ctx) {
+        // expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?
+        CoolAtMethodDispatch camd = new CoolAtMethodDispatch();
+        List<ExprContext> expressions = ctx.expr();
+        CoolExpr lhs = this.visitExpression(expressions.get(0));
+        String type = ctx.TYPE().getText();
+        String functionName = ctx.ID().getText();
+
+        ArrayList<CoolExpr> params = new ArrayList<>();
+
+        camd.setLhs(lhs);
+        camd.setIdentifier(functionName);
+        camd.setType(type);
+        camd.setArguemnts(params);
+
+        return camd;
+    }
+
+    @Override
+    public CoolBaseNode visitAttribute(AttributeContext ctx) {
+        // TODO: consider that labelling the subrule in the grammar file may have been wrong.
+        // ID ':' TYPE ('<-' expr)?  SEMICOLON?;
+        CoolAttribute ca = new CoolAttribute();
+        CoolExpr expr = this.visitExpression(ctx.expr());
+
+        ca.setIdentifier(ctx.ID().getText());
+        ca.setTypeName(ctx.TYPE().getText());
+        // Should I have to check null here? Did I make a mistake designing this?
+        if (expr != null) {
+            ca.setValue(expr);
+        }
+
+        return ca;
+    }
+
+    @Override
+    public CoolBaseNode visitAttributeDef(AttributeDefContext ctx) {
+        // ID ':' TYPE ('<-' expr)?  SEMICOLON?;
+        AttributeContext ac = ctx.attribute();
+        return this.visitAttribute(ac);
+    }
+
+    @Override
     public CoolBaseNode visitCaseStatement(CaseStatementContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitCaseStatement(ctx);
+        // CASE expr OF (formal DARROW expr SEMICOLON)+ ESAC
+        CoolCase cc = new CoolCase();
+        List<CaseBranchContext> expressions = ctx.caseBranch();
+        ExprContext predicate = ctx.expr();
+
+
+        ArrayList<CoolCase.Branch> branches = new ArrayList<>();
+        for (CaseBranchContext cbc : expressions) {
+            CoolFormal formal = (CoolFormal) this.visitFormal(cbc.formal());
+            CoolExpr expression = this.visitExpression(cbc.expr());
+            CoolCase.Branch b = cc.createBranch(formal, expression);
+            branches.add(b);
+        }
+
+        cc.setBranches(branches);
+        cc.setPredicate(this.visitExpression(predicate));
+
+        return cc;
     }
 
     @Override
@@ -128,6 +181,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitCoolClass(CoolClassContext ctx) {
+        /* 
+            TODO: double check that the formal and attribute really should be separate I may have gotten the distinction between them wrong.
+        */
         // coolClass:   CLASS TYPE (INHERITS TYPE)? '{' feature* '};';
         CoolClass cc = new CoolClass();
         List<TerminalNode> types = ctx.TYPE();
@@ -154,6 +210,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
                 cms.add(cm);
             }
         }
+        cc.setAttributes(cas);
+        cc.setMethods(cms);
 
         return cc;
     }
@@ -170,7 +228,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         return super.visitDotMethodDispatch(ctx);
     }
 
-    public CoolBaseNode visitExpression(ExprContext exc) {
+    public CoolExpr visitExpression(ExprContext exc) {
         CoolExpr expr = null;
         if (exc instanceof AssignContext) {
             expr = (CoolAssign) this.visitAssign((AssignContext) exc);

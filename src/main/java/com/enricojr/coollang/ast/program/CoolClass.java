@@ -7,7 +7,6 @@ public class CoolClass extends CoolBaseNode {
     private String parentName;
     private CoolClass parent;
     private ArrayList<CoolAttribute> attributes;
-    private ArrayList<CoolFormal> formals;
     private ArrayList<CoolMethod> methods;
 
     public CoolClass() {}
@@ -26,14 +25,6 @@ public class CoolClass extends CoolBaseNode {
 
     public void setAttributes(ArrayList<CoolAttribute> attributes) {
         this.attributes = attributes;
-    }
-
-    public ArrayList<CoolFormal> getFormals() {
-        return formals;
-    }
-
-    public void setFormals(ArrayList<CoolFormal> formals) {
-        this.formals = formals;
     }
 
     public ArrayList<CoolMethod> getMethods() {
