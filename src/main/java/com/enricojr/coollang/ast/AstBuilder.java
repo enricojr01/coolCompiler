@@ -69,12 +69,12 @@ import com.enricojr.coollang.ast.expressions.CoolNew;
 import com.enricojr.coollang.ast.expressions.CoolParenthesisExpr;
 import com.enricojr.coollang.ast.expressions.CoolUnaryOp;
 import com.enricojr.coollang.ast.expressions.CoolWhile;
-import com.enricojr.coollang.ast.expressions.CoolBinaryOp.OPERATOR;
 import com.enricojr.coollang.ast.program.CoolAttribute;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolFormal;
 import com.enricojr.coollang.ast.program.CoolMethod;
+import com.enricojr.coollang.ast.program.CoolParamList;
 import com.enricojr.coollang.ast.program.CoolProgram;
 
 public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
@@ -497,12 +497,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         // TODO Auto-generated method stub
         CoolMethod cm = new CoolMethod();
         ParamListContext plc = ctx.paramList();
-        ArrayList<CoolFormal> methodParams = new ArrayList<>();
-
-        for (FormalContext formalCon : plc.formal()) {
-            CoolFormal cf = (CoolFormal) this.visitFormal(formalCon);
-            methodParams.add(cf);
-        }
+        CoolParamList cpl = (CoolParamList) this.visitParamList(plc);
 
         ArrayList<CoolExpr> expressions = new ArrayList<>();
         for (ExprContext exc : ctx.expr())  {
@@ -510,7 +505,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
             expressions.add(ce);
         }
 
-        cm.setParams(methodParams);
+        cm.setParameters(cpl);
         cm.setName(ctx.ID().getText());
         cm.setExpressions(expressions);
         if (ctx.SELF_TYPE().getText() != null) {
@@ -558,20 +553,39 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitNot(NotContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitNot(ctx);
+        CoolUnaryOp cuo = new CoolUnaryOp();
+        CoolExpr expression = this.visitExpression(ctx.expr());
+
+        cuo.setOp(CoolUnaryOp.OPERATOR.NOT);
+        cuo.setExpression(expression);
+
+        return expression;
     }
 
     @Override
     public CoolBaseNode visitParamList(ParamListContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitParamList(ctx);
+        CoolParamList cpl = new CoolParamList();
+        List<FormalContext> formalContexts = ctx.formal();
+
+        ArrayList<CoolFormal> parameters = new ArrayList<>();
+        for (FormalContext fc : formalContexts) {
+            CoolFormal formal = (CoolFormal) this.visitFormal(fc);
+            parameters.add(formal);
+        }
+
+        cpl.setParameters(parameters);
+
+        return cpl;
     }
 
     @Override
     public CoolBaseNode visitParenthesisExpr(ParenthesisExprContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitParenthesisExpr(ctx);
+        CoolParenthesisExpr cpe = new CoolParenthesisExpr();
+        CoolExpr expression = this.visitExpression(ctx.expr());
+
+        cpe.setExpression(expression);
+
+        return cpe;
     }
 
     @Override

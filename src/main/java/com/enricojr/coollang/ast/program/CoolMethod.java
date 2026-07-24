@@ -8,7 +8,7 @@ public class CoolMethod extends CoolBaseNode {
     private String name;
     // TODO: I'm going to need some kind of symbol table for this but we're not there in class yet
     private CoolConstant returnType;
-    private ArrayList<CoolFormal> params;
+    private CoolParamList parameters;
     private ArrayList<CoolExpr> expressions;
 
     public CoolMethod() {}
@@ -19,14 +19,6 @@ public class CoolMethod extends CoolBaseNode {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public ArrayList<CoolFormal> getParams() {
-        return params;
-    }
-
-    public void setParams(ArrayList<CoolFormal> params) {
-        this.params = params;
     }
 
     public ArrayList<CoolExpr> getExpressions() {
@@ -43,5 +35,13 @@ public class CoolMethod extends CoolBaseNode {
 
     public void setReturnType(CoolConstant returnType) {
         this.returnType = returnType;
+    }
+
+    public CoolParamList getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(CoolParamList parameters) {
+        this.parameters = parameters;
     }
 }
