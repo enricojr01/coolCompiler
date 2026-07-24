@@ -49,12 +49,18 @@ import com.enricojr.coollang.CoolParser.WhileStatementContext;
 import com.enricojr.coollang.ast.constants.CoolInteger;
 import com.enricojr.coollang.ast.constants.CoolString;
 import com.enricojr.coollang.ast.expressions.CoolAssign;
+import com.enricojr.coollang.ast.expressions.CoolAtMethodDispatch;
 import com.enricojr.coollang.ast.expressions.CoolBinaryOp;
 import com.enricojr.coollang.ast.expressions.CoolBlock;
 import com.enricojr.coollang.ast.expressions.CoolCase;
+import com.enricojr.coollang.ast.expressions.CoolDotMethodDispatch;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
 import com.enricojr.coollang.ast.expressions.CoolIf;
+import com.enricojr.coollang.ast.expressions.CoolInstantiate;
+import com.enricojr.coollang.ast.expressions.CoolIsVoid;
 import com.enricojr.coollang.ast.expressions.CoolLet;
+import com.enricojr.coollang.ast.expressions.CoolMethodDispatch;
+import com.enricojr.coollang.ast.expressions.CoolParenthesisExpr;
 import com.enricojr.coollang.ast.expressions.CoolUnaryOp;
 import com.enricojr.coollang.ast.expressions.CoolWhile;
 import com.enricojr.coollang.ast.program.CoolAttribute;
@@ -146,13 +152,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
             if (fc instanceof MethodDefContext) {
                 CoolMethod cm = (CoolMethod) this.visitMethodDef((MethodDefContext) fc);
                 cms.add(cm);
-
-
-                // TODO: straighten out terminology so its consistent (identifiers vs names)
-                cm.setName(mdc.ID().getText());
-                cm.setParams(methodParams);
             }
-            
         }
 
         return cc;
@@ -175,11 +175,14 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         if (exc instanceof AssignContext) {
             expr = (CoolAssign) this.visitAssign((AssignContext) exc);
         } else if (exc instanceof MethodDispatchContext) {
-            expr = null;
+            expr = (CoolMethodDispatch) this.visitMethodDispatch((MethodDispatchContext) exc);
         } else if (exc instanceof AtMethodDispatchContext) {
-            expr = null;
+            expr = (CoolAtMethodDispatch) this.visitAtMethodDispatch((AtMethodDispatchContext) exc);
         } else if (exc instanceof DotMethodDispatchContext) {
-            expr = null;
+            expr = (
+                (CoolDotMethodDispatch) 
+                this.visitDotMethodDispatch((DotMethodDispatchContext) exc)
+            );
         } else if (exc instanceof IfStatementContext) {
             expr = (CoolIf) this.visitIfStatement((IfStatementContext) exc);
         } else if (exc instanceof WhileStatementContext) {
@@ -189,9 +192,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         } else if (exc instanceof CaseStatementContext) {
             expr = (CoolCase) this.visitCaseStatement((CaseStatementContext) exc);
         } else if (exc instanceof InstantiateContext) {
-            expr = null;
+            expr = (CoolInstantiate) this.visitInstantiate((InstantiateContext) exc);
         } else if (exc instanceof IsVoidContext) {
-            expr = null;
+            expr = (CoolIsVoid) this.visitIsVoid((IsVoidContext) exc);
         } else if (exc instanceof CodeBlockContext) {
             expr = (CoolBlock) this.visitCodeBlock((CodeBlockContext) exc);
         } else if (exc instanceof AddContext) {
@@ -217,7 +220,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         } else if (exc instanceof NotContext) {
             expr = (CoolBinaryOp) this.visitNot((NotContext) exc);
         } else if (exc instanceof ParenthesisExprContext) {
-            expr = null;
+            expr = (CoolParenthesisExpr) this.visitParenthesisExpr((ParenthesisExprContext) exc) ;
         } else if (exc instanceof IdentifierContext) {
             // TODO: change this! should be a CoolIdentiifer? 
             expr = (CoolString) this.visitIdentifier((IdentifierContext) exc);
@@ -340,6 +343,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         cm.setParams(methodParams);
         cm.setName(mdc.ID().getText());
 
+        return null;
     }
 
     @Override
