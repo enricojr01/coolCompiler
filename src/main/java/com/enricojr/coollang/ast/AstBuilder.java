@@ -48,7 +48,10 @@ import com.enricojr.coollang.CoolParser.StringContext;
 import com.enricojr.coollang.CoolParser.SubtractContext;
 import com.enricojr.coollang.CoolParser.TrueContext;
 import com.enricojr.coollang.CoolParser.WhileStatementContext;
+import com.enricojr.coollang.ast.constants.CoolBool;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.constants.CoolInteger;
+import com.enricojr.coollang.ast.constants.CoolSelf;
 import com.enricojr.coollang.ast.constants.CoolString;
 import com.enricojr.coollang.ast.expressions.CoolAssign;
 import com.enricojr.coollang.ast.expressions.CoolAtMethodDispatch;
@@ -62,9 +65,11 @@ import com.enricojr.coollang.ast.expressions.CoolInstantiate;
 import com.enricojr.coollang.ast.expressions.CoolIsVoid;
 import com.enricojr.coollang.ast.expressions.CoolLet;
 import com.enricojr.coollang.ast.expressions.CoolMethodDispatch;
+import com.enricojr.coollang.ast.expressions.CoolNew;
 import com.enricojr.coollang.ast.expressions.CoolParenthesisExpr;
 import com.enricojr.coollang.ast.expressions.CoolUnaryOp;
 import com.enricojr.coollang.ast.expressions.CoolWhile;
+import com.enricojr.coollang.ast.expressions.CoolBinaryOp.OPERATOR;
 import com.enricojr.coollang.ast.program.CoolAttribute;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
@@ -152,7 +157,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         List<CaseBranchContext> expressions = ctx.caseBranch();
         ExprContext predicate = ctx.expr();
 
-
         ArrayList<CoolCase.Branch> branches = new ArrayList<>();
         for (CaseBranchContext cbc : expressions) {
             CoolFormal formal = (CoolFormal) this.visitFormal(cbc.formal());
@@ -169,14 +173,28 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitCodeBlock(CodeBlockContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitCodeBlock(ctx);
+        CoolBlock cb = new CoolBlock();
+        List<ExprContext> contexts = ctx.expr();
+        ArrayList<CoolExpr> expressions = new ArrayList<>();
+        for (ExprContext e : contexts) {
+            CoolExpr expression = this.visitExpression(e);
+            expressions.add(expression);
+        }
+
+        cb.setBody(expressions);
+
+        return cb;
     }
 
     @Override
     public CoolBaseNode visitComplement(ComplementContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitComplement(ctx);
+        CoolUnaryOp cuo = new CoolUnaryOp();
+        CoolExpr expression = this.visitExpression(ctx.expr());
+
+        cuo.setOp(CoolUnaryOp.OPERATOR.COMPLEMENT);
+        cuo.setExpression(expression);
+
+        return cuo;
     }
 
     @Override
@@ -218,14 +236,39 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitDivide(DivideContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitDivide(ctx);
+        CoolBinaryOp cbo = new CoolBinaryOp();
+        List<ExprContext> expressions = ctx.expr();
+        CoolExpr lhs = this.visitExpression(expressions.get(0));
+        CoolExpr rhs = this.visitExpression(expressions.get(1));
+
+        cbo.setLhs(lhs);
+        cbo.setOp(CoolBinaryOp.OPERATOR.DIV);
+        cbo.setRhs(rhs);
+
+        return cbo;
     }
 
     @Override
     public CoolBaseNode visitDotMethodDispatch(DotMethodDispatchContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitDotMethodDispatch(ctx);
+        List<ExprContext> expressions = ctx.expr();
+        List<ExprContext> paramListContext = expressions.subList(1, expressions.size() - 1);
+
+        ExprContext lhsContext = expressions.get(0);
+        String name = ctx.ID().getText();
+        ArrayList<CoolExpr> arguments = new ArrayList<>();
+        CoolExpr lhs = this.visitExpression(lhsContext);
+
+        for (ExprContext ec : paramListContext) {
+            CoolExpr ex = this.visitExpression(ec);
+            arguments.add(ex);
+        }
+
+        CoolDotMethodDispatch cdmd = new CoolDotMethodDispatch();
+        cdmd.setName(name);
+        cdmd.setLhs(lhs);
+        cdmd.setArguments(arguments);
+
+        return cdmd;
     }
 
     public CoolExpr visitExpression(ExprContext exc) {
@@ -287,11 +330,11 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         } else if (exc instanceof StringContext) {
             expr = (CoolString) this.visitString((StringContext) exc);
         } else if (exc instanceof SelfContext) {
-            expr = null;
+            expr = new CoolSelf();
         } else if (exc instanceof TrueContext) {
-            expr = null;
+            expr = new CoolBool(true);
         } else if (exc instanceof FalseContext) {
-            expr = null;
+            expr = new CoolBool(false);
         }
         else {
             // throw new WTFException;
@@ -302,80 +345,143 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitFalse(FalseContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitFalse(ctx);
+        return new CoolBool(false);
     }
 
     @Override
     public CoolBaseNode visitFormal(FormalContext ctx) {
-        // TODO Auto-generated method stub
+        CoolFormal cf = new CoolFormal();
+        cf.setName(ctx.ID().getText());
+        cf.setType(ctx.TYPE().getText());
+
         return super.visitFormal(ctx);
     }
 
     @Override
     public CoolBaseNode visitGt(GtContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitGt(ctx);
+        CoolBinaryOp cbo = new CoolBinaryOp();
+        CoolExpr lhs = this.visitExpression(ctx.expr(0));
+        CoolExpr rhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setLhs(lhs);
+        cbo.setRhs(rhs);
+        cbo.setOp(CoolBinaryOp.OPERATOR.GT);
+
+        return cbo;
     }
 
     @Override
     public CoolBaseNode visitGte(GteContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitGte(ctx);
+        CoolBinaryOp cbo = new CoolBinaryOp();
+        CoolExpr lhs = this.visitExpression(ctx.expr(0));
+        CoolExpr rhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setLhs(lhs);
+        cbo.setRhs(rhs);
+        cbo.setOp(CoolBinaryOp.OPERATOR.GTE);
+
+        return cbo;
     }
 
     @Override
     public CoolBaseNode visitIdentifier(IdentifierContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitIdentifier(ctx);
+        // TODO: Go back and rewrite all instances of ctx.ID() to call this instead
+        CoolString cs = new CoolString(ctx.getText());
+        return cs;
     }
 
     @Override
     public CoolBaseNode visitIfStatement(IfStatementContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitIfStatement(ctx);
+        CoolIf cif = new CoolIf();
+
+        CoolExpr predicate = this.visitExpression(ctx.expr(0));
+        CoolExpr thenExpr = this.visitExpression(ctx.expr(1));
+        CoolExpr elseExpr = this.visitExpression(ctx.expr(2));
+
+        cif.setPredicate(predicate);
+        cif.setThenExpr(thenExpr);
+        cif.setElseExpr(elseExpr);
+
+        return cif;
     }
 
     @Override
     public CoolBaseNode visitInstantiate(InstantiateContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitInstantiate(ctx);
+        CoolNew cn = new CoolNew();
+        cn.setName(ctx.getText());
+
+        return cn;
     }
 
     @Override
     public CoolBaseNode visitInteger(IntegerContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitInteger(ctx);
+        return new CoolInteger(Integer.parseInt(ctx.INTEGER().getText()));
     }
 
     @Override
     public CoolBaseNode visitIsEqual(IsEqualContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitIsEqual(ctx);
+        CoolBinaryOp cbo = new CoolBinaryOp();
+        CoolExpr lhs = this.visitExpression(ctx.expr(0));
+        CoolExpr rhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setLhs(lhs);
+        cbo.setOp(CoolBinaryOp.OPERATOR.EQ);
+        cbo.setRhs(rhs);
+
+        return cbo;
     }
 
     @Override
     public CoolBaseNode visitIsVoid(IsVoidContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitIsVoid(ctx);
+        CoolIsVoid civ = new CoolIsVoid();
+        civ.setType(ctx.getText());
+
+        return civ;
     }
 
     @Override
     public CoolBaseNode visitLetStatement(LetStatementContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitLetStatement(ctx);
+        CoolLet cl = new CoolLet();
+        List<AttributeContext> attribs = ctx.attribute();
+        ExprContext ec = ctx.expr();
+
+        ArrayList<CoolAttribute> attributes = new ArrayList<>();
+        for (AttributeContext ac : attribs) {
+            CoolAttribute ca = (CoolAttribute) this.visitAttribute(ac);
+            attributes.add(ca);
+        }
+        CoolExpr ce = this.visitExpression(ec);
+
+        cl.setAttributes(attributes);
+        cl.setExpression(ce);
+
+        return cl;
     }
 
     @Override
     public CoolBaseNode visitLt(LtContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitLt(ctx);
+        CoolBinaryOp cbo = new CoolBinaryOp();
+        CoolExpr rhs = this.visitExpression(ctx.expr(0));
+        CoolExpr lhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setRhs(rhs);
+        cbo.setOp(CoolBinaryOp.OPERATOR.LT);
+        cbo.setLhs(lhs);
+
+        return cbo;
     }
 
     @Override
     public CoolBaseNode visitLte(LteContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitLte(ctx);
+        CoolBinaryOp cbo = new CoolBinaryOp();
+        CoolExpr rhs = this.visitExpression(ctx.expr(0));
+        CoolExpr lhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setRhs(rhs);
+        cbo.setOp(CoolBinaryOp.OPERATOR.LTE);
+        cbo.setLhs(lhs);
+
+        return cbo;
     }
 
     @Override
@@ -383,9 +489,14 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         // methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
         // paramList:          formal* (',' formal)*;
         // formal:             ID ':' TYPE SEMICOLON?;
+        return this.visitMethodDefinition(ctx.methodDefinition());
+    }
+
+    @Override
+    public CoolBaseNode visitMethodDefinition(MethodDefinitionContext ctx) {
+        // TODO Auto-generated method stub
         CoolMethod cm = new CoolMethod();
-        MethodDefinitionContext mdc = ctx.methodDefinition();
-        ParamListContext plc = mdc.paramList();
+        ParamListContext plc = ctx.paramList();
         ArrayList<CoolFormal> methodParams = new ArrayList<>();
 
         for (FormalContext formalCon : plc.formal()) {
@@ -393,33 +504,56 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
             methodParams.add(cf);
         }
 
-        ArrayList<CoolExpr> cexp = new ArrayList<>();
-
-        for (ExprContext exc : mdc.expr())  {
+        ArrayList<CoolExpr> expressions = new ArrayList<>();
+        for (ExprContext exc : ctx.expr())  {
+            CoolExpr ce = this.visitExpression(exc);
+            expressions.add(ce);
         }
 
         cm.setParams(methodParams);
-        cm.setName(mdc.ID().getText());
+        cm.setName(ctx.ID().getText());
+        cm.setExpressions(expressions);
+        if (ctx.SELF_TYPE().getText() != null) {
+            CoolSelf cs = new CoolSelf();
+            cm.setReturnType(cs);
+        }
+        if (ctx.TYPE().getText() != null) {
+            CoolString cs = new CoolString(ctx.TYPE().getText());
+            cm.setReturnType(cs);
+        }
 
-        return null;
-    }
-
-    @Override
-    public CoolBaseNode visitMethodDefinition(MethodDefinitionContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitMethodDefinition(ctx);
+        return cm;
     }
 
     @Override
     public CoolBaseNode visitMethodDispatch(MethodDispatchContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitMethodDispatch(ctx);
+        // ID '(' (expr (',' expr)*)? ')' SEMICOLON?
+        CoolMethodDispatch cmd = new CoolMethodDispatch();
+        CoolIdentifier cid = new CoolIdentifier(ctx.ID().getText());
+        List<ExprContext> argumentContexts = ctx.expr();
+        ArrayList<CoolExpr> argumentList = new ArrayList<>();
+
+        for (ExprContext ec : argumentContexts) {
+            CoolExpr ce = this.visitExpression(ec);
+            argumentList.add(ce);
+        }
+
+        cmd.setIdentifier(cid);
+        cmd.setArguments(argumentList);
+
+        return cmd;
     }
 
     @Override
     public CoolBaseNode visitMultiply(MultiplyContext ctx) {
-        // TODO Auto-generated method stub
-        return super.visitMultiply(ctx);
+        CoolBinaryOp cbo = new CoolBinaryOp();
+        CoolExpr rhs = this.visitExpression(ctx.expr(0));
+        CoolExpr lhs = this.visitExpression(ctx.expr(1));
+        cbo.setRhs(rhs);
+        cbo.setOp(CoolBinaryOp.OPERATOR.MUL);
+        cbo.setLhs(lhs);
+
+        return cbo;
     }
 
     @Override

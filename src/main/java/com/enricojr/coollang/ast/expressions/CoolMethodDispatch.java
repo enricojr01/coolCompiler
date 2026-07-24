@@ -1,10 +1,28 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolMethodDispatch extends CoolExpr {
-    private String identifier;
+    private CoolIdentifier identifier;
     private ArrayList<CoolExpr> arguments;
 
     public CoolMethodDispatch() {}
+
+    public CoolIdentifier getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(CoolIdentifier identifier) {
+        this.identifier = identifier;
+    }
+
+    public ArrayList<CoolExpr> getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(ArrayList<CoolExpr> arguments) {
+        this.arguments = arguments;
+    }
+
 }

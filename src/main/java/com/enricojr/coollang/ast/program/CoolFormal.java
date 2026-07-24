@@ -2,7 +2,7 @@ package com.enricojr.coollang.ast.program;
 
 public class CoolFormal extends CoolBaseNode {
     private String name;
-    private CoolClass type;
+    private String type;
 
     public CoolFormal() {}
 
@@ -14,11 +14,11 @@ public class CoolFormal extends CoolBaseNode {
         this.name = name;
     }
 
-    public CoolClass getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(CoolClass type) {
+    public void setType(String type) {
         this.type = type;
     }
 }

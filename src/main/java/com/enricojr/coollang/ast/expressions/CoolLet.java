@@ -1,10 +1,27 @@
 package com.enricojr.coollang.ast.expressions;
 
-import com.enricojr.coollang.ast.program.CoolClass;
+import java.util.ArrayList;
+import com.enricojr.coollang.ast.program.CoolAttribute;
 
 public class CoolLet extends CoolExpr {
-    private String identifier; 
-    private CoolClass type;
-    private CoolExpr init;
-    private CoolExpr body;
+    private ArrayList<CoolAttribute> attributes;
+    private CoolExpr expression;
+
+    public CoolLet() {}
+
+    public ArrayList<CoolAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(ArrayList<CoolAttribute> attributes) {
+        this.attributes = attributes;
+    }
+
+    public CoolExpr getExpression() {
+        return expression;
+    }
+
+    public void setExpression(CoolExpr expression) {
+        this.expression = expression;
+    }
 }

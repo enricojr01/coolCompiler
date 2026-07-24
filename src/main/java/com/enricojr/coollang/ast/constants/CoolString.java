@@ -6,4 +6,8 @@ public class CoolString extends CoolConstant {
     public CoolString(String v) {
         this.value = v;
     }
+
+    public String getValue() {
+        return this.value;
+    }
 }

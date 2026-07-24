@@ -6,4 +6,8 @@ public class CoolBool extends CoolConstant {
     public CoolBool(boolean v) {
         this.value = v;
     }
+
+    public boolean getValue() {
+        return this.value;
+    }
 }

@@ -1,13 +1,13 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.ArrayList;
+import com.enricojr.coollang.ast.constants.CoolConstant;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
 
 public class CoolMethod extends CoolBaseNode {
     private String name;
-    private String returnTypeName;
     // TODO: I'm going to need some kind of symbol table for this but we're not there in class yet
-    private CoolClass returnType;
+    private CoolConstant returnType;
     private ArrayList<CoolFormal> params;
     private ArrayList<CoolExpr> expressions;
 
@@ -19,22 +19,6 @@ public class CoolMethod extends CoolBaseNode {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getReturnTypeName() {
-        return returnTypeName;
-    }
-
-    public void setReturnTypeName(String returnTypeName) {
-        this.returnTypeName = returnTypeName;
-    }
-
-    public CoolClass getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(CoolClass returnType) {
-        this.returnType = returnType;
     }
 
     public ArrayList<CoolFormal> getParams() {
@@ -53,5 +37,11 @@ public class CoolMethod extends CoolBaseNode {
         this.expressions = expressions;
     }
 
+    public CoolConstant getReturnType() {
+        return returnType;
+    }
 
+    public void setReturnType(CoolConstant returnType) {
+        this.returnType = returnType;
+    }
 }
