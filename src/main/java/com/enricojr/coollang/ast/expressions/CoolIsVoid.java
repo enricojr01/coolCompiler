@@ -1,17 +1,18 @@
 package com.enricojr.coollang.ast.expressions;
 
-import com.enricojr.coollang.ast.program.CoolClass;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolIsVoid extends CoolExpr {
-    private String type;    
+    private CoolIdentifier identifier;    
 
     public CoolIsVoid() {}
 
-    public String getType() {
-        return type;
+    public CoolIdentifier getType() {
+        return identifier;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setType(CoolIdentifier type) {
+        this.identifier = type;
     }
+
 }

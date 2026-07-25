@@ -24,4 +24,16 @@ public class CoolLet extends CoolExpr {
     public void setExpression(CoolExpr expression) {
         this.expression = expression;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("LetStatement - ");
+
+        for (CoolAttribute ca : this.attributes) {
+            sb.append(String.format("%s, ", ca));
+        }
+
+        sb.append(String.format(": %s\n", this.expression));
+        return sb.toString();
+    }
 }

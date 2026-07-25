@@ -1,21 +1,22 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.ArrayList;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolClass extends CoolBaseNode {
-    private String name;
-    private String parentName;
+    private CoolIdentifier name;
+    private CoolIdentifier parentName;
     private CoolClass parent;
     private ArrayList<CoolAttribute> attributes;
     private ArrayList<CoolMethod> methods;
 
     public CoolClass() {}
 
-    public String getName() {
+    public CoolIdentifier getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(CoolIdentifier name) {
         this.name = name;
     }
 
@@ -43,13 +44,15 @@ public class CoolClass extends CoolBaseNode {
         this.parent = parent;
     }
 
-    public String getParentName() {
+    public CoolIdentifier getParentName() {
         return parentName;
     }
 
-    public void setParentName(String parentName) {
+    public void setParentName(CoolIdentifier parentName) {
         this.parentName = parentName;
     }
 
-
+    public String toString() {
+        return String.format("CoolClass - %s", this.name);
+    }
 }

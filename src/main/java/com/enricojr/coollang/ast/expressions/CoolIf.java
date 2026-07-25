@@ -30,4 +30,10 @@ public class CoolIf extends CoolExpr {
     public void setElseExpr(CoolExpr elseExpr) {
         this.elseExpr = elseExpr;
     }
+
+    public String toString() {
+        return String.format(
+            "IfStatement - %s ? %s : %s\n", this.predicate, this.thenExpr, this.elseExpr
+        );
+    }
 }

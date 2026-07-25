@@ -1,9 +1,15 @@
 package com.enricojr.coollang.ast.constants;
 
-public class CoolSelf extends CoolConstant {
-    private String value = "self";
+public class CoolSelf extends CoolIdentifier {
+    public CoolSelf() {
+        super("self");
+    }
 
     public String getValue() {
-        return this.value;
+        return super.getValue();
+    }
+
+    public String toString() {
+        return "SELF_TYPE";
     }
 }

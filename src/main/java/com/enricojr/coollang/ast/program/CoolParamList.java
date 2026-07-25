@@ -14,4 +14,8 @@ public class CoolParamList extends CoolBaseNode {
     public void setParameters(ArrayList<CoolFormal> parameters) {
         this.parameters = parameters;
     }
+
+    public String toString() {
+        return String.format("ParameterList - %s params", this.parameters.size());
+    }
 }

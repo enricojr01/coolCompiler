@@ -1,10 +1,11 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolDotMethodDispatch extends CoolExpr {
     private CoolExpr lhs; 
-    private String name;
+    private CoolIdentifier name;
     private ArrayList<CoolExpr> arguments; 
 
     public CoolDotMethodDispatch() {}
@@ -17,11 +18,11 @@ public class CoolDotMethodDispatch extends CoolExpr {
         this.lhs = lhs;
     }
 
-    public String getName() {
+    public CoolIdentifier getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(CoolIdentifier name) {
         this.name = name;
     }
 
@@ -31,5 +32,9 @@ public class CoolDotMethodDispatch extends CoolExpr {
 
     public void setArguments(ArrayList<CoolExpr> arguments) {
         this.arguments = arguments;
+    }
+
+    public String toString() {
+        return String.format("MethodCall - %s.%s(%s)\n", this.lhs, this.name, this.arguments);
     }
 }

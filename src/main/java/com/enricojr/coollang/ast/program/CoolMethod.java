@@ -1,23 +1,23 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.ArrayList;
-import com.enricojr.coollang.ast.constants.CoolConstant;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
 
 public class CoolMethod extends CoolBaseNode {
-    private String name;
+    private CoolIdentifier name;
     // TODO: I'm going to need some kind of symbol table for this but we're not there in class yet
-    private CoolConstant returnType;
+    private CoolIdentifier returnType;
     private CoolParamList parameters;
     private ArrayList<CoolExpr> expressions;
 
     public CoolMethod() {}
 
-    public String getName() {
+    public CoolIdentifier getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(CoolIdentifier name) {
         this.name = name;
     }
 
@@ -29,11 +29,11 @@ public class CoolMethod extends CoolBaseNode {
         this.expressions = expressions;
     }
 
-    public CoolConstant getReturnType() {
+    public CoolIdentifier getReturnType() {
         return returnType;
     }
 
-    public void setReturnType(CoolConstant returnType) {
+    public void setReturnType(CoolIdentifier returnType) {
         this.returnType = returnType;
     }
 
@@ -43,5 +43,9 @@ public class CoolMethod extends CoolBaseNode {
 
     public void setParameters(CoolParamList parameters) {
         this.parameters = parameters;
+    }
+
+    public String toString() {
+        return String.format("CoolMethod - %s", this.name);
     }
 }

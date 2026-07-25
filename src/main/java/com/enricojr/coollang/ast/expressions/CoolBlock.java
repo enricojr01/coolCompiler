@@ -14,4 +14,8 @@ public class CoolBlock extends CoolExpr {
     public void setBody(ArrayList<CoolExpr> body) {
         this.body = body;
     }
+
+    public String toString() {
+        return String.format("CodeBlock - %s\n", this.body);
+    }
 }

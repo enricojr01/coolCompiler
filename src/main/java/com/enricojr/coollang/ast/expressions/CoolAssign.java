@@ -1,16 +1,18 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
+
 public class CoolAssign extends CoolExpr {
-    private String name;
+    private CoolIdentifier name;
     private CoolExpr expression;
     
     public CoolAssign() {}
 
-    public String getName() {
+    public CoolIdentifier getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(CoolIdentifier name) {
         this.name = name;
     }
 
@@ -20,5 +22,9 @@ public class CoolAssign extends CoolExpr {
 
     public void setExpression(CoolExpr expression) {
         this.expression = expression;
+    }
+
+    public String toString() {
+        return String.format("Assign - %s <- %s\n", this.name, this.expression);
     }
 }

@@ -1,21 +1,22 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
-import com.enricojr.coollang.ast.program.CoolClass;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.CoolType;
 
 public class CoolAtMethodDispatch extends CoolExpr {
-    private String identifier; 
     private CoolExpr lhs; 
-    private String type;
-    private ArrayList<CoolExpr> arguemnts;
+    private CoolType type;
+    private CoolIdentifier identifier; 
+    private ArrayList<CoolExpr> arguments;
 
     public CoolAtMethodDispatch() {}
 
-    public String getIdentifier() {
+    public CoolIdentifier getIdentifier() {
         return identifier;
     }
 
-    public void setIdentifier(String identifier) {
+    public void setIdentifier(CoolIdentifier identifier) {
         this.identifier = identifier;
     }
 
@@ -27,19 +28,25 @@ public class CoolAtMethodDispatch extends CoolExpr {
         this.lhs = lhs;
     }
 
-    public String getType() {
+    public CoolType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CoolType type) {
         this.type = type;
     }
 
-    public ArrayList<CoolExpr> getArguemnts() {
-        return arguemnts;
+    public ArrayList<CoolExpr> getArguments() {
+        return arguments;
     }
 
-    public void setArguemnts(ArrayList<CoolExpr> arguemnts) {
-        this.arguemnts = arguemnts;
+    public void setArguments(ArrayList<CoolExpr> arguments) {
+        this.arguments = arguments;
+    }
+
+    public String toString() {
+        return String.format(
+            "MethodCall - %s@%s.%s(%s)\n", this.lhs, this.type, this.identifier, this.arguments
+        );
     }
 }

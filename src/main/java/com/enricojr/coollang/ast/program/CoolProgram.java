@@ -14,4 +14,8 @@ public class CoolProgram extends CoolBaseNode {
     public void setClasses(ArrayList<CoolClass> classes) {
         this.classes = classes;
     }
+
+    public String toString() {
+        return String.format("Program - %s", this.classes.size());
+    }
 }

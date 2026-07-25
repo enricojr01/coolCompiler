@@ -1,24 +1,30 @@
 package com.enricojr.coollang.ast.program;
 
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
+
 public class CoolFormal extends CoolBaseNode {
-    private String name;
-    private String type;
+    private CoolIdentifier name;
+    private CoolIdentifier type;
 
     public CoolFormal() {}
 
-    public String getName() {
+    public CoolIdentifier getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(CoolIdentifier name) {
         this.name = name;
     }
 
-    public String getType() {
+    public CoolIdentifier getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CoolIdentifier type) {
         this.type = type;
+    }
+
+    public String toString() {
+        return String.format("CoolFormal - %s : %s", this.name, this.type);
     }
 }

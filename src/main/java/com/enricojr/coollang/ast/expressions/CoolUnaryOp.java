@@ -26,4 +26,8 @@ public class CoolUnaryOp extends CoolExpr {
     public void setExpression(CoolExpr expression) {
         this.expression = expression;
     }
+
+    public String toString() {
+        return String.format("UnaryOp - %s %s", this.op, this.expression);
+    }
 }

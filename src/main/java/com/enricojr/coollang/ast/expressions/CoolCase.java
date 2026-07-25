@@ -1,6 +1,7 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
+import org.antlr.v4.parse.ANTLRParser.range_return;
 import com.enricojr.coollang.ast.program.CoolFormal;
 
 public class CoolCase extends CoolExpr {
@@ -55,5 +56,16 @@ public class CoolCase extends CoolExpr {
         b.setExpression(expression);
 
         return b;
+    }
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("CaseStatement - %s\n", this.predicate));
+
+        for (Branch b : branches) {
+            sb.append(String.format("\t%s", b));
+        }
+
+        return sb.toString();
     }
 }

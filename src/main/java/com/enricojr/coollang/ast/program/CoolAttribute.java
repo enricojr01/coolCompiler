@@ -1,19 +1,20 @@
 package com.enricojr.coollang.ast.program;
 
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
 
 public class CoolAttribute extends CoolBaseNode {
-    private String identifier;
-    private String typeName;
+    private CoolIdentifier identifier;
+    private CoolIdentifier typeName;
     private CoolExpr value;
 
     public CoolAttribute() {}
 
-    public String getIdentifier() {
+    public CoolIdentifier getIdentifier() {
         return identifier;
     }
 
-    public void setIdentifier(String identifier) {
+    public void setIdentifier(CoolIdentifier identifier) {
         this.identifier = identifier;
     }
 
@@ -25,13 +26,19 @@ public class CoolAttribute extends CoolBaseNode {
         this.value = value;
     }
 
-    public String getTypeName() {
+    public CoolIdentifier getTypeName() {
         return typeName;
     }
 
-    public void setTypeName(String typeName) {
+    public void setTypeName(CoolIdentifier typeName) {
         this.typeName = typeName;
     }
 
-    
+    public String toString() {
+        return String.format(
+            "Attribute - %s: %s <- %s", 
+            this.identifier.getValue(), 
+            this.typeName.getValue()
+        );
+    } 
 }

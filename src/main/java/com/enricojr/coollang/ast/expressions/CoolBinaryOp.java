@@ -42,4 +42,8 @@ public class CoolBinaryOp extends CoolExpr {
     public void setRhs(CoolExpr rhs) {
         this.rhs = rhs;
     }
+
+    public String toString() {
+        return String.format("BinaryOp - %s %s %s\n", this.lhs, this.op, this.rhs);
+    }
 }

@@ -24,5 +24,8 @@ public class CoolMethodDispatch extends CoolExpr {
     public void setArguments(ArrayList<CoolExpr> arguments) {
         this.arguments = arguments;
     }
-
+    
+    public String toString() {
+        return String.format("MethodCall - %s(%s)\n", this.identifier, this.arguments);
+    }
 }
