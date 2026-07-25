@@ -1,7 +1,6 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
-import org.antlr.v4.parse.ANTLRParser.range_return;
 import com.enricojr.coollang.ast.program.CoolFormal;
 
 public class CoolCase extends CoolExpr {
@@ -34,7 +33,7 @@ public class CoolCase extends CoolExpr {
 
     public CoolCase() {}
 
-    public CoolExpr getPredicate() {
+    public CoolExpr getPredicate() 
         return predicate;
     }
 
