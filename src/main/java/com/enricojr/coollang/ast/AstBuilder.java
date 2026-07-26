@@ -620,6 +620,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
             coolClasses.add(ccn);
         }
 
+        // coolProg.setChildren(coolClasses);
         coolProg.setClasses(coolClasses);
         return coolProg;
     }

@@ -59,7 +59,7 @@ public class CoolCase extends CoolExpr {
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("<CaseStatement - %s>\n", this.predicate));
+        sb.append(String.format("<CaseStatement - %s>", this.predicate));
         return sb.toString();
     }
 }

@@ -26,7 +26,7 @@ expr
     |   CASE expr OF caseBranch+ ESAC                                       # caseStatement 
     |   NEW TYPE                                                            # instantiate
     |   ISVOID TYPE                                                         # isVoid
-    |   '{' expr+ '}'                                                       # codeBlock
+    |   '{' (expr SEMICOLON)+ '}'                                                       # codeBlock
     |   expr PLUS expr                                                      # add
     |   expr MINUS expr                                                     # subtract
     |   expr MULT expr                                                      # multiply
@@ -86,11 +86,11 @@ TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
 ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
 INTEGER:        DIGITS+;
 STRING:         ('"' | '\'') .*? ('"' | '\'');
+SEMICOLON:      ';';
 
 // skippables
 // NOTE TO SELF: You should NOT skip paren / curly brackets / square brackets.
 WHITESPACE:     [ \t\r\n\f]+    -> skip;
-SEMICOLON:      ';'             -> skip;
 BLOCKCOMMENT:   '(*' .*?  '*)'  -> skip;
 INLINECOMMENT:  '--' ~[\r\n]*   -> skip;
 

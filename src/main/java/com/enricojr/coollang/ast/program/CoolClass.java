@@ -54,10 +54,10 @@ public class CoolClass extends CoolBaseNode {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("(CoolClass - %s", this.name));
+        sb.append(String.format("(CoolClass - %s", this.name.getValue()));
 
         if (this.parentName != null) {
-            sb.append(String.format(" extends %s)", this.parentName));
+            sb.append(String.format(" extends %s)", this.parentName.getValue()));
         } else {
             sb.append(")");
         }
