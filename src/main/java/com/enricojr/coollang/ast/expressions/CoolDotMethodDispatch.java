@@ -35,6 +35,6 @@ public class CoolDotMethodDispatch extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("MethodCall - %s.%s(%s)\n", this.lhs, this.name, this.arguments);
+        return String.format("<MethodCall - %s.%s(%s arguments)>", this.lhs, this.name, this.arguments.size());
     }
 }

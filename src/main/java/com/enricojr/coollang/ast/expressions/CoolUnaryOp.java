@@ -28,6 +28,6 @@ public class CoolUnaryOp extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("UnaryOp - %s %s", this.op, this.expression);
+        return String.format("<UnaryOp - %s %s>", this.op, this.expression);
     }
 }

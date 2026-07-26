@@ -16,6 +16,6 @@ public class CoolParamList extends CoolBaseNode {
     }
 
     public String toString() {
-        return String.format("ParameterList - %s params", this.parameters.size());
+        return String.format("(ParameterList - %s params)", this.parameters.size());
     }
 }

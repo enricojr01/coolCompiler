@@ -20,6 +20,6 @@ public class CoolBool extends CoolConstant {
     }
 
     public String toString() {
-        return String.format("Boolean - %s", this.value);
+        return String.format("<Boolean - %s>", this.value);
     }
 }

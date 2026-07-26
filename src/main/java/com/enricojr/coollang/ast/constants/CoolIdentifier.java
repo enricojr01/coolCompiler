@@ -17,6 +17,6 @@ public class CoolIdentifier extends CoolConstant {
     }
 
     public String toString() {
-        return String.format("Identifier - %s", this.value);
+        return String.format("<Identifier - %s>", this.value);
     }
 }

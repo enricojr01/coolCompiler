@@ -18,6 +18,6 @@ public class CoolString extends CoolConstant {
     }
 
     public String toString() {
-        return String.format("String - %s", value);
+        return String.format("<String - %s>", value);
     }
 }

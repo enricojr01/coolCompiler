@@ -20,6 +20,6 @@ public class CoolInstantiate extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("Instantiate - %s\n", this.identifier);
+        return String.format("<Instantiate - %s>\n", this.identifier);
     }
 }

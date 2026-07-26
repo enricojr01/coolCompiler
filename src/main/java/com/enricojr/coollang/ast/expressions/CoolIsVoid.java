@@ -15,4 +15,8 @@ public class CoolIsVoid extends CoolExpr {
         this.identifier = type;
     }
 
+    public String toString() {
+        return String.format("<IsVoid %s>", this.identifier);
+    }
+
 }

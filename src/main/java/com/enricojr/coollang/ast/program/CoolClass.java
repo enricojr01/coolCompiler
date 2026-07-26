@@ -53,6 +53,15 @@ public class CoolClass extends CoolBaseNode {
     }
 
     public String toString() {
-        return String.format("CoolClass - %s", this.name);
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("(CoolClass - %s", this.name));
+
+        if (this.parentName != null) {
+            sb.append(String.format(" extends %s)\n", this.parentName));
+        } else {
+            sb.append("\n");
+        }
+
+        return sb.toString();
     }
 }

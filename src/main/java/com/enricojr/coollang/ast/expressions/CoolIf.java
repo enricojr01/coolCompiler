@@ -33,7 +33,7 @@ public class CoolIf extends CoolExpr {
 
     public String toString() {
         return String.format(
-            "IfStatement - %s ? %s : %s\n", this.predicate, this.thenExpr, this.elseExpr
+            "<IfStatement>\n", this.predicate, this.thenExpr, this.elseExpr
         );
     }
 }

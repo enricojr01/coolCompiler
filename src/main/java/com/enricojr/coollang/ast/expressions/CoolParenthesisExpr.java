@@ -15,6 +15,6 @@ public class CoolParenthesisExpr extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("ParenthesizedExpr - %s ", this.expression);
+        return String.format("<ParenthesizedExpr - %s>", this.expression);
     }
 }

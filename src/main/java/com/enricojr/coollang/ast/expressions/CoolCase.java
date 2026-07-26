@@ -33,7 +33,7 @@ public class CoolCase extends CoolExpr {
 
     public CoolCase() {}
 
-    public CoolExpr getPredicate() 
+    public CoolExpr getPredicate() {
         return predicate;
     }
 
@@ -59,10 +59,10 @@ public class CoolCase extends CoolExpr {
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("CaseStatement - %s\n", this.predicate));
+        sb.append(String.format("<CaseStatement - %s>\n", this.predicate));
 
-        for (Branch b : branches) {
-            sb.append(String.format("\t%s", b));
+        for (Branch b : this.branches) {
+            sb.append(String.format("  <Branch %s => %s>\n", b.getFormal(), b.getExpression()));
         }
 
         return sb.toString();

@@ -25,6 +25,6 @@ public class CoolFormal extends CoolBaseNode {
     }
 
     public String toString() {
-        return String.format("CoolFormal - %s : %s", this.name, this.type);
+        return String.format("(CoolFormal - %s : %s)", this.name, this.type);
     }
 }

@@ -36,9 +36,10 @@ public class CoolAttribute extends CoolBaseNode {
 
     public String toString() {
         return String.format(
-            "Attribute - %s: %s <- %s", 
-            this.identifier.getValue(), 
-            this.typeName.getValue()
+            "(CoolAttribute: %s: %s <- %s)", 
+            this.identifier, 
+            this.typeName,
+            this.value
         );
     } 
 }

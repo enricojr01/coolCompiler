@@ -16,6 +16,12 @@ public class CoolProgram extends CoolBaseNode {
     }
 
     public String toString() {
-        return String.format("Program - %s", this.classes.size());
+        StringBuilder sb = new StringBuilder();
+
+        for (CoolClass cc : this.classes) {
+            sb.append(String.format("[%s]\n", cc));
+        }
+
+        return sb.toString();
     }
 }

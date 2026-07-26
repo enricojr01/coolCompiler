@@ -18,6 +18,6 @@ public class CoolInteger extends CoolConstant {
     }
 
     public String toString() {
-        return String.format("Integer - %s", this.value);
+        return String.format("<Integer - %s>", this.value);
     }
 }

@@ -10,6 +10,6 @@ public class CoolSelf extends CoolIdentifier {
     }
 
     public String toString() {
-        return "SELF_TYPE";
+        return "<SELF_TYPE>";
     }
 }

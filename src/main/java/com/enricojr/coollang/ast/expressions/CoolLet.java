@@ -27,13 +27,13 @@ public class CoolLet extends CoolExpr {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("LetStatement - ");
+        sb.append("<LetStatement>");
 
         for (CoolAttribute ca : this.attributes) {
-            sb.append(String.format("%s, ", ca));
+            sb.append(String.format("  %s\n", ca));
         }
 
-        sb.append(String.format(": %s\n", this.expression));
+        sb.append("  " + this.expression + "\n");
         return sb.toString();
     }
 }

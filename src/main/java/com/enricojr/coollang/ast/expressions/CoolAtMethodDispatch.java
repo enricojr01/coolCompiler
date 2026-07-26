@@ -46,7 +46,7 @@ public class CoolAtMethodDispatch extends CoolExpr {
 
     public String toString() {
         return String.format(
-            "MethodCall - %s@%s.%s(%s)\n", this.lhs, this.type, this.identifier, this.arguments
+            "<AtMethodCall - %s@%s.%s(%s)>", this.lhs, this.type, this.identifier, this.arguments
         );
     }
 }

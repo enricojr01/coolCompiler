@@ -65,8 +65,6 @@ import com.enricojr.coollang.ast.expressions.CoolIf;
 import com.enricojr.coollang.ast.expressions.CoolInstantiate;
 import com.enricojr.coollang.ast.expressions.CoolIsVoid;
 import com.enricojr.coollang.ast.expressions.CoolLet;
-import com.enricojr.coollang.ast.expressions.CoolMethodDispatch;
-import com.enricojr.coollang.ast.expressions.CoolNew;
 import com.enricojr.coollang.ast.expressions.CoolParenthesisExpr;
 import com.enricojr.coollang.ast.expressions.CoolUnaryOp;
 import com.enricojr.coollang.ast.expressions.CoolWhile;
@@ -206,7 +204,11 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         // coolClass:   CLASS TYPE (INHERITS TYPE)? '{' feature* '};';
         CoolClass cc = new CoolClass();
         CoolIdentifier className = new CoolIdentifier(ctx.TYPE(0).getText());
-        CoolIdentifier parentName = new CoolIdentifier(ctx.TYPE(1).getText());
+        CoolIdentifier parentName = null;
+
+        if (ctx.TYPE(1) != null) {
+            parentName = new CoolIdentifier(ctx.TYPE(1).getText());
+        }
 
         ArrayList<CoolAttribute> cas = new ArrayList<>();
         ArrayList<CoolMethod> cms = new ArrayList<>();
@@ -224,7 +226,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         }
 
         cc.setName(className);
-        cc.setParentName(parentName);
+        if (parentName != null) {
+            cc.setParentName(parentName);
+        }
         cc.setAttributes(cas);
         cc.setMethods(cms);
 
@@ -248,16 +252,28 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     @Override
     public CoolBaseNode visitDotMethodDispatch(DotMethodDispatchContext ctx) {
         List<ExprContext> expressions = ctx.expr();
-        List<ExprContext> paramListContext = expressions.subList(1, expressions.size() - 1);
+        List<ExprContext> paramListContext = null;
+
+        // this first check is probably not needed I just like to be thorough.
+        if (expressions.size() == 1) {
+            paramListContext = null;
+        } else if (expressions.size() == 2) {
+            paramListContext = new ArrayList<>();
+            paramListContext.add(expressions.get(1));
+        } else if (expressions.size() > 2) {
+            paramListContext = expressions.subList(1, expressions.size() - 1);
+        }
 
         ExprContext lhsContext = expressions.get(0);
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         ArrayList<CoolExpr> arguments = new ArrayList<>();
         CoolExpr lhs = this.visitExpression(lhsContext);
 
-        for (ExprContext ec : paramListContext) {
-            CoolExpr ex = this.visitExpression(ec);
-            arguments.add(ex);
+        if (paramListContext != null) {
+            for (ExprContext ec : paramListContext) {
+                CoolExpr ex = this.visitExpression(ec);
+                arguments.add(ex);
+            }
         }
 
         CoolDotMethodDispatch cdmd = new CoolDotMethodDispatch();
@@ -353,7 +369,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         cf.setName(name);
         cf.setType(type);
 
-        return super.visitFormal(ctx);
+        return cf;
     }
 
     @Override
@@ -406,9 +422,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitInstantiate(InstantiateContext ctx) {
-        CoolNew cn = new CoolNew();
-        CoolString name = new CoolString(ctx.getText());
-        cn.setName(name);
+        CoolInstantiate cn = new CoolInstantiate();
+        cn.setIdentifier(new CoolIdentifier(ctx.getText()));
 
         return cn;
     }
@@ -434,7 +449,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     @Override
     public CoolBaseNode visitIsVoid(IsVoidContext ctx) {
         CoolIsVoid civ = new CoolIsVoid();
-        civ.setType(ctx.getText());
+        civ.setType(new CoolIdentifier(ctx.TYPE().getText()));
 
         return civ;
     }
@@ -499,10 +514,13 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         CoolParamList cpl = (CoolParamList) this.visitParamList(plc);
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier returnType = null;
-        if (ctx.SELF_TYPE().getText() != null) {
+
+        // NOTE: it's either SELF_TYPE or TYPE never both.
+        // NOTE: maybe consider not using exceptions as flow control like this
+        try {
+            ctx.SELF_TYPE().getText();
             returnType = new CoolSelf();
-        }
-        if (ctx.TYPE().getText() != null) {
+        } catch (NullPointerException e) {
             returnType = new CoolIdentifier(ctx.TYPE().getText());
         }
 
@@ -616,7 +634,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     public CoolBaseNode visitString(StringContext ctx) {
         CoolString cs = new CoolString();
         cs.setValue(ctx.getText());
-        return super.visitString(ctx);
+        return cs;
     }
 
     @Override
@@ -647,7 +665,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         cw.setPredicate(predicate);
         cw.setBody(body);
 
-        return super.visitWhileStatement(ctx);
+        return cw;
     }
 
     @Override
