@@ -57,9 +57,9 @@ public class CoolClass extends CoolBaseNode {
         sb.append(String.format("(CoolClass - %s", this.name));
 
         if (this.parentName != null) {
-            sb.append(String.format(" extends %s)\n", this.parentName));
+            sb.append(String.format(" extends %s)", this.parentName));
         } else {
-            sb.append("\n");
+            sb.append(")");
         }
 
         return sb.toString();

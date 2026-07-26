@@ -29,6 +29,7 @@ public class AstPrinter {
 
         for (CoolClass cc : classes) {
             sb.append(cc);
+            sb.append("\n");
             ArrayList<CoolAttribute> attributes = cc.getAttributes();
             ArrayList<CoolMethod> methods = cc.getMethods();
 
@@ -43,7 +44,6 @@ public class AstPrinter {
                     sb.append("    " + ce + "\n");
                 }
             }
-            sb.append("\n");
         }
 
         return sb.toString();
