@@ -27,13 +27,7 @@ public class CoolLet extends CoolExpr {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<LetStatement>");
-
-        for (CoolAttribute ca : this.attributes) {
-            sb.append(String.format("  %s\n", ca));
-        }
-
-        sb.append("  " + this.expression + "\n");
+        sb.append(String.format("<LetStatement %s>", this.expression));
         return sb.toString();
     }
 }

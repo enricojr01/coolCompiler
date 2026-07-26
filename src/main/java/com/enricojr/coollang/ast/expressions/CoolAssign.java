@@ -25,6 +25,6 @@ public class CoolAssign extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("<Assign - %s <- %s>\n", this.name, this.expression);
+        return String.format("<Assign - %s <- %s>", this.name, this.expression);
     }
 }
