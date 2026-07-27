@@ -17,7 +17,7 @@ public class CoolBlock extends CoolExpr {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("<CodeBlock - %s expressions>", this.body.size()));
+        sb.append(String.format("<CoolBlock - %s expressions>", this.body.size()));
         return sb.toString();
     }
 }

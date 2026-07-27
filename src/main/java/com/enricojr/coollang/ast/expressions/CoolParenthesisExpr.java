@@ -16,7 +16,7 @@ public class CoolParenthesisExpr extends CoolExpr {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("<ParenthesizedExpr %s>", this.expression));
+        sb.append(String.format("<CoolParenthesizedExpr %s>", this.expression));
         return sb.toString();
     }
 }

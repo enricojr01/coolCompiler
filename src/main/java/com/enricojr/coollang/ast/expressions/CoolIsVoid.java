@@ -16,7 +16,7 @@ public class CoolIsVoid extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("<IsVoid %s>", this.identifier);
+        return String.format("<CoolIsVoid %s>", this.identifier);
     }
 
 }

@@ -26,6 +26,6 @@ public class CoolMethodDispatch extends CoolExpr {
     }
     
     public String toString() {
-        return String.format("<SelfMethodCall %s>", this.identifier);
+        return String.format("<CoolSelfMethodCall %s>", this.identifier);
     }
 }

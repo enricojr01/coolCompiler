@@ -23,6 +23,6 @@ public class CoolWhile extends CoolExpr {
     }
     
     public String toString() {
-        return String.format("<WhileStatement - %s>", this.predicate, this.body);
+        return String.format("<CoolWhileStatement - %s>", this.predicate, this.body);
     }
 }

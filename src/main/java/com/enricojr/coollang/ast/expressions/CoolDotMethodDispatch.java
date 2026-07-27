@@ -35,6 +35,6 @@ public class CoolDotMethodDispatch extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("<DotMethodCall - %s()>", this.name.getValue());
+        return String.format("<CoolDotMethodCall - %s()>", this.name.getValue());
     }
 }
