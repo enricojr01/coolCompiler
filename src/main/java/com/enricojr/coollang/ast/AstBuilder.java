@@ -336,8 +336,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         } else if (exc instanceof ParenthesisExprContext) {
             expr = (CoolParenthesisExpr) this.visitParenthesisExpr((ParenthesisExprContext) exc) ;
         } else if (exc instanceof IdentifierContext) {
-            // TODO: change this! should be a CoolIdentiifer? 
-            expr = (CoolString) this.visitIdentifier((IdentifierContext) exc);
+            expr = (CoolIdentifier) this.visitIdentifier((IdentifierContext) exc);
         } else if (exc instanceof IntegerContext) {
             expr = (CoolInteger) this.visitInteger((IntegerContext) exc);
         } else if (exc instanceof StringContext) {
@@ -401,8 +400,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     @Override
     public CoolBaseNode visitIdentifier(IdentifierContext ctx) {
         // TODO: Go back and rewrite all instances of ctx.ID() to call this instead
-        CoolString cs = new CoolString(ctx.getText());
-        return cs;
+        CoolIdentifier ci = new CoolIdentifier(ctx.getText());
+        return ci;
     }
 
     @Override
@@ -688,5 +687,4 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     public CoolBaseNode visitTerminal(TerminalNode node) {
         throw new RuntimeException("This function not implemented!");
     }
-    
 }
