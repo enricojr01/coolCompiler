@@ -2,11 +2,14 @@ package com.enricojr.coollang;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
+import com.enricojr.coollang.CoolParser.ProgContext;
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.semantic.InheritanceGraphBuilder;
+import com.enricojr.coollang.util.DetailedErrorListener;
 
 public class Test {
     public static void main(String[] args) throws Exception {
@@ -25,14 +28,19 @@ public class Test {
         System.out.println("Lexing input...");
         ANTLRInputStream input = new ANTLRInputStream(is);
         CoolLexer lexer = new CoolLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new DetailedErrorListener());
 
         System.out.println("Parsing input...");
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CoolParser parser = new CoolParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(new DetailedErrorListener());
 
         System.out.println("Creating AST...");
         AstBuilder ab = new AstBuilder();
-        CoolProgram top = (CoolProgram) ab.visitProg(parser.prog());
+        ProgContext prog = parser.prog();
+        CoolProgram top = (CoolProgram) ab.visitProg(prog);
         AstPrinter ap = new AstPrinter(top);
         InheritanceGraphBuilder igb = new InheritanceGraphBuilder(top);
         System.out.println("----Abstract Syntax Tree----");

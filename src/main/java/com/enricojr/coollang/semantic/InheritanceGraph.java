@@ -6,6 +6,7 @@ import java.util.Stack;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
+import com.enricojr.coollang.semantic.exceptions.CoolClassUndefinedException;
 import com.enricojr.coollang.semantic.exceptions.ParentClassNotDefinedException;
 
 /* 
@@ -92,12 +93,17 @@ public class InheritanceGraph {
         }
     }
 
-    public void addChildren(CoolClass cc) {
+    public void addChildren(CoolClass cc) throws CoolClassUndefinedException {
         if (cc.getParentName() != null) {
             System.out.println(
                 String.format("Class %s extends ", cc.getName(), cc.getParentName())
             );
-            this.graph.get(cc.getParentName()).add(cc);
+            LinkedList<CoolClass> target = this.graph.get(cc.getParentName());
+            if (target == null) {
+                throw new CoolClassUndefinedException(cc.getParentName().getValue());
+            } else {
+                target.add(cc);
+            }
         } else {
             System.out.println(String.format("Class %s extends Object", cc.getName()));
         }

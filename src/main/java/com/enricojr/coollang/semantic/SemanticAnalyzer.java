@@ -1,10 +1,6 @@
 package com.enricojr.coollang.semantic;
 
-import java.util.ArrayList;
-import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
-import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
-import com.enricojr.coollang.semantic.exceptions.ParentClassNotDefinedException;
 
 /* 
 semantic analysis needs to do several things, maybe not in this order: 
@@ -40,20 +36,20 @@ public class SemanticAnalyzer {
     }
 
     public boolean hasValidInheritanceGraph() {
-        InheritanceGraph ig = new InheritanceGraph();
-        try {
-            for (CoolClass cc : prog.getClasses()) {
-                ig.addClass(cc);
-            }
-        } catch (ParentClassNotDefinedException e) {
-            System.out.println(e.getMessage());
-            return false;
-        } catch (ClassDefinedTwiceException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+        // InheritanceGraph ig = new InheritanceGraph();
+        // try {
+        //     for (CoolClass cc : prog.getClasses()) {
+        //         ig.addClass(cc);
+        //     }
+        // } catch (ParentClassNotDefinedException e) {
+        //     System.out.println(e.getMessage());
+        //     return false;
+        // } catch (ClassDefinedTwiceException e) {
+        //     System.out.println(e.getMessage());
+        //     return false;
+        // }
 
-        
+
 
         return true;
     }

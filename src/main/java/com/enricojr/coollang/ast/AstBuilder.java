@@ -75,6 +75,7 @@ import com.enricojr.coollang.ast.program.CoolFormal;
 import com.enricojr.coollang.ast.program.CoolMethod;
 import com.enricojr.coollang.ast.program.CoolParamList;
 import com.enricojr.coollang.ast.program.CoolProgram;
+import com.enricojr.coollang.semantic.exceptions.InvalidCoolClassNameException;
 
 public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
@@ -609,6 +610,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     @Override
     public CoolBaseNode visitProg(ProgContext ctx) {
         // prog: CoolClass+;
+        System.out.println("Visiting prog");
         CoolProgram coolProg = new CoolProgram();
 
         List<CoolClassContext> classes = ctx.coolClass();

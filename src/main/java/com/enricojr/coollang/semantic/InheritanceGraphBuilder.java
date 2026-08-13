@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
+import com.enricojr.coollang.semantic.exceptions.CoolClassUndefinedException;
 import com.enricojr.coollang.semantic.exceptions.InvalidClassNameException;
 import com.enricojr.coollang.semantic.exceptions.ParentClassNotDefinedException;
 
@@ -38,11 +39,21 @@ public class InheritanceGraphBuilder {
         }
 
         for (CoolClass cc : classes) {
-            this.graph.addChildren(cc);
+            try {
+                this.graph.addChildren(cc);
+            } catch (CoolClassUndefinedException e) {
+                System.out.println("Class undefined: " + e);
+                System.exit(1);
+            }
         }
     }
 
     public String toString() {
-        return this.graph.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("----Adjacency List----\n");
+        sb.append(this.graph.rawAdjacencyList() + "\n");
+        sb.append("----Graph----\n");
+        sb.append(this.graph.toString() + "\n");
+        return sb.toString();
     }
 }
