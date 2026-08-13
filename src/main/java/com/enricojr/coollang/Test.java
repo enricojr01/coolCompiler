@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.ast.program.CoolProgram;
+import com.enricojr.coollang.semantic.InheritanceGraphBuilder;
 
 public class Test {
     public static void main(String[] args) throws Exception {
@@ -33,6 +34,10 @@ public class Test {
         AstBuilder ab = new AstBuilder();
         CoolProgram top = (CoolProgram) ab.visitProg(parser.prog());
         AstPrinter ap = new AstPrinter(top);
+        InheritanceGraphBuilder igb = new InheritanceGraphBuilder(top);
+        System.out.println("----Abstract Syntax Tree----");
         System.out.println(ap);
+        System.out.println("----Inheritance Graph----");
+        System.out.println(igb);
     }
 }

@@ -2,6 +2,7 @@ package com.enricojr.coollang.semantic;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Stack;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
@@ -28,14 +29,26 @@ let A, C, P be types:
 public class InheritanceGraph {
     private HashMap<CoolIdentifier, LinkedList<CoolClass>> graph = new HashMap<>();
     private CoolIdentifier objectIdentifier = new CoolIdentifier("Object");
+    private CoolIdentifier ioIdentifier = new CoolIdentifier("IO");
+    private CoolClass objectClass;
+    private CoolClass ioClass;
 
     public InheritanceGraph() {
         CoolClass objClass = new CoolClass();
         objClass.setName(this.objectIdentifier);
+
+        CoolClass ioClass = new CoolClass();
+        ioClass.setName(this.ioIdentifier);
+
+        this.objectClass = objClass;
+        this.ioClass = ioClass;
+
         graph.put(this.objectIdentifier, new LinkedList<>()); 
+        graph.put(this.ioIdentifier, new LinkedList<>());
+        graph.get(this.objectIdentifier).add(ioClass);
     }
 
-    public void addClass(CoolClass cc) throws 
+    public void oldAddClass(CoolClass cc) throws 
         ClassDefinedTwiceException, 
         ParentClassNotDefinedException {
         // two things need to happen:
@@ -46,22 +59,79 @@ public class InheritanceGraph {
             // TODO: better error messages
             throw new ClassDefinedTwiceException(cc.getName().getValue());
         } else {
+            System.out.println(String.format("Adding %s to graph...", cc.getName().getValue()));
             CoolIdentifier className = cc.getName();
             LinkedList<CoolClass> emptyList = new LinkedList<>();
             this.graph.put(className, emptyList);
         }
 
-        if (cc.getParent() != null) {
-            CoolClass parent = cc.getParent();
-            CoolIdentifier parentName = parent.getName();
+        if (cc.getParentName() != null) {
+            CoolIdentifier parentName = cc.getParentName();
+            System.out.println(String.format("%s extends %s", cc.getName().getValue(), parentName));
 
             if (this.graph.containsKey(parentName)) {
-                this.graph.get(parent.getName()).add(cc);
+                System.out.println("Found parent class!");
+                this.graph.get(parentName).add(cc);
             } else {
                 throw new ParentClassNotDefinedException();
             }
         } else {
+            System.out.println("No parent class defined, therefore it extends Object");
             this.graph.get(this.objectIdentifier).add(cc);
         }
+    }
+
+    public void addClassKey(CoolClass cc) throws ClassDefinedTwiceException {
+        System.out.println(String.format("Adding class: %s", cc));
+        if (this.graph.containsKey(cc.getName())) {
+            throw new ClassDefinedTwiceException(cc.getName().getValue());
+        }
+        this.graph.put(cc.getName(), new LinkedList<>());
+        if (cc.getParentName() == null) {
+            this.graph.get(this.objectIdentifier).add(cc);
+        }
+    }
+
+    public void addChildren(CoolClass cc) {
+        if (cc.getParentName() != null) {
+            System.out.println(
+                String.format("Class %s extends ", cc.getName(), cc.getParentName())
+            );
+            this.graph.get(cc.getParentName()).add(cc);
+        } else {
+            System.out.println(String.format("Class %s extends Object", cc.getName()));
+        }
+    }
+
+    public String rawAdjacencyList() {
+        StringBuilder sb = new StringBuilder();
+        LinkedList<CoolClass> top = this.graph.get(this.objectIdentifier);
+        sb.append(String.format("%s: %s\n", this.objectIdentifier, top));
+        for (CoolIdentifier ci : this.graph.keySet()) {
+            if (ci.getValue().equals("Object") == false) {
+                sb.append(String.format("%s: %s\n", ci, this.graph.get(ci)));
+            }
+        }
+
+        return sb.toString();
+
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        LinkedList<CoolClass> top = this.graph.get(this.objectIdentifier);
+        for (CoolClass cc : top) {
+            sb.append(String.format("Object -> %s ", cc));
+            Stack<CoolClass> travel = new Stack<>();
+            travel.addAll(this.graph.get(cc.getName()));
+            while(travel.isEmpty() == false) {
+                CoolClass next = travel.pop();
+                sb.append(String.format("-> %s ", next));
+                travel.addAll(this.graph.get(next.getName()));
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+        // return this.rawAdjacencyList();
     }
 }
