@@ -3,6 +3,7 @@ package com.enricojr.coollang.ast.program;
 import java.util.ArrayList;
 
 public class CoolProgram extends CoolBaseNode {
+    // TODO: maybe change to a hashmap for faster lookup?
     private ArrayList<CoolClass> classes;
 
     public CoolProgram() {}
@@ -23,5 +24,14 @@ public class CoolProgram extends CoolBaseNode {
         }
 
         return sb.toString();
+    }
+
+    public boolean findClass(String name) {
+        for (CoolClass cc : this.classes) {
+            if (cc.getName().getValue().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
