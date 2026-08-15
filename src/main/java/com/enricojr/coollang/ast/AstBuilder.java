@@ -333,7 +333,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         } else if (exc instanceof IsEqualContext) {
             expr = (CoolBinaryOp) this.visitIsEqual((IsEqualContext) exc);
         } else if (exc instanceof NotContext) {
-            expr = (CoolBinaryOp) this.visitNot((NotContext) exc);
+            expr = (CoolUnaryOp) this.visitNot((NotContext) exc);
         } else if (exc instanceof ParenthesisExprContext) {
             expr = (CoolParenthesisExpr) this.visitParenthesisExpr((ParenthesisExprContext) exc) ;
         } else if (exc instanceof IdentifierContext) {

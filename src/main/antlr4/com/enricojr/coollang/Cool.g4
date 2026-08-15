@@ -26,7 +26,7 @@ expr
     |   CASE expr OF caseBranch+ ESAC                                       # caseStatement 
     |   NEW TYPE                                                            # instantiate
     |   ISVOID TYPE                                                         # isVoid
-    |   '{' (expr SEMICOLON)+ '}'                                                       # codeBlock
+    |   '{' (expr SEMICOLON)+ '}'                                           # codeBlock
     |   expr PLUS expr                                                      # add
     |   expr MINUS expr                                                     # subtract
     |   expr MULT expr                                                      # multiply
@@ -85,7 +85,7 @@ FALSE:          'false';
 TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
 ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
 INTEGER:        DIGITS+;
-STRING:         ('"' | '\'') .*? ('"' | '\'');
+STRING:         '"' .*? '"';
 SEMICOLON:      ';';
 
 // skippables

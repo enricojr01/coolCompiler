@@ -2,7 +2,6 @@ package com.enricojr.coollang;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import com.enricojr.coollang.CoolParser.ProgContext;
 import com.enricojr.coollang.ast.AstBuilder;
