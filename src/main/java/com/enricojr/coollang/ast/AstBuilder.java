@@ -75,7 +75,6 @@ import com.enricojr.coollang.ast.program.CoolFormal;
 import com.enricojr.coollang.ast.program.CoolMethod;
 import com.enricojr.coollang.ast.program.CoolParamList;
 import com.enricojr.coollang.ast.program.CoolProgram;
-import com.enricojr.coollang.semantic.exceptions.InvalidCoolClassNameException;
 
 public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
@@ -348,8 +347,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
             expr = new CoolBool(true);
         } else if (exc instanceof FalseContext) {
             expr = new CoolBool(false);
-        }
-        else {
+        } else {
             // throw new WTFException;
         }
 
@@ -515,6 +513,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier returnType = null;
 
+        System.out.println("Visiting method definition: " + name.getValue());
+
         // NOTE: it's either SELF_TYPE or TYPE never both.
         // NOTE: maybe consider not using exceptions as flow control like this
         try {
@@ -578,7 +578,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         cuo.setOp(CoolUnaryOp.OPERATOR.NOT);
         cuo.setExpression(expression);
 
-        return expression;
+        return cuo;
     }
 
     @Override
@@ -617,6 +617,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         ArrayList<CoolClass> coolClasses = new ArrayList<>();
 
         for (CoolClassContext c : classes) {
+            System.out.println("Parsing class: " + c.TYPE(0).getText());
             CoolClass ccn = (CoolClass) this.visitCoolClass(c);
             coolClasses.add(ccn);
         }
