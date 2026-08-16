@@ -25,7 +25,7 @@ expr
     |   LET attribute (',' attribute)* IN expr                   # letStatement
     |   CASE expr OF (caseBranch)+ ESAC                          # caseStatement 
     |   NEW TYPE                                                 # instantiate
-    |   ISVOID TYPE                                              # isVoid
+    |   ISVOID (TYPE | SELF_TYPE | SELF_KW)                      # isVoid
     |   '{' (expr SEMICOLON)+ ('}' | '};')                       # codeBlock
     |   expr PLUS expr                                           # add
     |   expr MINUS expr                                          # subtract
@@ -42,28 +42,29 @@ expr
     |   ID                                                       # identifier
     |   INTEGER                                                  # integer
     |   STRING                                                   # string
-    |   'self'                                                   # self
+    |   SELF_KW                                                  # self
     |   'true'                                                   # true
     |   'false'                                                  # false
     ;
 
-CLASS:      [Cc][Ll][Aa][Ss][Ss];
-ELSE:       [Ee][Ll][Ss][Ee];
-FI:         [Ff][Ii];
-IF:         [Ii][Ff];
-IN:         [Ii][Nn];
-INHERITS:   [Ii][Nn][Hh][Ee][Rr][Ii][Tt][Ss];
-ISVOID:     [Ii][Ss][Vv][Oo][Ii][Dd];
-LET:        [Ll][Ee][Tt];
-LOOP:       [Ll][Oo][Oo][Pp];
-POOL:       [Pp][Oo][Oo][Ll];
-THEN:       [Tt][Hh][Ee][Nn];
-WHILE:      [Ww][Hh][Ii][Ll][Ee];
-CASE:       [Cc][Aa][Ss][Ee];
-ESAC:       [Ee][Ss][Aa][Cc];
-NEW:        [Nn][Ee][Ww];
-OF:         [Oo][Ff];
-NOT:        [Nn][Oo][Tt];
+CLASS:          [Cc][Ll][Aa][Ss][Ss];
+ELSE:           [Ee][Ll][Ss][Ee];
+FI:             [Ff][Ii];
+IF:             [Ii][Ff];
+IN:             [Ii][Nn];
+INHERITS:       [Ii][Nn][Hh][Ee][Rr][Ii][Tt][Ss];
+ISVOID:         [Ii][Ss][Vv][Oo][Ii][Dd];
+LET:            [Ll][Ee][Tt];
+LOOP:           [Ll][Oo][Oo][Pp];
+POOL:           [Pp][Oo][Oo][Ll];
+THEN:           [Tt][Hh][Ee][Nn];
+WHILE:          [Ww][Hh][Ii][Ll][Ee];
+CASE:           [Cc][Aa][Ss][Ee];
+ESAC:           [Ee][Ss][Aa][Cc];
+NEW:            [Nn][Ee][Ww];
+OF:             [Oo][Ff];
+NOT:            [Nn][Oo][Tt];
+SELF_KW:        [Ss][Ee][Ll][Ff];
 
 PLUS:   '+';
 MINUS:  '-';
@@ -78,23 +79,23 @@ COMPLE: '~';
 LARROW: '<-';
 DARROW: '=>';
 
-SELF:           'self';
 SELF_TYPE:      'SELF_TYPE';
 TRUE:           'true';
 FALSE:          'false';
 TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
 ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
 INTEGER:        DIGITS+;
-STRING:         '"' .+? '"';
+STRING:         '"' .*? '"';
 SEMICOLON:      ';';
 
 // skippables
 // NOTE TO SELF: You should NOT skip paren / curly brackets / square brackets.
-WHITESPACE:     [ \t\r\n\f]+    -> skip;
-BLOCKCOMMENT:   '(*' .*?  '*)'  -> skip;
-INLINECOMMENT:  '--' ~[\r\n]*   -> skip;
+WHITESPACE:     [ \t\r\n\f]+        -> skip;
+BLOCKCOMMENT:   '(*' .*?  '*)'      -> skip;
+INLINECOMMENT:  '--' .*? NEWLINE    -> skip;
 
 fragment CAPITAL: [A-Z];
 fragment LOWERCA: [a-z];
 fragment DIGITS:  [0-9];
 fragment UNDERSC: '_';
+fragment NEWLINE: '\r'? '\n';
