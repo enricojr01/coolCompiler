@@ -13,38 +13,38 @@ paramList:          formal* (',' formal)*;
 formal:             ID ':' TYPE SEMICOLON?;
 attribute:          ID ':' TYPE ('<-' expr)?  SEMICOLON?;
 methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
-caseBranch:         formal DARROW expr SEMICOLON;
+caseBranch:         formal DARROW expr;
 
 expr   
-    :   ID LARROW expr SEMICOLON?                                           # assign
-    |   ID '(' (expr (',' expr)*)? ')' SEMICOLON?                           # methodDispatch
-    |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?         # atMethodDispatch
-    |   expr '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?                  # dotMethodDispatch
-    |   IF expr THEN expr ELSE expr FI                                      # ifStatement
-    |   WHILE expr LOOP expr+ POOL                                          # whileStatement
-    |   LET attribute (',' attribute)* IN expr                              # letStatement
-    |   CASE expr OF caseBranch+ ESAC                                       # caseStatement 
-    |   NEW TYPE                                                            # instantiate
-    |   ISVOID TYPE                                                         # isVoid
-    |   '{' (expr SEMICOLON)+ '}'                                           # codeBlock
-    |   expr PLUS expr                                                      # add
-    |   expr MINUS expr                                                     # subtract
-    |   expr MULT expr                                                      # multiply
-    |   expr DIV expr                                                       # divide
-    |   COMPLE expr                                                         # complement
-    |   expr LT expr                                                        # lt
-    |   expr GT expr                                                        # gt
-    |   expr LTE expr                                                       # lte
-    |   expr GTE expr                                                       # gte
-    |   expr EQUALS expr                                                    # isEqual
-    |   NOT expr                                                            # not
-    |   '(' expr ')' SEMICOLON?                                             # parenthesisExpr
-    |   ID                                                                  # identifier
-    |   INTEGER                                                             # integer
-    |   STRING                                                              # string
-    |   'self' SEMICOLON?                                                   # self
-    |   'true' SEMICOLON?                                                   # true
-    |   'false' SEMICOLON?                                                  # false
+    :   ID LARROW expr                                           # assign
+    |   ID '(' (expr (',' expr)*)? ')'                           # methodDispatch
+    |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')'         # atMethodDispatch
+    |   expr '.' ID '(' (expr (',' expr)*)? ')'                  # dotMethodDispatch
+    |   IF expr THEN expr ELSE expr FI                           # ifStatement
+    |   WHILE expr LOOP expr+ POOL                               # whileStatement
+    |   LET attribute (',' attribute)* IN expr                   # letStatement
+    |   CASE expr OF (caseBranch)+ ESAC                          # caseStatement 
+    |   NEW TYPE                                                 # instantiate
+    |   ISVOID TYPE                                              # isVoid
+    |   '{' (expr SEMICOLON)+ ('}' | '};')                       # codeBlock
+    |   expr PLUS expr                                           # add
+    |   expr MINUS expr                                          # subtract
+    |   expr MULT expr                                           # multiply
+    |   expr DIV expr                                            # divide
+    |   COMPLE expr                                              # complement
+    |   expr LT expr                                             # lt
+    |   expr GT expr                                             # gt
+    |   expr LTE expr                                            # lte
+    |   expr GTE expr                                            # gte
+    |   expr EQUALS expr                                         # isEqual
+    |   NOT expr                                                 # not
+    |   '(' expr ')'                                             # parenthesisExpr
+    |   ID                                                       # identifier
+    |   INTEGER                                                  # integer
+    |   STRING                                                   # string
+    |   'self'                                                   # self
+    |   'true'                                                   # true
+    |   'false'                                                  # false
     ;
 
 CLASS:      [Cc][Ll][Aa][Ss][Ss];
@@ -85,7 +85,7 @@ FALSE:          'false';
 TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
 ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
 INTEGER:        DIGITS+;
-STRING:         '"' .*? '"';
+STRING:         '"' .+? '"';
 SEMICOLON:      ';';
 
 // skippables
