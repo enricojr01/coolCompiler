@@ -13,7 +13,7 @@ paramList:          formal* (',' formal)*;
 formal:             ID ':' TYPE SEMICOLON?;
 attribute:          ID ':' TYPE ('<-' expr)?  SEMICOLON?;
 methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
-caseBranch:         formal DARROW expr;
+caseBranch:         formal DARROW expr SEMICOLON;
 
 expr   
     :   ID LARROW expr                                           # assign
@@ -23,7 +23,7 @@ expr
     |   IF expr THEN expr ELSE expr FI                           # ifStatement
     |   WHILE expr LOOP expr+ POOL                               # whileStatement
     |   LET attribute (',' attribute)* IN expr                   # letStatement
-    |   CASE expr OF (caseBranch)+ ESAC                          # caseStatement 
+    |   CASE expr OF (caseBranch)+ ESAC                # caseStatement 
     |   NEW TYPE                                                 # instantiate
     |   ISVOID (TYPE | SELF_TYPE | SELF_KW)                      # isVoid
     |   '{' (expr SEMICOLON)+ ('}' | '};')                       # codeBlock

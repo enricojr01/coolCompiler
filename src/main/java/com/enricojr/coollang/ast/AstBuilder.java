@@ -127,7 +127,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitAttribute(AttributeContext ctx) {
-        // TODO: consider that labelling the subrule in the grammar file may have been wrong.
         // ID ':' TYPE ('<-' expr)?  SEMICOLON?;
         CoolAttribute ca = new CoolAttribute();
         CoolExpr expr = this.visitExpression(ctx.expr());
@@ -398,7 +397,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visitIdentifier(IdentifierContext ctx) {
-        // TODO: Go back and rewrite all instances of ctx.ID() to call this instead
         CoolIdentifier ci = new CoolIdentifier(ctx.getText());
         return ci;
     }
