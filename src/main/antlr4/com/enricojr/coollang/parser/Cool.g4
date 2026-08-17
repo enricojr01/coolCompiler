@@ -2,7 +2,7 @@ grammar Cool;
 
 prog:   coolClass+;
 
-coolClass:   CLASS TYPE (INHERITS TYPE)? '{' feature* '};';
+coolClass:   CLASS TYPE (INHERITS TYPE)? '{' feature* '}'';';
 
 feature
     :   attribute                                                           # attributeDef
@@ -10,35 +10,34 @@ feature
     ;
 
 paramList:          formal* (',' formal)*;
-formal:             ID ':' TYPE SEMICOLON?;
-attribute:          ID ':' TYPE ('<-' expr)?  SEMICOLON?;
-methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '};';
-caseBranch:         formal DARROW expr SEMICOLON;
+formal:             ID ':' TYPE ';'?;
+attribute:          ID ':' TYPE ('<-' expr)?  ';'?;
+methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '}'';';
 
 expr   
-    :   ID LARROW expr                                           # assign
-    |   ID '(' (expr (',' expr)*)? ')'                           # methodDispatch
+    :   ID '(' (expr (',' expr)*)? ')'                           # methodDispatch
+    |   expr '.' ID '(' (expr (',' expr)*)? ')'                # dotMethodDispatch
     |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')'         # atMethodDispatch
-    |   expr '.' ID '(' (expr (',' expr)*)? ')'                  # dotMethodDispatch
     |   IF expr THEN expr ELSE expr FI                           # ifStatement
     |   WHILE expr LOOP expr+ POOL                               # whileStatement
     |   LET attribute (',' attribute)* IN expr                   # letStatement
-    |   CASE expr OF (caseBranch)+ ESAC                # caseStatement 
+    |   CASE expr OF (formal DARROW expr (';'))+ ESAC              # caseStatement 
     |   NEW TYPE                                                 # instantiate
     |   ISVOID (TYPE | SELF_TYPE | SELF_KW)                      # isVoid
-    |   '{' (expr SEMICOLON)+ ('}' | '};')                       # codeBlock
-    |   expr PLUS expr                                           # add
-    |   expr MINUS expr                                          # subtract
+    |   '{' (expr ';')+ '}'                             # codeBlock
+    |   '(' expr ')'                                             # parenthesisExpr
     |   expr MULT expr                                           # multiply
     |   expr DIV expr                                            # divide
+    |   expr PLUS expr                                           # add
+    |   expr MINUS expr                                          # subtract
     |   COMPLE expr                                              # complement
     |   expr LT expr                                             # lt
-    |   expr GT expr                                             # gt
     |   expr LTE expr                                            # lte
-    |   expr GTE expr                                            # gte
     |   expr EQUALS expr                                         # isEqual
+    |   expr GT expr                                             # gt
+    |   expr GTE expr                                            # gte
     |   NOT expr                                                 # not
-    |   '(' expr ')'                                             # parenthesisExpr
+    |   ID LARROW expr                                           # assign
     |   ID                                                       # identifier
     |   INTEGER                                                  # integer
     |   STRING                                                   # string
@@ -85,8 +84,7 @@ FALSE:          'false';
 TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
 ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
 INTEGER:        DIGITS+;
-STRING:         '"' .*? '"';
-SEMICOLON:      ';';
+STRING:         '"' ('\\"' | .)*? '"';
 
 // skippables
 // NOTE TO SELF: You should NOT skip paren / curly brackets / square brackets.
@@ -99,3 +97,4 @@ fragment LOWERCA: [a-z];
 fragment DIGITS:  [0-9];
 fragment UNDERSC: '_';
 fragment NEWLINE: '\r'? '\n';
+fragment SEMICOLON: ';';

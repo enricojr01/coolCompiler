@@ -1,14 +1,17 @@
-package com.enricojr.coollang;
+package com.enricojr.coollang.util;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
+
+import com.enricojr.coollang.parser.CoolLexer;
+import com.enricojr.coollang.parser.CoolParser;
+import com.enricojr.coollang.parser.CoolParser.ProgContext;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import com.enricojr.coollang.CoolParser.ProgContext;
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.semantic.InheritanceGraphBuilder;
-import com.enricojr.coollang.util.DetailedErrorListener;
 
 public class Test {
     public static void main(String[] args) throws Exception {
@@ -32,7 +35,7 @@ public class Test {
 
         System.out.println("Parsing input...");
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        CoolParser parser = new CoolParser(tokens);
+        com.enricojr.coollang.parser.CoolParser parser = new CoolParser(tokens);
         parser.removeErrorListeners();
         parser.addErrorListener(new DetailedErrorListener());
 
