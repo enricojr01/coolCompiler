@@ -78,13 +78,13 @@ COMPLE: '~';
 LARROW: '<-';
 DARROW: '=>';
 
-SELF_TYPE:      'SELF_TYPE';
-TRUE:           'true';
-FALSE:          'false';
-TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
-ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
-INTEGER:        DIGITS+;
-STRING:         '"' (ESCAPE | .)*? '"';
+SELF_TYPE: 'SELF_TYPE';
+TRUE:      'true';
+FALSE:     'false';
+TYPE:      CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
+ID:        LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
+INTEGER:   DIGITS+;
+STRING:    '"' (ESCAPE | .)*? '"';
 
 // skippables
 // NOTE TO SELF: You should NOT skip paren / curly brackets / square brackets.

@@ -21,20 +21,24 @@ public class InheritanceGraphBuilder {
         this.buildGraph();
     }
 
-    private void buildGraph() throws 
-        InvalidClassNameException, 
-        ClassDefinedTwiceException, 
-        ParentClassNotDefinedException {
+    private void buildGraph() throws InvalidClassNameException, ClassDefinedTwiceException {
         ArrayList<CoolClass> classes = this.prog.getClasses();
         for (CoolClass cc : classes) {
             String className = cc.getName().getValue();
-            if (
-                className.equals("Int") 
-                || className.equals("Bool") 
-                || className.equals("String")
-            ) {
+            String parentName = null;
+
+            if (cc.getParentName() != null) {
+                parentName = cc.getParentName().getValue();
+                if (parentName.equals("Int") || parentName.equals("Bool") || parentName.equals("String")) {
+                    throw new InvalidClassNameException("Cannot inherit from class Int, Bool, or String");
+                }
+            }
+
+            if (className.equals("Int") || className.equals("Bool") || className.equals("String")) {
                 throw new InvalidClassNameException("Cannot name class Int, Bool, or String.");
             }
+
+
             this.graph.addClassKey(cc);
         }
 
