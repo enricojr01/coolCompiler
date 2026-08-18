@@ -3,7 +3,6 @@ package com.enricojr.coollang.tests;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
-import junit.framework.Assert;
 import org.antlr.v4.runtime.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeAll;

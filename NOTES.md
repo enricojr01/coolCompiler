@@ -5,11 +5,24 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Common Lexical Structures
+
+Another nice section from the book `The Definitive ANTLR 4 Reference`, copied
+here for posterity.
+
+| Rule                    | Description                                                                                                                 |
+|-------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| ('a'..'z' \| 'A'..'Z')+ | Match one or more upper / lowercase letters (for identifiers).                                                              |
+| [a-zA-Z]+               | Same as above, but in a different notation.                                                                                 |
+| ('0'..'9')+             | Matches one or more digits.                                                                                                 |
+| [0-9]+                  | Same as above, but in a different notation.                                                                                 | 
+| '"' .*? '"'             | For matching string literals - matches any character between two ".                                                         |
+| '\\"' \| '\\\\'         | Matches a quote character, or two '\' characters. Used in conjunction with the above to match basically any string literal. |
+
 ### ANTLR Core Notation
 
 I was looking for an ANTLR cheat sheet but couldn't find one, so I'm pulling
-this
-from the book `The Definitive ANTLR 4 Reference`.
+this from the book `The Definitive ANTLR 4 Reference`.
 
 | Syntax                | Description                                 |
 |-----------------------|---------------------------------------------|
@@ -34,7 +47,7 @@ whole folder to be discovered as an Eclipse project. I already have a `pom.xml`
 file and am set on Maven, so this was a surprise to me.
 
 I also had to mark the `./target/generated-sources/antlr4` folder as a generated
-sources root to get the IDE's auto- import functionality to work correctly.
+sources root to get the IDE's auto-import functionality to work correctly.
 It would otherwise default to using the fully-qualified class name instead
 of putting an import at the top of the file.
 
