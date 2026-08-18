@@ -7,14 +7,16 @@ import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
 import com.enricojr.coollang.util.DetailedErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.*;
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.semantic.InheritanceGraphBuilder;
 
+import static junit.framework.Assert.fail;
+
 public class Test {
+
     public static void main(String[] args) throws Exception {
         System.out.println("If you see this, it's working!");
         String inputFile = null;
@@ -27,7 +29,7 @@ public class Test {
         if (inputFile != null) {
             is = new FileInputStream(inputFile);
         }
-        
+
         System.out.println("Lexing input...");
         ANTLRInputStream input = new ANTLRInputStream(is);
         CoolLexer lexer = new CoolLexer(input);

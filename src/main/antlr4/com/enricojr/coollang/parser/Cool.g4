@@ -16,15 +16,15 @@ methodDefinition:   ID '(' paramList? ')' ':' (TYPE | SELF_TYPE) '{' expr* '}'';
 
 expr   
     :   ID '(' (expr (',' expr)*)? ')'                           # methodDispatch
-    |   expr '.' ID '(' (expr (',' expr)*)? ')'                # dotMethodDispatch
+    |   expr '.' ID '(' (expr (',' expr)*)? ')'                  # dotMethodDispatch
     |   expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')'         # atMethodDispatch
     |   IF expr THEN expr ELSE expr FI                           # ifStatement
     |   WHILE expr LOOP expr+ POOL                               # whileStatement
     |   LET attribute (',' attribute)* IN expr                   # letStatement
-    |   CASE expr OF (formal DARROW expr (';'))+ ESAC              # caseStatement 
+    |   CASE expr OF (formal DARROW expr (';'))+ ESAC            # caseStatement
     |   NEW TYPE                                                 # instantiate
     |   ISVOID (TYPE | SELF_TYPE | SELF_KW)                      # isVoid
-    |   '{' (expr ';')+ '}'                             # codeBlock
+    |   '{' (expr ';')* '}'                                      # codeBlock
     |   '(' expr ')'                                             # parenthesisExpr
     |   expr MULT expr                                           # multiply
     |   expr DIV expr                                            # divide
@@ -84,7 +84,7 @@ FALSE:          'false';
 TYPE:           CAPITAL (CAPITAL | LOWERCA | DIGITS)*;
 ID:             LOWERCA (CAPITAL | LOWERCA | DIGITS | UNDERSC)*;
 INTEGER:        DIGITS+;
-STRING:         '"' ('\\"' | .)*? '"';
+STRING:         '"' (ESCAPE | .)*? '"';
 
 // skippables
 // NOTE TO SELF: You should NOT skip paren / curly brackets / square brackets.
@@ -92,9 +92,10 @@ WHITESPACE:     [ \t\r\n\f]+        -> skip;
 BLOCKCOMMENT:   '(*' .*?  '*)'      -> skip;
 INLINECOMMENT:  '--' .*? NEWLINE    -> skip;
 
-fragment CAPITAL: [A-Z];
-fragment LOWERCA: [a-z];
-fragment DIGITS:  [0-9];
-fragment UNDERSC: '_';
-fragment NEWLINE: '\r'? '\n';
+fragment CAPITAL:   [A-Z];
+fragment LOWERCA:   [a-z];
+fragment DIGITS:    [0-9];
+fragment UNDERSC:   '_';
+fragment NEWLINE:   '\r'? '\n';
 fragment SEMICOLON: ';';
+fragment ESCAPE:    '\\' [btnf] | '\\\\' | '\\"';

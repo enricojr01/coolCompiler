@@ -4,7 +4,6 @@ import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.parser.CoolBaseVisitor;
-import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.*;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -96,7 +95,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         List<ExprContext> expressions = ctx.expr();
         List<FormalContext> formals = ctx.formal();
         List<ExprContext> branches = expressions.subList(1, expressions.size() - 1);
-        ExprContext predicate = expressions.get(0);
+        ExprContext predicate = expressions.getFirst();
 
         ArrayList<CoolCase.Branch> ccBranches = new ArrayList<>();
         for (int i = 0; i < formals.size() - 1; i++) {
