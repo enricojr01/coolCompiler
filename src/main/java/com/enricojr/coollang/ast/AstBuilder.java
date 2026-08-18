@@ -1,80 +1,18 @@
 package com.enricojr.coollang.ast;
 
-// TODO: are there like aliases or something I can use to cut this down to size?
-import java.util.ArrayList;
-import java.util.List;
+import com.enricojr.coollang.ast.constants.*;
+import com.enricojr.coollang.ast.expressions.*;
+import com.enricojr.coollang.ast.program.*;
+import com.enricojr.coollang.parser.CoolBaseVisitor;
+import com.enricojr.coollang.parser.CoolParser;
+import com.enricojr.coollang.parser.CoolParser.*;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import com.enricojr.coollang.CoolBaseVisitor;
-import com.enricojr.coollang.CoolParser.AddContext;
-import com.enricojr.coollang.CoolParser.AssignContext;
-import com.enricojr.coollang.CoolParser.AtMethodDispatchContext;
-import com.enricojr.coollang.CoolParser.AttributeContext;
-import com.enricojr.coollang.CoolParser.AttributeDefContext;
-import com.enricojr.coollang.CoolParser.CaseBranchContext;
-import com.enricojr.coollang.CoolParser.CaseStatementContext;
-import com.enricojr.coollang.CoolParser.CodeBlockContext;
-import com.enricojr.coollang.CoolParser.ComplementContext;
-import com.enricojr.coollang.CoolParser.CoolClassContext;
-import com.enricojr.coollang.CoolParser.DivideContext;
-import com.enricojr.coollang.CoolParser.DotMethodDispatchContext;
-import com.enricojr.coollang.CoolParser.ExprContext;
-import com.enricojr.coollang.CoolParser.FalseContext;
-import com.enricojr.coollang.CoolParser.FeatureContext;
-import com.enricojr.coollang.CoolParser.FormalContext;
-import com.enricojr.coollang.CoolParser.GtContext;
-import com.enricojr.coollang.CoolParser.GteContext;
-import com.enricojr.coollang.CoolParser.IdentifierContext;
-import com.enricojr.coollang.CoolParser.IfStatementContext;
-import com.enricojr.coollang.CoolParser.InstantiateContext;
-import com.enricojr.coollang.CoolParser.IntegerContext;
-import com.enricojr.coollang.CoolParser.IsEqualContext;
-import com.enricojr.coollang.CoolParser.IsVoidContext;
-import com.enricojr.coollang.CoolParser.LetStatementContext;
-import com.enricojr.coollang.CoolParser.LtContext;
-import com.enricojr.coollang.CoolParser.LteContext;
-import com.enricojr.coollang.CoolParser.MethodDefContext;
-import com.enricojr.coollang.CoolParser.MethodDefinitionContext;
-import com.enricojr.coollang.CoolParser.MethodDispatchContext;
-import com.enricojr.coollang.CoolParser.MultiplyContext;
-import com.enricojr.coollang.CoolParser.NotContext;
-import com.enricojr.coollang.CoolParser.ParamListContext;
-import com.enricojr.coollang.CoolParser.ParenthesisExprContext;
-import com.enricojr.coollang.CoolParser.ProgContext;
-import com.enricojr.coollang.CoolParser.SelfContext;
-import com.enricojr.coollang.CoolParser.StringContext;
-import com.enricojr.coollang.CoolParser.SubtractContext;
-import com.enricojr.coollang.CoolParser.TrueContext;
-import com.enricojr.coollang.CoolParser.WhileStatementContext;
-import com.enricojr.coollang.ast.constants.CoolBool;
-import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.constants.CoolInteger;
-import com.enricojr.coollang.ast.constants.CoolSelf;
-import com.enricojr.coollang.ast.constants.CoolString;
-import com.enricojr.coollang.ast.constants.CoolType;
-import com.enricojr.coollang.ast.expressions.CoolAssign;
-import com.enricojr.coollang.ast.expressions.CoolAtMethodDispatch;
-import com.enricojr.coollang.ast.expressions.CoolBinaryOp;
-import com.enricojr.coollang.ast.expressions.CoolBlock;
-import com.enricojr.coollang.ast.expressions.CoolCase;
-import com.enricojr.coollang.ast.expressions.CoolDotMethodDispatch;
-import com.enricojr.coollang.ast.expressions.CoolExpr;
-import com.enricojr.coollang.ast.expressions.CoolIf;
-import com.enricojr.coollang.ast.expressions.CoolInstantiate;
-import com.enricojr.coollang.ast.expressions.CoolIsVoid;
-import com.enricojr.coollang.ast.expressions.CoolLet;
-import com.enricojr.coollang.ast.expressions.CoolParenthesisExpr;
-import com.enricojr.coollang.ast.expressions.CoolUnaryOp;
-import com.enricojr.coollang.ast.expressions.CoolWhile;
-import com.enricojr.coollang.ast.program.CoolAttribute;
-import com.enricojr.coollang.ast.program.CoolBaseNode;
-import com.enricojr.coollang.ast.program.CoolClass;
-import com.enricojr.coollang.ast.program.CoolFormal;
-import com.enricojr.coollang.ast.program.CoolMethod;
-import com.enricojr.coollang.ast.program.CoolParamList;
-import com.enricojr.coollang.ast.program.CoolProgram;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
@@ -155,18 +93,20 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     public CoolBaseNode visitCaseStatement(CaseStatementContext ctx) {
         // CASE expr OF (formal DARROW expr SEMICOLON)+ ESAC
         CoolCase cc = new CoolCase();
-        List<CaseBranchContext> expressions = ctx.caseBranch();
-        ExprContext predicate = ctx.expr();
+        List<ExprContext> expressions = ctx.expr();
+        List<FormalContext> formals = ctx.formal();
+        List<ExprContext> branches = expressions.subList(1, expressions.size() - 1);
+        ExprContext predicate = expressions.get(0);
 
-        ArrayList<CoolCase.Branch> branches = new ArrayList<>();
-        for (CaseBranchContext cbc : expressions) {
-            CoolFormal formal = (CoolFormal) this.visitFormal(cbc.formal());
-            CoolExpr expression = this.visitExpression(cbc.expr());
-            CoolCase.Branch b = cc.createBranch(formal, expression);
-            branches.add(b);
+        ArrayList<CoolCase.Branch> ccBranches = new ArrayList<>();
+        for (int i = 0; i < formals.size() - 1; i++) {
+            CoolFormal formal = (CoolFormal) this.visitFormal(formals.get(i));
+            CoolExpr branchExpr = this.visitExpression(branches.get(i));
+            CoolCase.Branch b = cc.createBranch(formal, branchExpr);
+            ccBranches.add(b);
         }
 
-        cc.setBranches(branches);
+        cc.setBranches(ccBranches);
         cc.setPredicate(this.visitExpression(predicate));
 
         return cc;
@@ -445,7 +385,17 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     @Override
     public CoolBaseNode visitIsVoid(IsVoidContext ctx) {
         CoolIsVoid civ = new CoolIsVoid();
-        civ.setType(new CoolIdentifier(ctx.TYPE().getText()));
+        CoolIdentifier cid = null;
+        // NOTE: ISVOID rule changed to support either TYPE, SELF_TYPE, or SELF_KW so we check
+        //       each one to see which has been set. It can only ever be one of the three
+        if (ctx.TYPE() != null) {
+            cid = new CoolIdentifier(ctx.TYPE().getText());
+        } else if (ctx.SELF_KW() != null) {
+            cid = new CoolIdentifier(ctx.SELF_KW().getText());
+        } else if (ctx.SELF_TYPE() != null) {
+            cid = new CoolIdentifier(ctx.SELF_TYPE().getText());
+        }
+        civ.setType(cid);
 
         return civ;
     }

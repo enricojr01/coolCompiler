@@ -22,7 +22,6 @@ public class AstPrinter {
         this.startNode = startNode;
     }
 
-    // TODO: make a proper tree ffs this is insane you'd think I'd be better than this after 10 yrs.
     public String toString() {
         StringBuilder sb = new StringBuilder();
         ArrayList<CoolClass> classes = this.startNode.getClasses();

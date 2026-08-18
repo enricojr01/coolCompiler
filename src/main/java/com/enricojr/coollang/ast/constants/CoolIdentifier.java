@@ -1,6 +1,5 @@
 package com.enricojr.coollang.ast.constants;
 
-// TODO: change all usages of straight String in the AST and Nodes to CoolIdentifier
 public class CoolIdentifier extends CoolConstant {
     private String value;
 

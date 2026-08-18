@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import com.enricojr.coollang.ast.program.CoolFormal;
 
 public class CoolCase extends CoolExpr {
-    // TODO: Consider moving this to its own file?
     public class Branch {
         private CoolFormal formal;
         private CoolExpr expression;

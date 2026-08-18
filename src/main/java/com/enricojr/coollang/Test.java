@@ -1,4 +1,4 @@
-package com.enricojr.coollang.util;
+package com.enricojr.coollang;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -6,6 +6,7 @@ import java.io.InputStream;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
+import com.enricojr.coollang.util.DetailedErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import com.enricojr.coollang.ast.AstBuilder;
