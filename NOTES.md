@@ -6,7 +6,26 @@ fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
 ### Weekly Check-in Aug 12 - Aug 19
-- 
+
+- began construction of semantic analysis modules / components
+- fixed numerous errors with parser / lexer. parser + lexer now halt on error
+  instead of trying to recover.
+- fixed annoying bug with string literals not being parsed correctly, causing
+  entire portions of the program to be incorrect
+- adjusted parser so that '};' is not consumed as a single token, but two
+  separate ones.
+- inheritance graph is now fully functional, with cycle detection mechanism in
+  place.
+
+### Cycle Detection
+
+Turns out this is easier than I thought - given a valid adjacency list, simply
+traverse depth-first, and keep track of all the nodes visited in some kind of
+list. Check each node as you come across it, and if its present in the list you
+have a cycle.
+
+Self-cycles, i.e. `class A inherits A {};` can be checked when constructing
+the graph, but will throw the same exception as the cycle detector.
 
 ### Inheritance Graph Design Notes
 
@@ -20,7 +39,7 @@ in a COOL program follow the inheritance rules laid out in the manual:
 - only single inheritance is allowed
 - the root of the inheritance graph is Object, and if no parent is specified in
   a class definition, then its parent is Object.
-- you can inherit from built-in class IO, but not redefine it. 
+- you can inherit from built-in class IO, but not redefine it.
 - you cannot inherit from, nor redefine, the built-in class String
 - you cannot inherit from, nor redefine, the built-in class Int
 - you cannot inherit from, nor redefine, the built-in class Bool
@@ -56,7 +75,6 @@ B: []
 Note that while B is technically adjacent to A, it is not present in B's list.
 This ensures that you can only travel one direction down the graph from any
 given node.
-
 
 ### Syntax Errors vs Semantic Errors
 
