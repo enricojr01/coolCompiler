@@ -5,6 +5,76 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Weekly Check-in Aug 12 - Aug 19
+- 
+
+### Inheritance Graph Design Notes
+
+The first semantic analysis problem I decided to tackle was that of the
+inheritance graph. Specifically I needed to verify that all the classes defined
+in a COOL program follow the inheritance rules laid out in the manual:
+
+- classes you're inheriting from must exist
+- classes can only inherit from one above it in the class hierarchy
+- inheritance cannot be cyclic
+- only single inheritance is allowed
+- the root of the inheritance graph is Object, and if no parent is specified in
+  a class definition, then its parent is Object.
+- you can inherit from built-in class IO, but not redefine it. 
+- you cannot inherit from, nor redefine, the built-in class String
+- you cannot inherit from, nor redefine, the built-in class Int
+- you cannot inherit from, nor redefine, the built-in class Bool
+
+Given all these requirements it seemed like a directed graph, unweighted, was
+the most appropriate data structure for the job. And the best way to implement
+this directed graph was an adjacency list.
+
+I didn't see it at first but the way to model a directed graph with an adjacency
+list is to only put neighbors in one of the keys and not the other.
+
+For example, given two class definitions:
+
+```
+class A {};
+class B inherits A {};
+```
+
+The graph would be drawn out like so:
+
+```
+Object -> A -> B
+```
+
+And internally the hashmap would look something like:
+
+```
+Object: [A,]
+A: [B,]
+B: []
+```
+
+Note that while B is technically adjacent to A, it is not present in B's list.
+This ensures that you can only travel one direction down the graph from any
+given node.
+
+
+### Syntax Errors vs Semantic Errors
+
+I decided to start with the inheritance graph part of the semantic analysis
+because it seemed like the easiest thing to do and I honestly don't know any
+better at this point.
+
+It's forced me to think hard about the kinds of errors that can occur during
+compilation and how / where they should be handled.
+
+Class identifiers being incorrect aren't semantic errors, they're syntax errors.
+
+But classes inheriting from undefined classes or "invalid" classes* are
+definitely semantic errors. Same with classes being defined twice.
+
+At first blush they looked the same, but you've really got to look at the
+problems to see the difference.
+
 ### Common Lexical Structures
 
 Another nice section from the book `The Definitive ANTLR 4 Reference`, copied

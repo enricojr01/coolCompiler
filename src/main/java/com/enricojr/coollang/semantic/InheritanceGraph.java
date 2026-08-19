@@ -1,11 +1,13 @@
 package com.enricojr.coollang.semantic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
+import com.enricojr.coollang.semantic.exceptions.CoolClassInheritanceCycleException;
 import com.enricojr.coollang.semantic.exceptions.CoolClassUndefinedException;
 import com.enricojr.coollang.semantic.exceptions.ParentClassNotDefinedException;
 
@@ -28,62 +30,23 @@ let A, C, P be types:
 - if A <= C and C <= P then A <= P
 */
 public class InheritanceGraph {
-    private HashMap<CoolIdentifier, LinkedList<CoolClass>> graph = new HashMap<>();
-    private CoolIdentifier objectIdentifier = new CoolIdentifier("Object");
-    private CoolIdentifier ioIdentifier = new CoolIdentifier("IO");
-    private CoolClass objectClass;
-    private CoolClass ioClass;
+    private final HashMap<CoolIdentifier, LinkedList<CoolClass>> graph = new HashMap<>();
+    private final CoolIdentifier objectIdentifier = new CoolIdentifier("Object");
 
     public InheritanceGraph() {
         CoolClass objClass = new CoolClass();
         objClass.setName(this.objectIdentifier);
 
         CoolClass ioClass = new CoolClass();
-        ioClass.setName(this.ioIdentifier);
+        CoolIdentifier ioIdentifier = new CoolIdentifier("IO");
+        ioClass.setName(ioIdentifier);
 
-        this.objectClass = objClass;
-        this.ioClass = ioClass;
-
-        graph.put(this.objectIdentifier, new LinkedList<>()); 
-        graph.put(this.ioIdentifier, new LinkedList<>());
+        graph.put(this.objectIdentifier, new LinkedList<>());
+        graph.put(ioIdentifier, new LinkedList<>());
         graph.get(this.objectIdentifier).add(ioClass);
     }
 
-    public void oldAddClass(CoolClass cc) throws 
-        ClassDefinedTwiceException, 
-        ParentClassNotDefinedException {
-        // two things need to happen:
-        // 1. an key for the new class needs to be added to the graph
-        // 2. the class itself needs to be added to the linkedlist of its parent OR
-        //    to the linkedlist of Object, if there is no parent defined
-        if (this.graph.containsKey(cc.getName())) {
-            // TODO: better error messages
-            throw new ClassDefinedTwiceException(cc.getName().getValue());
-        } else {
-            System.out.println(String.format("Adding %s to graph...", cc.getName().getValue()));
-            CoolIdentifier className = cc.getName();
-            LinkedList<CoolClass> emptyList = new LinkedList<>();
-            this.graph.put(className, emptyList);
-        }
-
-        if (cc.getParentName() != null) {
-            CoolIdentifier parentName = cc.getParentName();
-            System.out.println(String.format("%s extends %s", cc.getName().getValue(), parentName));
-
-            if (this.graph.containsKey(parentName)) {
-                System.out.println("Found parent class!");
-                this.graph.get(parentName).add(cc);
-            } else {
-                throw new ParentClassNotDefinedException();
-            }
-        } else {
-            System.out.println("No parent class defined, therefore it extends Object");
-            this.graph.get(this.objectIdentifier).add(cc);
-        }
-    }
-
     public void addClassKey(CoolClass cc) throws ClassDefinedTwiceException {
-        System.out.println(String.format("Adding class: %s", cc));
         if (this.graph.containsKey(cc.getName())) {
             throw new ClassDefinedTwiceException(cc.getName().getValue());
         }
@@ -95,18 +58,33 @@ public class InheritanceGraph {
 
     public void addChildren(CoolClass cc) throws CoolClassUndefinedException {
         if (cc.getParentName() != null) {
-            System.out.println(
-                String.format("Class %s extends ", cc.getName(), cc.getParentName())
-            );
             LinkedList<CoolClass> target = this.graph.get(cc.getParentName());
             if (target == null) {
                 throw new CoolClassUndefinedException(cc.getParentName().getValue());
             } else {
                 target.add(cc);
             }
-        } else {
-            System.out.println(String.format("Class %s extends Object", cc.getName()));
         }
+    }
+
+    public boolean hasCycles() throws CoolClassInheritanceCycleException {
+        Stack<CoolClass> travel = new Stack<>();
+        ArrayList<CoolClass> seen = new ArrayList<>();
+        for (CoolIdentifier ci : this.graph.keySet()) {
+            travel.addAll(this.graph.get(ci));
+        }
+
+        while (!travel.isEmpty()) {
+            CoolClass next = travel.pop();
+            for (CoolClass cc : seen) {
+                if (next.getParentName().equals(cc.getName())) {
+                    throw new CoolClassInheritanceCycleException("Inheritance cycle detected at class: " + cc.getName());
+                }
+            }
+            seen.add(next);
+        }
+
+        return false;
     }
 
     public String rawAdjacencyList() {
@@ -114,13 +92,12 @@ public class InheritanceGraph {
         LinkedList<CoolClass> top = this.graph.get(this.objectIdentifier);
         sb.append(String.format("%s: %s\n", this.objectIdentifier, top));
         for (CoolIdentifier ci : this.graph.keySet()) {
-            if (ci.getValue().equals("Object") == false) {
+            if (!ci.getValue().equals("Object")) {
                 sb.append(String.format("%s: %s\n", ci, this.graph.get(ci)));
             }
         }
 
         return sb.toString();
-
     }
 
     public String toString() {

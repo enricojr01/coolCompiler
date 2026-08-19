@@ -8,12 +8,11 @@ import com.enricojr.coollang.parser.CoolParser.ProgContext;
 import com.enricojr.coollang.semantic.InheritanceGraph;
 import com.enricojr.coollang.semantic.InheritanceGraphBuilder;
 import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
-import com.enricojr.coollang.semantic.exceptions.CoolClassUndefinedException;
+import com.enricojr.coollang.semantic.exceptions.CoolClassInheritanceCycleException;
 import com.enricojr.coollang.semantic.exceptions.InvalidClassNameException;
 import com.enricojr.coollang.semantic.exceptions.ParentClassNotDefinedException;
 import org.antlr.v4.runtime.*;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -62,7 +61,7 @@ public class TestHelloWorld {
 
         while (!codeSamples.isEmpty()) {
             File sample = codeSamples.pop();
-            System.out.println("Testing file: " + sample);
+            System.out.println("Testing parser/lexer on file: " + sample);
             FileInputStream fis = null;
             ANTLRInputStream ais = null;
             TestCancelListener tcl = new TestCancelListener();
@@ -110,7 +109,6 @@ public class TestHelloWorld {
             System.out.println("Testing file: " + sample);
             FileInputStream fis = null;
             ANTLRInputStream ais = null;
-//            TestCancelListener tcl = new TestCancelListener();
 
             try {
                 fis = new FileInputStream(sample);
@@ -137,16 +135,44 @@ public class TestHelloWorld {
             CoolProgram top = (CoolProgram) ab.visitProg(prog);
             InheritanceGraphBuilder igb = null;
 
+            // TODO: Maybe reconsider this, tests should only check one thing at a time.
             try {
-                igb = new InheritanceGraphBuilder(top);
-            } catch (InvalidClassNameException e) {
-                fail("Invalid class identifier: " + e.getMessage());
-            } catch (ClassDefinedTwiceException e) {
-                fail("Class defined twice: " + e.getMessage());
+                if (sample.getName().equals("badclassparent")) {
+                    igb = new InheritanceGraphBuilder(top);
+                    assertThrows(ParentClassNotDefinedException.class, () -> new InheritanceGraphBuilder(top));
+                }
+                if (sample.getName().equals("badclasstwice")) {
+                    igb = new InheritanceGraphBuilder(top);
+                    assertThrows(ClassDefinedTwiceException.class, () -> new InheritanceGraphBuilder(top));
+                }
+            } catch (InvalidClassNameException | ParentClassNotDefinedException | CoolClassInheritanceCycleException | ClassDefinedTwiceException _) {
             }
-
-            assertNotNull(igb);
         }
+    }
 
+    @Test
+    public void TestCycleDetection() throws
+            InvalidClassNameException, ClassDefinedTwiceException, ParentClassNotDefinedException,
+            CoolClassInheritanceCycleException {
+        ANTLRInputStream ais = new ANTLRInputStream("class A inherits B {}; class B inherits A {};");
+        CoolLexer cl = new CoolLexer(ais);
+        CommonTokenStream cts = new CommonTokenStream(cl);
+        CoolParser cpa = new CoolParser(cts);
+        AstBuilder ab = new AstBuilder();
+        CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
+        InheritanceGraphBuilder igb = new InheritanceGraphBuilder(top);
+        InheritanceGraph ig = igb.getGraph();
+        assertThrows(CoolClassInheritanceCycleException.class, ig::hasCycles);
+    }
+
+    @Test
+    public void TestSelfCycleDetection() {
+        ANTLRInputStream ais = new ANTLRInputStream("class A inherits A {};");
+        CoolLexer cl = new CoolLexer(ais);
+        CommonTokenStream cts = new CommonTokenStream(cl);
+        CoolParser cpa = new CoolParser(cts);
+        AstBuilder ab = new AstBuilder();
+        CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
+        assertThrows(CoolClassInheritanceCycleException.class, () -> new InheritanceGraphBuilder(top));
     }
 }

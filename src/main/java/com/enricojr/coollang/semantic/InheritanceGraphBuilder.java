@@ -3,10 +3,7 @@ package com.enricojr.coollang.semantic;
 import java.util.ArrayList;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
-import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
-import com.enricojr.coollang.semantic.exceptions.CoolClassUndefinedException;
-import com.enricojr.coollang.semantic.exceptions.InvalidClassNameException;
-import com.enricojr.coollang.semantic.exceptions.ParentClassNotDefinedException;
+import com.enricojr.coollang.semantic.exceptions.*;
 
 public class InheritanceGraphBuilder {
     private CoolProgram prog;
@@ -14,14 +11,16 @@ public class InheritanceGraphBuilder {
 
     public InheritanceGraphBuilder(CoolProgram prog) throws 
         InvalidClassNameException, 
-        ClassDefinedTwiceException, 
+        ClassDefinedTwiceException,
+        CoolClassInheritanceCycleException,
         ParentClassNotDefinedException {
         this.prog = prog;
         this.graph = new InheritanceGraph();
         this.buildGraph();
     }
 
-    private void buildGraph() throws InvalidClassNameException, ClassDefinedTwiceException {
+    private void buildGraph() throws
+            InvalidClassNameException, ClassDefinedTwiceException, CoolClassInheritanceCycleException {
         ArrayList<CoolClass> classes = this.prog.getClasses();
         for (CoolClass cc : classes) {
             String className = cc.getName().getValue();
@@ -32,12 +31,14 @@ public class InheritanceGraphBuilder {
                 if (parentName.equals("Int") || parentName.equals("Bool") || parentName.equals("String")) {
                     throw new InvalidClassNameException("Cannot inherit from class Int, Bool, or String");
                 }
+                if (parentName.equals(className)) {
+                    throw new CoolClassInheritanceCycleException("Classes cannot inherit from themselves.");
+                }
             }
 
             if (className.equals("Int") || className.equals("Bool") || className.equals("String")) {
                 throw new InvalidClassNameException("Cannot name class Int, Bool, or String.");
             }
-
 
             this.graph.addClassKey(cc);
         }
@@ -50,6 +51,10 @@ public class InheritanceGraphBuilder {
                 System.exit(1);
             }
         }
+    }
+
+    public InheritanceGraph getGraph() {
+        return this.graph;
     }
 
     public String toString() {

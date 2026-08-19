@@ -557,14 +557,12 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     @Override
     public CoolBaseNode visitProg(ProgContext ctx) {
         // prog: CoolClass+;
-        System.out.println("Visiting prog");
         CoolProgram coolProg = new CoolProgram();
 
         List<CoolClassContext> classes = ctx.coolClass();
         ArrayList<CoolClass> coolClasses = new ArrayList<>();
 
         for (CoolClassContext c : classes) {
-            System.out.println("Parsing class: " + c.TYPE(0).getText());
             CoolClass ccn = (CoolClass) this.visitCoolClass(c);
             coolClasses.add(ccn);
         }
