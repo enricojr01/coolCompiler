@@ -64,6 +64,19 @@ public class SemanticAnalyzer {
         return sb.toString();
     }
 
+    public String reportInheritanceChains() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Inheritance Chains:\n");
+        sb.append("--------------------\n");
+        for (CoolIdentifier ci : this.inheritanceChains.keySet()) {
+            LinkedList<CoolClass> chains = this.inheritanceChains.get(ci);
+            sb.append(String.format("%s: %s\n", ci, chains.toString()));
+        }
+        sb.append("--------------------\n");
+        return sb.toString();
+
+    }
+
     public String reportAbstractSyntaxTree() {
         AstPrinter ap = new AstPrinter(this.prog);
         return ap.toString();
