@@ -137,26 +137,20 @@ public class TestHelloWorld {
             ProgContext prog = cpa.prog();
             AstBuilder ab = new AstBuilder();
             CoolProgram top = (CoolProgram) ab.visitProg(prog);
-            InheritanceGraphBuilder igb = null;
 
             // TODO: Maybe reconsider this, tests should only check one thing at a time.
-            try {
-                if (sample.getName().equals("badclassparent")) {
-                    igb = new InheritanceGraphBuilder(top);
-                    assertThrows(ParentClassNotDefinedException.class, () -> new InheritanceGraphBuilder(top));
-                }
-                if (sample.getName().equals("badclasstwice")) {
-                    igb = new InheritanceGraphBuilder(top);
-                    assertThrows(ClassDefinedTwiceException.class, () -> new InheritanceGraphBuilder(top));
-                }
-            } catch (InvalidClassNameException | ParentClassNotDefinedException | CoolClassInheritanceCycleException | ClassDefinedTwiceException _) {
+            if (sample.getName().equals("badclassparent")) {
+                assertThrows(ParentClassNotDefinedException.class, () -> new SemanticAnalyzer(top));
+            }
+            if (sample.getName().equals("badclasstwice")) {
+                assertThrows(ClassDefinedTwiceException.class, () -> new SemanticAnalyzer(top));
             }
         }
     }
 
     @Test
     public void TestCycleDetection() throws
-            InvalidClassNameException, ClassDefinedTwiceException, ParentClassNotDefinedException,
+            InvalidClassNameException, ClassDefinedTwiceException,
             CoolClassInheritanceCycleException {
         ANTLRInputStream ais = new ANTLRInputStream("class A inherits B {}; class B inherits A {};");
         CoolLexer cl = new CoolLexer(ais);
@@ -165,18 +159,20 @@ public class TestHelloWorld {
         AstBuilder ab = new AstBuilder();
         CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
         SemanticAnalyzer sa = new SemanticAnalyzer(top);
-        HashMap<CoolIdentifier, LinkedList<CoolClass>> ig = sa.getGraph();
+        InheritanceGraph ig = sa.getGraph();
         assertThrows(CoolClassInheritanceCycleException.class, ig::hasCycles);
     }
 
     @Test
-    public void TestSelfCycleDetection() {
+    public void TestSelfCycleDetection() throws
+            InvalidClassNameException, ClassDefinedTwiceException,
+            CoolClassInheritanceCycleException {
         ANTLRInputStream ais = new ANTLRInputStream("class A inherits A {};");
         CoolLexer cl = new CoolLexer(ais);
         CommonTokenStream cts = new CommonTokenStream(cl);
         CoolParser cpa = new CoolParser(cts);
         AstBuilder ab = new AstBuilder();
         CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
-        assertThrows(CoolClassInheritanceCycleException.class, () -> new InheritanceGraphBuilder(top));
+        assertThrows(CoolClassInheritanceCycleException.class, () -> new SemanticAnalyzer(top));
     }
 }

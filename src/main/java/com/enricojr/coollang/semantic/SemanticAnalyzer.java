@@ -21,7 +21,7 @@ semantic analysis needs to do several things, maybe not in this order:
 
 public class SemanticAnalyzer {
     private CoolProgram prog;
-    private HashMap<CoolIdentifier, LinkedList<CoolClass>> inheritanceGraph;
+    private InheritanceGraph inheritanceGraph;
     private HashMap<CoolIdentifier, LinkedList<CoolClass>> inheritanceChains;
 
     public SemanticAnalyzer(CoolProgram prog) throws
@@ -39,12 +39,11 @@ public class SemanticAnalyzer {
            I do it here after the symbol tables to make sure that the objects in the inheritance graph have the symbol
            tables. */
         /* Later, I expect to just be able to iterate down any given chain and evaluate stuff. */
-        InheritanceGraph ig = new InheritanceGraph(this.prog);
-        this.inheritanceChains = ig.getChains();
-        this.inheritanceGraph = ig.getGraph();
+        this.inheritanceGraph = new InheritanceGraph(this.prog);
+        this.inheritanceChains = this.inheritanceGraph.getChains();
     }
 
-    public HashMap<CoolIdentifier, LinkedList<CoolClass>> getGraph() {
+    public InheritanceGraph getGraph() {
         return this.inheritanceGraph;
     }
 
@@ -56,8 +55,8 @@ public class SemanticAnalyzer {
         StringBuilder sb = new StringBuilder();
         sb.append("Inheritance Graph:\n");
         sb.append("--------------------\n");
-        for (CoolIdentifier ci : this.inheritanceGraph.keySet()) {
-            LinkedList<CoolClass> chains = this.inheritanceGraph.get(ci);
+        for (CoolIdentifier ci : this.inheritanceGraph.getGraph().keySet()) {
+            LinkedList<CoolClass> chains = this.inheritanceGraph.getGraph().get(ci);
             sb.append(String.format("%s: %s\n", ci, chains.toString()));
         }
         sb.append("--------------------\n");
