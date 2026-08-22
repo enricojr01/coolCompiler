@@ -7,7 +7,7 @@ public class CoolIsVoid extends CoolExpr {
 
     public CoolIsVoid() {}
 
-    public CoolIdentifier getType() {
+    public CoolIdentifier getIdentifier() {
         return identifier;
     }
 

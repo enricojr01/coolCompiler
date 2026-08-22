@@ -5,6 +5,59 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Symbol Tables pt 2. and the SemanticAnalyzer Class
+
+
+### Symbol Tables and Stacks
+
+Worked on Symbol Tables today, the coursework said to use a stack but I opted to
+try a different method. I thought about it for a while and realized that I don't
+need an explicit stack because the inheritance graph already lays out the
+classes in the right order. 
+
+So all that's left for me to do is to a) create a SymbolTable that can hold the
+stuff, and then make sure all the relevant classes have their own SymbolTable.
+
+But which classes are relevant? So looking through the Cool manual and my notes,
+
+- Classes and their methods are global to the program. 
+- Attributes are local to their class.
+- Method parameters are local to the method.
+- Identifiers declared in `let` and `case` expressions are local to the method
+  they occur in.
+
+So that gives me a grand total of 4 classes that I need to add Symbol Tables to:
+
+- CoolProgram (global)
+- CoolClass
+- CoolFormal
+- CoolMethod
+
+The inheritance graph will act as a "stack" of sorts because any given class `N`
+basically form a straight line from `Object` to `N`, as only single inheritance
+is allowed.
+
+```
+Object: [IO, Int, String, Bool, A, B]
+A: []
+B: [C] 
+C: [] 
+
+So the chain for class B (and C) is:
+
+Object -> B -> C;
+
+And for A its:
+
+Object -> A;
+```
+
+All I would need to do now is to add a method to the InheritanceGraph that
+generates a linked list for any class `N` such that it contains all the 
+`CoolClass` instances that form its inheritance chain. Later, when it's time
+to evaluate expressions and such I can just follow the chain back to look up
+identifiers.
+
 ### Weekly Check-in Aug 12 - Aug 19
 
 - began construction of semantic analysis modules / components

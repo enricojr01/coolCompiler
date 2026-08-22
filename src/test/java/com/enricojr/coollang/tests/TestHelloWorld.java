@@ -1,12 +1,14 @@
 package com.enricojr.coollang.tests;
 
 import com.enricojr.coollang.ast.AstBuilder;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
 import com.enricojr.coollang.semantic.InheritanceGraph;
-import com.enricojr.coollang.semantic.InheritanceGraphBuilder;
+import com.enricojr.coollang.semantic.SemanticAnalyzer;
 import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
 import com.enricojr.coollang.semantic.exceptions.CoolClassInheritanceCycleException;
 import com.enricojr.coollang.semantic.exceptions.InvalidClassNameException;
@@ -16,6 +18,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -160,8 +164,8 @@ public class TestHelloWorld {
         CoolParser cpa = new CoolParser(cts);
         AstBuilder ab = new AstBuilder();
         CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
-        InheritanceGraphBuilder igb = new InheritanceGraphBuilder(top);
-        InheritanceGraph ig = igb.getGraph();
+        SemanticAnalyzer sa = new SemanticAnalyzer(top);
+        HashMap<CoolIdentifier, LinkedList<CoolClass>> ig = sa.getGraph();
         assertThrows(CoolClassInheritanceCycleException.class, ig::hasCycles);
     }
 

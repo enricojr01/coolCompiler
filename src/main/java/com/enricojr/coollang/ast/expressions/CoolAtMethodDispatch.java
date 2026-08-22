@@ -2,12 +2,11 @@ package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.constants.CoolType;
 
 public class CoolAtMethodDispatch extends CoolExpr {
     private CoolExpr lhs; 
-    private CoolType type;
-    private CoolIdentifier identifier; 
+    private CoolIdentifier identifier;
+    private CoolIdentifier classType;
     private ArrayList<CoolExpr> arguments;
 
     public CoolAtMethodDispatch() {}
@@ -28,14 +27,6 @@ public class CoolAtMethodDispatch extends CoolExpr {
         this.lhs = lhs;
     }
 
-    public CoolType getType() {
-        return type;
-    }
-
-    public void setType(CoolType type) {
-        this.type = type;
-    }
-
     public ArrayList<CoolExpr> getArguments() {
         return arguments;
     }
@@ -46,5 +37,13 @@ public class CoolAtMethodDispatch extends CoolExpr {
 
     public String toString() {
         return String.format("<CoolAtMethodCall - %s>", this.identifier);
+    }
+
+    public CoolIdentifier getClassType() {
+        return classType;
+    }
+
+    public void setClassType(CoolIdentifier classType) {
+        this.classType = classType;
     }
 }

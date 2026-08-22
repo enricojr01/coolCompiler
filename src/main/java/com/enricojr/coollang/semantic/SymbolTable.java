@@ -1,16 +1,14 @@
-﻿package com.enricojr.coollang.semantic;
+package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 
 import java.util.HashMap;
 
-public class ScopeTable {
+public class SymbolTable {
     private HashMap<CoolIdentifier, CoolBaseNode> symbols = new HashMap<>();
-    private ScopeTable next;
-    private ScopeTable previous;
 
-    public ScopeTable() {}
+    public SymbolTable() {}
 
     public void addSymbol(CoolIdentifier id, CoolBaseNode node) {
         symbols.put(id, node);
@@ -20,19 +18,15 @@ public class ScopeTable {
         return symbols.get(id);
     }
 
-    public ScopeTable getNext() {
-        return next;
+    public boolean hasSymbol(CoolIdentifier id) {
+        return symbols.containsKey(id);
     }
 
-    public void setNext(ScopeTable next) {
-        this.next = next;
+    public HashMap<CoolIdentifier, CoolBaseNode> getHashMap() {
+        return this.symbols;
     }
 
-    public ScopeTable getPrevious() {
-        return previous;
-    }
-
-    public void setPrevious(ScopeTable previous) {
-        this.previous = previous;
+    public void addAll(SymbolTable st) {
+        this.symbols.putAll(st.getHashMap());
     }
 }

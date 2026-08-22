@@ -6,18 +6,17 @@ import java.io.InputStream;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
+import com.enricojr.coollang.semantic.SemanticAnalyzer;
 import com.enricojr.coollang.util.DetailedErrorListener;
 import org.antlr.v4.runtime.*;
 import com.enricojr.coollang.ast.AstBuilder;
-import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.ast.program.CoolProgram;
-import com.enricojr.coollang.semantic.InheritanceGraphBuilder;
 
 import static junit.framework.Assert.fail;
 
 public class Test {
 
-    public static void main(String[] args) throws Exception {
+    public static <SemanticAnalyser> void main(String[] args) throws Exception {
         System.out.println("If you see this, it's working!");
         String inputFile = null;
 
@@ -46,11 +45,11 @@ public class Test {
         AstBuilder ab = new AstBuilder();
         ProgContext prog = parser.prog();
         CoolProgram top = (CoolProgram) ab.visitProg(prog);
-        AstPrinter ap = new AstPrinter(top);
-        InheritanceGraphBuilder igb = new InheritanceGraphBuilder(top);
-        System.out.println("----Abstract Syntax Tree----");
-        System.out.println(ap);
-        System.out.println("----Inheritance Graph----");
-        System.out.println(igb);
+       
+        System.out.println("Performing Semantic Analysis");
+        SemanticAnalyzer sa = new SemanticAnalyzer(top);
+
+        System.out.println(sa.reportAbstractSyntaxTree());
+        System.out.println(sa.reportInheritanceGraph());
     }
 }

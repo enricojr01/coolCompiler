@@ -49,14 +49,14 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         CoolAtMethodDispatch camd = new CoolAtMethodDispatch();
         List<ExprContext> expressions = ctx.expr();
         CoolExpr lhs = this.visitExpression(expressions.get(0));
-        CoolType type = new CoolType(ctx.TYPE().getText());
+        CoolIdentifier classType = new CoolIdentifier(ctx.TYPE().getText());
         CoolIdentifier methodName = new CoolIdentifier(ctx.ID().getText());
 
         ArrayList<CoolExpr> params = new ArrayList<>();
 
         camd.setLhs(lhs);
         camd.setIdentifier(methodName);
-        camd.setType(type);
+        camd.setClassType(classType);
         camd.setArguments(params);
 
         return camd;
@@ -97,11 +97,11 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         List<ExprContext> branches = expressions.subList(1, expressions.size() - 1);
         ExprContext predicate = expressions.getFirst();
 
-        ArrayList<CoolCase.Branch> ccBranches = new ArrayList<>();
+        ArrayList<CoolCaseBranch> ccBranches = new ArrayList<>();
         for (int i = 0; i < formals.size() - 1; i++) {
             CoolFormal formal = (CoolFormal) this.visitFormal(formals.get(i));
             CoolExpr branchExpr = this.visitExpression(branches.get(i));
-            CoolCase.Branch b = cc.createBranch(formal, branchExpr);
+            CoolCaseBranch b = cc.createBranch(formal, branchExpr);
             ccBranches.add(b);
         }
 

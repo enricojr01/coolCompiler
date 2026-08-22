@@ -3,13 +3,14 @@ package com.enricojr.coollang.ast.program;
 import java.util.ArrayList;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
+import com.enricojr.coollang.semantic.SymbolTable;
 
 public class CoolMethod extends CoolBaseNode {
     private CoolIdentifier name;
-    // TODO: I'm going to need some kind of symbol table for this but we're not there in class yet
     private CoolIdentifier returnType;
     private CoolParamList parameters;
     private ArrayList<CoolExpr> expressions;
+    private SymbolTable symbols;
 
     public CoolMethod() {}
 
@@ -43,6 +44,14 @@ public class CoolMethod extends CoolBaseNode {
 
     public void setParameters(CoolParamList parameters) {
         this.parameters = parameters;
+    }
+
+    public SymbolTable getSymbols() {
+        return symbols;
+    }
+
+    public void setSymbols(SymbolTable symbols) {
+        this.symbols = symbols;
     }
 
     public String toString() {
