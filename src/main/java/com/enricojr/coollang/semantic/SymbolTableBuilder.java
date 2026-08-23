@@ -31,17 +31,24 @@ public class SymbolTableBuilder {
     }
 
     public void buildClassSymbolTable(CoolClass cc) {
-        ArrayList<CoolMethod> methods = cc.getMethods();
         SymbolTable classLocal = new SymbolTable();
+        ArrayList<CoolAttribute> attributes = cc.getAttributes();
+        ArrayList<CoolMethod> methods = cc.getMethods();
 
-        if (methods == null) {
-            return;
-        } else {
+        if (attributes != null) {
+            for (CoolAttribute ca : attributes) {
+                classLocal.addSymbol(ca.getIdentifier(), ca);
+            }
+        }
+
+        if (methods != null) {
             for (CoolMethod cm : methods) {
                 classLocal.addSymbol(cm.getName(), cm);
                 SymbolTable methodLocal = new SymbolTable();
+                System.out.println("examining method: " + cm);
 
                 for (CoolExpr ce : cm.getExpressions()) {
+                    System.out.println("examining expression: " + ce);
                     if (ce instanceof CoolLet) {
                         ArrayList<CoolAttribute> attribs = ((CoolLet) ce).getAttributes();
                         for (CoolAttribute ca : attribs) {
@@ -56,6 +63,7 @@ public class SymbolTableBuilder {
                         }
                     }
                 }
+
                 cm.setSymbols(methodLocal);
             }
         }

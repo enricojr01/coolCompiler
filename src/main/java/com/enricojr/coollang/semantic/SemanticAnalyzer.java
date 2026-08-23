@@ -1,9 +1,12 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstPrinter;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.program.CoolMethod;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.semantic.exceptions.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -63,8 +66,50 @@ public class SemanticAnalyzer {
         StringBuilder sb = new StringBuilder();
         sb.append("Symbol Tables:\n");
         sb.append("--------------\n");
+        for (ClassTreeNode child : this.tree) {
+            sb = this.appendClassSymbolTable(sb, child);
+            sb = this.appendMethodSymbolTable(sb, child);
+        }
         sb.append("--------------\n");
 
         return sb.toString();
+    }
+
+    private StringBuilder appendClassSymbolTable(StringBuilder sb, ClassTreeNode ctn) {
+        SymbolTable st = ctn.getCoolClass().getSymbols();
+        if (ctn.getIdentifier().equals(new CoolIdentifier("String")) ||
+                ctn.getIdentifier().equals(new CoolIdentifier("Bool")) ||
+                ctn.getIdentifier().equals(new CoolIdentifier("Int"))
+        ) {
+            return sb;
+        }
+        if (st != null) {
+            sb.append(String.format("------<%s (attributes)>-------\n", ctn.getIdentifier().getValue()));
+            sb.append(st);
+            sb.append(String.format("------</%s (attributes)>------\n", ctn.getIdentifier().getValue()));
+        }
+        return sb;
+    }
+
+    private StringBuilder appendMethodSymbolTable(StringBuilder sb, ClassTreeNode ctn) {
+        ArrayList<CoolMethod> methods = ctn.getCoolClass().getMethods();
+        if (ctn.getIdentifier().equals(new CoolIdentifier("String")) ||
+                ctn.getIdentifier().equals(new CoolIdentifier("Bool")) ||
+                ctn.getIdentifier().equals(new CoolIdentifier("Int"))
+        ) {
+            return sb;
+        }
+        if (methods != null) {
+            sb.append(String.format("------<%s (methods)>-------\n", ctn.getIdentifier().getValue()));
+            for (CoolMethod cm : methods) {
+                sb.append(String.format("---<method: %s>----\n", cm.getName().getValue()));
+                sb.append(cm.getSymbols());
+                sb.append(String.format("---</method: %s>---\n", cm.getName().getValue()));
+            }
+            sb.append(String.format("------</%s (methods)>-------\n", ctn.getIdentifier().getValue()));
+        } else {
+            return sb;
+        }
+        return sb;
     }
 }
