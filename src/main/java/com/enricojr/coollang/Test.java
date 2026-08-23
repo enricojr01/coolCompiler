@@ -50,7 +50,8 @@ public class Test {
         SemanticAnalyzer sa = new SemanticAnalyzer(top);
 
         System.out.println(sa.reportAbstractSyntaxTree());
-        System.out.println(sa.reportInheritanceGraph());
+        System.out.println(sa.reportInheritanceTree());
         System.out.println(sa.reportInheritanceChains());
+        System.out.println(sa.reportSymbolTables());
     }
 }

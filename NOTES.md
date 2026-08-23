@@ -5,17 +5,38 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
-### Symbol Tables pt 2. and the SemanticAnalyzer Class
+### Rebuilding the Symbol Table Builder
+Since I changed the inheritance graph to an actual tree (and renamed it to 
+ClassTree) I now have to re-do the SymbolTable builder.
 
+For one I need to decide if I want to stick to the original plan of "injecting"
+the symbol tables into the AST, or if I want to build off my new class tree.
+
+### Revisiting the Inheritance Graph
+So the adjacency list ended up not working out due to me adding Symbol Tables
+to some of the base classes.
+
+In doing so, I inadvertently imposed the requirement that we be able to traverse
+backwards through a graph from "leaf" to root. The initial implementation was
+basically one-way, and worked fine initially, but I could not find a clean way
+to perform the "reverse" operation - that is, given a node on the graph trace
+a path back to the "root". The adjacency list was a 
+`HashMap<CoolIdentifier, LinkedList<CoolClass>>` and the neighbors for any given
+identifier were considered "equal" when there was, in fact, an actual hierarchy
+that needed to be respected.
+
+I ended up going back to my first design which was an N-tree. I guess I was so
+caught up with solving cycle detection that it came at the expense of everything
+else.
 
 ### Symbol Tables and Stacks
 
-Worked on Symbol Tables today, the coursework said to use a stack but I opted to
+Worked on Symbol Tables today, the coursework said to use a stack, but I opted to
 try a different method. I thought about it for a while and realized that I don't
 need an explicit stack because the inheritance graph already lays out the
 classes in the right order. 
 
-So all that's left for me to do is to a) create a SymbolTable that can hold the
+So all that's left for me to do is to a. create a SymbolTable that can hold the
 stuff, and then make sure all the relevant classes have their own SymbolTable.
 
 But which classes are relevant? So looking through the Cool manual and my notes,
@@ -167,7 +188,7 @@ this from the book `The Definitive ANTLR 4 Reference`.
 
 | Syntax                | Description                                 |
 |-----------------------|---------------------------------------------|
-| x                     | Match token, rule referenec, or subrule `x` |
+| x                     | Match token, rule reference, or subrule `x` |
 | x y ... z             | Match a sequence of rule elements.          |
 | (...\|...\|...)       | Subrule with multiple alternatives.         |
 | x?                    | Match `x` or skip it.                       |

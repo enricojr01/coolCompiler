@@ -460,8 +460,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier returnType = null;
 
-        System.out.println("Visiting method definition: " + name.getValue());
-
         // NOTE: it's either SELF_TYPE or TYPE never both.
         // NOTE: maybe consider not using exceptions as flow control like this
         try {

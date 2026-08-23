@@ -1,12 +1,8 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstPrinter;
-import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
-import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
-import com.enricojr.coollang.semantic.exceptions.CoolClassInheritanceCycleException;
-import com.enricojr.coollang.semantic.exceptions.InvalidClassNameException;
+import com.enricojr.coollang.semantic.exceptions.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -21,11 +17,10 @@ semantic analysis needs to do several things, maybe not in this order:
 
 public class SemanticAnalyzer {
     private CoolProgram prog;
-    private InheritanceGraph inheritanceGraph;
-    private HashMap<CoolIdentifier, LinkedList<CoolClass>> inheritanceChains;
+    private ClassTree tree;
 
     public SemanticAnalyzer(CoolProgram prog) throws
-            InvalidClassNameException, ClassDefinedTwiceException, CoolClassInheritanceCycleException {
+            CoolParentUndefinedException, CoolInvalidInheritanceException, CoolClassUndefinedException {
         this.prog = prog;
 
         SymbolTableBuilder stb = new SymbolTableBuilder(this.prog);
@@ -39,27 +34,17 @@ public class SemanticAnalyzer {
            I do it here after the symbol tables to make sure that the objects in the inheritance graph have the symbol
            tables. */
         /* Later, I expect to just be able to iterate down any given chain and evaluate stuff. */
-        this.inheritanceGraph = new InheritanceGraph(this.prog);
-        this.inheritanceChains = this.inheritanceGraph.getChains();
+        ClassTreeBuilder ctb = new ClassTreeBuilder(this.prog);
+        this.tree = ctb.getClassTree();
     }
 
-    public InheritanceGraph getGraph() {
-        return this.inheritanceGraph;
-    }
-
-    public HashMap<CoolIdentifier, LinkedList<CoolClass>> getChains() {
-        return this.inheritanceChains;
-    }
-
-    public String reportInheritanceGraph() {
+    public String reportInheritanceTree() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Inheritance Graph:\n");
-        sb.append("--------------------\n");
-        for (CoolIdentifier ci : this.inheritanceGraph.getGraph().keySet()) {
-            LinkedList<CoolClass> chains = this.inheritanceGraph.getGraph().get(ci);
-            sb.append(String.format("%s: %s\n", ci, chains.toString()));
-        }
-        sb.append("--------------------\n");
+        sb.append("Inheritance Tree:\n");
+        sb.append("-------------------\n");
+        sb.append(this.tree);
+        sb.append("-------------------\n");
+        sb.append("\n");
         return sb.toString();
     }
 
@@ -67,17 +52,23 @@ public class SemanticAnalyzer {
         StringBuilder sb = new StringBuilder();
         sb.append("Inheritance Chains:\n");
         sb.append("--------------------\n");
-        for (CoolIdentifier ci : this.inheritanceChains.keySet()) {
-            LinkedList<CoolClass> chains = this.inheritanceChains.get(ci);
-            sb.append(String.format("%s: %s\n", ci, chains.toString()));
-        }
         sb.append("--------------------\n");
+        sb.append("\n");
         return sb.toString();
 
     }
 
     public String reportAbstractSyntaxTree() {
         AstPrinter ap = new AstPrinter(this.prog);
-        return ap.toString();
+        return ap + "\n";
+    }
+
+    public String reportSymbolTables() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Symbol Tables:\n");
+        sb.append("--------------\n");
+        sb.append("--------------\n");
+
+        return sb.toString();
     }
 }

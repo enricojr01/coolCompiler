@@ -29,4 +29,12 @@ public class SymbolTable {
     public void addAll(SymbolTable st) {
         this.symbols.putAll(st.getHashMap());
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (CoolIdentifier ci : this.symbols.keySet()) {
+            sb.append(String.format("%s: %s\n", ci, this.symbols.get(ci)));
+        }
+        return sb.toString();
+    }
 }

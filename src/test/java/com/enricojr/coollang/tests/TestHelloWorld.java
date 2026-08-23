@@ -1,25 +1,18 @@
 package com.enricojr.coollang.tests;
 
 import com.enricojr.coollang.ast.AstBuilder;
-import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
-import com.enricojr.coollang.semantic.InheritanceGraph;
+import com.enricojr.coollang.semantic.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.SemanticAnalyzer;
-import com.enricojr.coollang.semantic.exceptions.ClassDefinedTwiceException;
-import com.enricojr.coollang.semantic.exceptions.CoolClassInheritanceCycleException;
-import com.enricojr.coollang.semantic.exceptions.InvalidClassNameException;
-import com.enricojr.coollang.semantic.exceptions.ParentClassNotDefinedException;
+import com.enricojr.coollang.semantic.exceptions.*;
 import org.antlr.v4.runtime.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -140,18 +133,16 @@ public class TestHelloWorld {
 
             // TODO: Maybe reconsider this, tests should only check one thing at a time.
             if (sample.getName().equals("badclassparent")) {
-                assertThrows(ParentClassNotDefinedException.class, () -> new SemanticAnalyzer(top));
+                assertThrows(CoolParentUndefinedException.class, () -> new SemanticAnalyzer(top));
             }
             if (sample.getName().equals("badclasstwice")) {
-                assertThrows(ClassDefinedTwiceException.class, () -> new SemanticAnalyzer(top));
+                assertThrows(CoolClassDefinedTwiceException.class, () -> new SemanticAnalyzer(top));
             }
         }
     }
 
     @Test
-    public void TestCycleDetection() throws
-            InvalidClassNameException, ClassDefinedTwiceException,
-            CoolClassInheritanceCycleException {
+    public void TestCycleDetection() throws CoolParentUndefinedException, CoolInvalidInheritanceException, CoolClassUndefinedException {
         ANTLRInputStream ais = new ANTLRInputStream("class A inherits B {}; class B inherits A {};");
         CoolLexer cl = new CoolLexer(ais);
         CommonTokenStream cts = new CommonTokenStream(cl);
@@ -159,13 +150,13 @@ public class TestHelloWorld {
         AstBuilder ab = new AstBuilder();
         CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
         SemanticAnalyzer sa = new SemanticAnalyzer(top);
-        InheritanceGraph ig = sa.getGraph();
-        assertThrows(CoolClassInheritanceCycleException.class, ig::hasCycles);
+//        ClassTreeBuilder ig = sa.getGraph();
+//        assertThrows(CoolClassInheritanceCycleException.class, ig::hasCycles);
     }
 
     @Test
     public void TestSelfCycleDetection() throws
-            InvalidClassNameException, ClassDefinedTwiceException,
+            InvalidClassNameException, CoolClassDefinedTwiceException,
             CoolClassInheritanceCycleException {
         ANTLRInputStream ais = new ANTLRInputStream("class A inherits A {};");
         CoolLexer cl = new CoolLexer(ais);

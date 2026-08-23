@@ -9,20 +9,30 @@ import com.enricojr.coollang.ast.program.*;
 import java.util.ArrayList;
 
 public class SymbolTableBuilder {
-    private CoolProgram prog;
+    private ClassTree tree;
 
     public SymbolTableBuilder(CoolProgram prog) {
         this.prog = prog;
         this.buildGlobalSymbolTable();
     }
 
+    public SymbolTableBuilder(ClassTree tree) {
+        this.tree = tree;
+        buildGlobalSymbolTable();
+    }
+
     public void buildGlobalSymbolTable() {
-        ArrayList<CoolClass> classes = prog.getClasses();
-        SymbolTable global = new SymbolTable();
-        for (CoolClass cc : classes) {
-            global.addSymbol(cc.getName(), cc);
-            this.buildClassSymbolTable(cc);
+        for (ClassTreeNode ctn : this.tree) {
+            CoolClass cc = ctn.getCoolClass();
+            SymbolTable global = new SymbolTable();
+
         }
+//        ArrayList<CoolClass> classes = prog.getClasses();
+//        SymbolTable global = new SymbolTable();
+//        for (CoolClass cc : classes) {
+//            global.addSymbol(cc.getName(), cc);
+//            this.buildClassSymbolTable(cc);
+//        }
     }
 
     public void buildClassSymbolTable(CoolClass cc) {
