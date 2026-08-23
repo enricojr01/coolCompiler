@@ -4,13 +4,12 @@ import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ClassTreeNode {
     private CoolIdentifier identifier;
     private CoolClass coolClass;
     private ClassTreeNode parent;
-    private List<ClassTreeNode> children;
+    private ArrayList<ClassTreeNode> children;
 
     public ClassTreeNode() {
         this.children = new ArrayList<>();
@@ -42,11 +41,11 @@ public class ClassTreeNode {
         this.coolClass = coolClass;
     }
 
-    public List<ClassTreeNode> getChildren() {
+    public ArrayList<ClassTreeNode> getChildren() {
         return children;
     }
 
-    public void setChildren(List<ClassTreeNode> children) {
+    public void setChildren(ArrayList<ClassTreeNode> children) {
         this.children = children;
     }
 

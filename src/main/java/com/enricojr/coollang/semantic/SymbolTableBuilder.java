@@ -11,60 +11,58 @@ import java.util.ArrayList;
 public class SymbolTableBuilder {
     private ClassTree tree;
 
-    public SymbolTableBuilder(CoolProgram prog) {
-        this.prog = prog;
+    public SymbolTableBuilder(ClassTree tree) {
+        this.tree = tree;
         this.buildGlobalSymbolTable();
     }
 
-    public SymbolTableBuilder(ClassTree tree) {
-        this.tree = tree;
-        buildGlobalSymbolTable();
-    }
-
     public void buildGlobalSymbolTable() {
+        // all classes and their methods go into the symbol table
+        // the global table is on the "Object" class, i.e. the root
+        // of the tree.
+        SymbolTable global = new SymbolTable();
+
         for (ClassTreeNode ctn : this.tree) {
             CoolClass cc = ctn.getCoolClass();
-            SymbolTable global = new SymbolTable();
-
+            this.buildClassSymbolTable(cc);
+            global.addSymbol(cc.getName(), cc);
         }
-//        ArrayList<CoolClass> classes = prog.getClasses();
-//        SymbolTable global = new SymbolTable();
-//        for (CoolClass cc : classes) {
-//            global.addSymbol(cc.getName(), cc);
-//            this.buildClassSymbolTable(cc);
-//        }
+        this.tree.getRoot().getCoolClass().setSymbols(global);
     }
 
     public void buildClassSymbolTable(CoolClass cc) {
         ArrayList<CoolMethod> methods = cc.getMethods();
         SymbolTable classLocal = new SymbolTable();
 
-        for (CoolMethod cm : methods) {
-            classLocal.addSymbol(cm.getName(), cm);
-            SymbolTable methodLocal = new SymbolTable();
+        if (methods == null) {
+            return;
+        } else {
+            for (CoolMethod cm : methods) {
+                classLocal.addSymbol(cm.getName(), cm);
+                SymbolTable methodLocal = new SymbolTable();
 
-            for (CoolExpr ce : cm.getExpressions()) {
-                if (ce instanceof CoolLet) {
-                    ArrayList<CoolAttribute> attribs = ((CoolLet) ce).getAttributes();
-                    for (CoolAttribute ca : attribs) {
-                        methodLocal.addSymbol(ca.getIdentifier(), ca);
+                for (CoolExpr ce : cm.getExpressions()) {
+                    if (ce instanceof CoolLet) {
+                        ArrayList<CoolAttribute> attribs = ((CoolLet) ce).getAttributes();
+                        for (CoolAttribute ca : attribs) {
+                            methodLocal.addSymbol(ca.getIdentifier(), ca);
+                        }
+                    }
+                    if (ce instanceof CoolCase) {
+                        ArrayList<CoolCaseBranch> branches = ((CoolCase) ce).getBranches();
+                        for (CoolCaseBranch ccb : branches) {
+                            CoolFormal cf = ccb.getFormal();
+                            methodLocal.addSymbol(cf.getName(), ccb);
+                        }
                     }
                 }
-                if (ce instanceof CoolCase) {
-                    ArrayList<CoolCaseBranch> branches = ((CoolCase) ce).getBranches();
-                    for (CoolCaseBranch ccb : branches) {
-                        CoolFormal cf = ccb.getFormal();
-                        methodLocal.addSymbol(cf.getName(), ccb);
-                    }
-                }
+                cm.setSymbols(methodLocal);
             }
-
-            cm.setSymbols(methodLocal);
         }
         cc.setSymbols(classLocal);
     }
 
-    public CoolProgram getProg() {
-        return prog;
+    public ClassTree getTree() {
+        return this.tree;
     }
 }

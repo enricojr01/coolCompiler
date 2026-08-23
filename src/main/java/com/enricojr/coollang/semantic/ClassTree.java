@@ -24,10 +24,20 @@ public class ClassTree implements Iterable<ClassTreeNode> {
             while (!travel.isEmpty()) {
                 ClassTreeNode current = travel.pop();
                 iterate.push(current);
-                ArrayList<ClassTreeNode> children = (ArrayList<ClassTreeNode>) current.getChildren();
+                ArrayList<ClassTreeNode> children = current.getChildren();
                 if (children != null && !children.isEmpty()) {
                     for (ClassTreeNode child : current.getChildren()) {
-                        travel.push(child);
+                        CoolIdentifier childName = child.getCoolClass().getName();
+                        // TODO: remove IO later because right now it doesn't have any methods, but later on it will.
+                        if (childName.equals("Int") ||
+                                childName.equals("String") ||
+                                childName.equals("Bool") ||
+                                childName.equals("IO")
+                        ) {
+                            continue;
+                        } else {
+                            travel.push(child);
+                        }
                     }
                 }
             }
@@ -69,7 +79,7 @@ public class ClassTree implements Iterable<ClassTreeNode> {
         ClassTreeNode boolNode = new ClassTreeNode(boolClass);
 
         this.root = rootNode;
-        this.root.setChildren(List.of(ioNode, stringNode, intNode, boolNode));
+        this.root.setChildren(new ArrayList<>(List.of(ioNode, stringNode, intNode, boolNode)));
     }
 
     public void addChild(CoolIdentifier parentIdentifier, CoolClass childClass) throws
