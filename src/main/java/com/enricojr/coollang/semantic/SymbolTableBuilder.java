@@ -1,9 +1,7 @@
 package com.enricojr.coollang.semantic;
 
-import com.enricojr.coollang.ast.expressions.CoolCase;
-import com.enricojr.coollang.ast.expressions.CoolCaseBranch;
-import com.enricojr.coollang.ast.expressions.CoolExpr;
-import com.enricojr.coollang.ast.expressions.CoolLet;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
 import java.util.ArrayList;
@@ -45,10 +43,8 @@ public class SymbolTableBuilder {
             for (CoolMethod cm : methods) {
                 classLocal.addSymbol(cm.getName(), cm);
                 SymbolTable methodLocal = new SymbolTable();
-                System.out.println("examining method: " + cm);
 
                 for (CoolExpr ce : cm.getExpressions()) {
-                    System.out.println("examining expression: " + ce);
                     if (ce instanceof CoolLet) {
                         ArrayList<CoolAttribute> attribs = ((CoolLet) ce).getAttributes();
                         for (CoolAttribute ca : attribs) {
@@ -72,5 +68,37 @@ public class SymbolTableBuilder {
 
     public ClassTree getTree() {
         return this.tree;
+    }
+
+    private SymbolTable findDeclarations(SymbolTable st, CoolExpr expr) {
+        if (expr instanceof CoolParenthesisExpr) {
+            CoolParenthesisExpr cpe = (CoolParenthesisExpr) expr;
+            CoolExpr next = cpe.getExpression();
+            st.addAll(this.findDeclarations(st, next));
+        } else if (expr instanceof CoolLet) {
+            CoolLet cl = (CoolLet) expr;
+            ArrayList<CoolAttribute> attrs = cl.getAttributes();
+            CoolExpr next = cl.getExpression();
+            for (CoolAttribute ca : attrs) {
+                st.addSymbol(ca.getIdentifier(), ca);
+            }
+            return this.findDeclarations(st, next);
+        } else if (expr instanceof CoolCase) {
+            CoolCase cca = (CoolCase) expr;
+            ArrayList<CoolCaseBranch> branches = cca.getBranches();
+            for (CoolCaseBranch ccb : branches) {
+                CoolFormal cf  = ccb.getFormal();
+                st.addSymbol(cf.getName(), cf);
+            }
+        } else if (expr instanceof CoolBlock) {
+            CoolBlock cb = (CoolBlock) expr;
+            ArrayList<CoolExpr> exprs = cb.getBody();
+            for (CoolExpr ce : exprs) {
+                st.addAll(this.findDeclarations(st, ce));
+            }
+        }
+
+        return st;
+
     }
 }
