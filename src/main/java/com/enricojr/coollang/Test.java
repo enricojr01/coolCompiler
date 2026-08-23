@@ -52,6 +52,6 @@ public class Test {
         System.out.println(sa.reportAbstractSyntaxTree());
         System.out.println(sa.reportInheritanceTree());
         System.out.println(sa.reportInheritanceChains());
-        System.out.println(sa.reportSymbolTables());
+//        System.out.println(sa.reportSymbolTables());
     }
 }

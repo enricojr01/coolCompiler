@@ -5,6 +5,7 @@ import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.parser.CoolBaseVisitor;
 import com.enricojr.coollang.parser.CoolParser.*;
+import com.enricojr.coollang.semantic.SymbolTable;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
+    private CoolMethod currentMethod;
 
     @Override
     public CoolBaseNode visitAdd(AddContext ctx) {
@@ -96,17 +98,20 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         List<FormalContext> formals = ctx.formal();
         List<ExprContext> branches = expressions.subList(1, expressions.size() - 1);
         ExprContext predicate = expressions.getFirst();
+        SymbolTable st = new SymbolTable();
 
         ArrayList<CoolCaseBranch> ccBranches = new ArrayList<>();
         for (int i = 0; i < formals.size() - 1; i++) {
             CoolFormal formal = (CoolFormal) this.visitFormal(formals.get(i));
             CoolExpr branchExpr = this.visitExpression(branches.get(i));
             CoolCaseBranch b = cc.createBranch(formal, branchExpr);
+            st.addSymbol(formal.getName(), formal);
             ccBranches.add(b);
         }
 
         cc.setBranches(ccBranches);
         cc.setPredicate(this.visitExpression(predicate));
+        cc.setSymbols(st);
 
         return cc;
     }
@@ -143,6 +148,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         CoolClass cc = new CoolClass();
         CoolIdentifier className = new CoolIdentifier(ctx.TYPE(0).getText());
         CoolIdentifier parentName = null;
+        SymbolTable st = new SymbolTable();
 
         if (ctx.TYPE(1) != null) {
             parentName = new CoolIdentifier(ctx.TYPE(1).getText());
@@ -155,11 +161,13 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
             if (fc instanceof AttributeDefContext) {
                 CoolAttribute ca = (CoolAttribute) this.visitAttributeDef((AttributeDefContext) fc);
                 cas.add(ca);
+                st.addSymbol(ca.getIdentifier(), ca);
             }
 
             if (fc instanceof MethodDefContext) {
                 CoolMethod cm = (CoolMethod) this.visitMethodDef((MethodDefContext) fc);
                 cms.add(cm);
+                st.addSymbol(cm.getName(), cm);
             }
         }
 
@@ -169,6 +177,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         }
         cc.setAttributes(cas);
         cc.setMethods(cms);
+        cc.setSymbols(st);
 
         return cc;
     }
@@ -404,16 +413,19 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         CoolLet cl = new CoolLet();
         List<AttributeContext> attribs = ctx.attribute();
         ExprContext ec = ctx.expr();
+        SymbolTable st = new SymbolTable();
 
         ArrayList<CoolAttribute> attributes = new ArrayList<>();
         for (AttributeContext ac : attribs) {
             CoolAttribute ca = (CoolAttribute) this.visitAttribute(ac);
             attributes.add(ca);
+            st.addSymbol(ca.getIdentifier(), ca);
         }
         CoolExpr ce = this.visitExpression(ec);
 
         cl.setAttributes(attributes);
         cl.setExpression(ce);
+        cl.setSymbols(st);
 
         return cl;
     }
@@ -459,6 +471,11 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
         CoolParamList cpl = (CoolParamList) this.visitParamList(plc);
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier returnType = null;
+        SymbolTable st = new SymbolTable();
+
+        for (CoolFormal cf : cpl.getParameters()) {
+            st.addSymbol(cf.getName(), cf);
+        }
 
         // NOTE: it's either SELF_TYPE or TYPE never both.
         // NOTE: maybe consider not using exceptions as flow control like this
@@ -556,16 +573,18 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     public CoolBaseNode visitProg(ProgContext ctx) {
         // prog: CoolClass+;
         CoolProgram coolProg = new CoolProgram();
+        SymbolTable st = new SymbolTable();
 
         List<CoolClassContext> classes = ctx.coolClass();
         ArrayList<CoolClass> coolClasses = new ArrayList<>();
 
         for (CoolClassContext c : classes) {
             CoolClass ccn = (CoolClass) this.visitCoolClass(c);
+            st.addSymbol(ccn.getName(), ccn);
             coolClasses.add(ccn);
         }
 
-        // coolProg.setChildren(coolClasses);
+        coolProg.setSymbols(st);
         coolProg.setClasses(coolClasses);
         return coolProg;
     }
