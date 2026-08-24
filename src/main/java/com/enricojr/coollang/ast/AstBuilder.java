@@ -5,6 +5,7 @@ import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.parser.CoolBaseVisitor;
 import com.enricojr.coollang.parser.CoolParser.*;
+import com.enricojr.coollang.parser.CoolVisitor;
 import com.enricojr.coollang.semantic.SymbolTable;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -14,7 +15,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
+public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVisitor<CoolBaseNode> {
     private CoolMethod currentMethod;
 
     @Override
@@ -232,74 +233,12 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
     }
 
     public CoolExpr visitExpression(ExprContext exc) {
-        CoolExpr expr = null;
-        // TODO: Double dispatch? I WAS USING THIS WRONG THE ENTIRE DAMNED TIME GAHHH
-        if (exc instanceof AssignContext) {
-            expr = (CoolAssign) this.visitAssign((AssignContext) exc);
-        } else if (exc instanceof MethodDispatchContext) {
-            expr = (CoolDotMethodDispatch) this.visitMethodDispatch((MethodDispatchContext) exc);
-        } else if (exc instanceof AtMethodDispatchContext) {
-            expr = (CoolAtMethodDispatch) this.visitAtMethodDispatch((AtMethodDispatchContext) exc);
-        } else if (exc instanceof DotMethodDispatchContext) {
-            expr = (
-                (CoolDotMethodDispatch) 
-                this.visitDotMethodDispatch((DotMethodDispatchContext) exc)
-            );
-        } else if (exc instanceof IfStatementContext) {
-            expr = (CoolIf) this.visitIfStatement((IfStatementContext) exc);
-        } else if (exc instanceof WhileStatementContext) {
-            expr = (CoolWhile) this.visitWhileStatement((WhileStatementContext) exc);
-        } else if (exc instanceof LetStatementContext) {
-            expr = (CoolLet) this.visitLetStatement((LetStatementContext) exc);
-        } else if (exc instanceof CaseStatementContext) {
-            expr = (CoolCase) this.visitCaseStatement((CaseStatementContext) exc);
-        } else if (exc instanceof InstantiateContext) {
-            expr = (CoolInstantiate) this.visitInstantiate((InstantiateContext) exc);
-        } else if (exc instanceof IsVoidContext) {
-            expr = (CoolIsVoid) this.visitIsVoid((IsVoidContext) exc);
-        } else if (exc instanceof CodeBlockContext) {
-            expr = (CoolBlock) this.visitCodeBlock((CodeBlockContext) exc);
-        } else if (exc instanceof AddContext) {
-            expr = (CoolBinaryOp) this.visitAdd((AddContext) exc);
-        } else if (exc instanceof SubtractContext) {
-            expr = (CoolBinaryOp) this.visitSubtract((SubtractContext) exc);
-        } else if (exc instanceof MultiplyContext) {
-            expr = (CoolBinaryOp) this.visitMultiply((MultiplyContext) exc);
-        } else if (exc instanceof DivideContext) {
-            expr = (CoolBinaryOp) this.visitDivide((DivideContext) exc);
-        } else if (exc instanceof ComplementContext) {
-            expr = (CoolUnaryOp) this.visitComplement((ComplementContext) exc);
-        } else if (exc instanceof LtContext) {
-            expr = (CoolBinaryOp) this.visitLt((LtContext) exc); 
-        } else if (exc instanceof LteContext) {
-            expr = (CoolBinaryOp) this.visitLte((LteContext) exc);
-        } else if (exc instanceof GtContext) {
-            expr = (CoolBinaryOp) this.visitGt((GtContext) exc);
-        } else if (exc instanceof GteContext) {
-            expr = (CoolBinaryOp) this.visitGte((GteContext) exc);
-        } else if (exc instanceof IsEqualContext) {
-            expr = (CoolBinaryOp) this.visitIsEqual((IsEqualContext) exc);
-        } else if (exc instanceof NotContext) {
-            expr = (CoolUnaryOp) this.visitNot((NotContext) exc);
-        } else if (exc instanceof ParenthesisExprContext) {
-            expr = (CoolParenthesisExpr) this.visitParenthesisExpr((ParenthesisExprContext) exc) ;
-        } else if (exc instanceof IdentifierContext) {
-            expr = (CoolIdentifier) this.visitIdentifier((IdentifierContext) exc);
-        } else if (exc instanceof IntegerContext) {
-            expr = (CoolInteger) this.visitInteger((IntegerContext) exc);
-        } else if (exc instanceof StringContext) {
-            expr = (CoolString) this.visitString((StringContext) exc);
-        } else if (exc instanceof SelfContext) {
-            expr = (CoolSelf) this.visitSelf((SelfContext) exc) ;
-        } else if (exc instanceof TrueContext) {
-            expr = new CoolBool(true);
-        } else if (exc instanceof FalseContext) {
-            expr = new CoolBool(false);
+        if (exc != null) {
+            CoolExpr expr = (CoolExpr) exc.accept(this);
+            return expr;
         } else {
-            // throw new WTFException;
+            return null;
         }
-
-        return expr;
     }
 
     @Override
@@ -636,11 +575,12 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visit(ParseTree tree) {
-        if (tree instanceof ProgContext) {
-            return visitProg((ProgContext) tree);
-        } else {
-            return null;
-        }
+        return tree.accept(this);
+//        if (tree instanceof ProgContext) {
+//            return this.visitProg((ProgContext) tree);
+//        } else {
+//            return null;
+//        }
     }
 
     @Override
