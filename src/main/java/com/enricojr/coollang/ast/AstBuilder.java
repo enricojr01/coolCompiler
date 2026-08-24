@@ -636,7 +636,11 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     @Override
     public CoolBaseNode visit(ParseTree tree) {
-        throw new RuntimeException("This function not implemented!");
+        if (tree instanceof ProgContext) {
+            return visitProg((ProgContext) tree);
+        } else {
+            return null;
+        }
     }
 
     @Override

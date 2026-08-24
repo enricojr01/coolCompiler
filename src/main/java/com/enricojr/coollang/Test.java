@@ -35,14 +35,14 @@ public class Test {
 
         System.out.println("Parsing input...");
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        com.enricojr.coollang.parser.CoolParser parser = new CoolParser(tokens);
+        CoolParser parser = new CoolParser(tokens);
         parser.removeErrorListeners();
         parser.addErrorListener(new DetailedErrorListener());
 
         System.out.println("Creating AST...");
         AstBuilder ab = new AstBuilder();
         ProgContext prog = parser.prog();
-        CoolProgram top = (CoolProgram) ab.visitProg(prog);
+        CoolProgram top = (CoolProgram) ab.visit(prog);
        
         System.out.println("Performing Semantic Analysis");
         SemanticAnalyzer sa = new SemanticAnalyzer(top);
