@@ -233,6 +233,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> {
 
     public CoolExpr visitExpression(ExprContext exc) {
         CoolExpr expr = null;
+        // TODO: Double dispatch? I WAS USING THIS WRONG THE ENTIRE DAMNED TIME GAHHH
         if (exc instanceof AssignContext) {
             expr = (CoolAssign) this.visitAssign((AssignContext) exc);
         } else if (exc instanceof MethodDispatchContext) {

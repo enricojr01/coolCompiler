@@ -22,6 +22,10 @@ public class SymbolTable {
         return symbols.containsKey(id);
     }
 
+    public boolean isEmpty() {
+        return this.symbols.isEmpty();
+    }
+
     public HashMap<CoolIdentifier, CoolBaseNode> getHashMap() {
         return this.symbols;
     }

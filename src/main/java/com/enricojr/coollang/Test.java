@@ -12,8 +12,6 @@ import org.antlr.v4.runtime.*;
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.program.CoolProgram;
 
-import static junit.framework.Assert.fail;
-
 public class Test {
 
     public static <SemanticAnalyser> void main(String[] args) throws Exception {
@@ -52,6 +50,6 @@ public class Test {
         System.out.println(sa.reportAbstractSyntaxTree());
         System.out.println(sa.reportInheritanceTree());
         System.out.println(sa.reportInheritanceChains());
-//        System.out.println(sa.reportSymbolTables());
+        System.out.println(sa.reportSymbolTables());
     }
 }

@@ -2,6 +2,7 @@ package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolMethod;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.semantic.exceptions.*;
@@ -65,12 +66,21 @@ public class SemanticAnalyzer {
     public String reportSymbolTables() {
         StringBuilder sb = new StringBuilder();
         sb.append("Symbol Tables:\n");
-        sb.append("--------------\n");
         for (ClassTreeNode child : this.tree) {
-            sb = this.appendClassSymbolTable(sb, child);
-            sb = this.appendMethodSymbolTable(sb, child);
+            CoolClass cc = child.getCoolClass();
+            sb.append(String.format("---Class: %s----\n", cc.getName()));
+            sb.append(cc.getSymbols());
+            if (cc.getMethods() != null) {
+                for (CoolMethod cm : cc.getMethods()) {
+                    if (!cm.getSymbols().isEmpty()) {
+                        sb.append(String.format("-----Method: %s------\n", cm.getName()));
+                        sb.append(cm.getSymbols());
+                        sb.append(String.format("-----/Method: %s-----\n", cm.getName()));
+                    }
+                }
+            }
+            sb.append(String.format("---/Class: %s---\n", cc.getName()));
         }
-        sb.append("--------------\n");
 
         return sb.toString();
     }
