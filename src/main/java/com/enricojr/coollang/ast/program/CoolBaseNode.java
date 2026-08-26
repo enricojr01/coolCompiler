@@ -1,10 +1,13 @@
 package com.enricojr.coollang.ast.program;
 
+import com.enricojr.coollang.semantic.SymbolTable;
+
 import java.util.ArrayList;
 
 public class CoolBaseNode {
     private CoolBaseNode parent;
     private ArrayList<CoolBaseNode> children;
+    private SymbolTable symbols;
 
     public CoolBaseNode() {}
 
@@ -26,5 +29,13 @@ public class CoolBaseNode {
 
     public void addChild(CoolBaseNode child) {
         this.children.add(child);
+    }
+
+    public SymbolTable getSymbols() {
+        return symbols;
+    }
+
+    public void setSymbols(SymbolTable symbols) {
+        this.symbols = symbols;
     }
 }

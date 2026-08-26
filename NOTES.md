@@ -18,6 +18,10 @@ like symbol tables but for types. I am not sure if I should be creating somethin
 that stands alongside a symbol table, or modifying the symbol table to include
 a type.
 
+Seems like the big difference is that whereas the symbol table is used to 
+determine scope, the type environment determines type. I guess in that sense 
+it's probably OK that they're separate objects.
+
 ### Reusing the Visitor Interface 
 So the AstBuilder class at this point does two things - it builds out the AST
 and while traversing builds up the symbol tables at each scope.

@@ -11,14 +11,18 @@ public class TypeEnvironment {
     public TypeEnvironment() {}
 
     public HashMap<CoolIdentifier, CoolClass> getEnvironment() {
-        return environment;
+        return this.environment;
     }
 
     public void addType(CoolIdentifier ci, CoolClass cc) {
-        environment.put(ci, cc);
+        this.environment.put(ci, cc);
+    }
+
+    public boolean hasType(CoolIdentifier ci) {
+        return this.environment.containsKey(ci);
     }
 
     public CoolClass getType(CoolIdentifier ci) {
-        return environment.get(ci);
+        return this.environment.get(ci);
     }
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVisitor<CoolBaseNode> {
-    private CoolMethod currentMethod;
 
     @Override
     public CoolBaseNode visitAdd(AddContext ctx) {
@@ -107,6 +106,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             CoolExpr branchExpr = this.visitExpression(branches.get(i));
             CoolCaseBranch b = cc.createBranch(formal, branchExpr);
             st.addSymbol(formal.getName(), formal);
+            if (branchExpr instanceof CoolLet || branchExpr instanceof CoolCase) {
+                branchExpr.getSymbols().setParent(st);
+            }
             ccBranches.add(b);
         }
 
@@ -169,6 +171,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
                 CoolMethod cm = (CoolMethod) this.visitMethodDef((MethodDefContext) fc);
                 cms.add(cm);
                 st.addSymbol(cm.getName(), cm);
+                // TODO: this is actually kinda awkward, reaching into the child to set its parent like that.
+                // TODO: it would make more sense to pass the environment down, literally.
+                cm.getSymbols().setParent(st);
             }
         }
 
@@ -429,9 +434,13 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         ArrayList<CoolExpr> expressions = new ArrayList<>();
         for (ExprContext exc : ctx.expr())  {
             CoolExpr ce = this.visitExpression(exc);
+            if (ce instanceof CoolLet || ce instanceof CoolCase) {
+                ce.getSymbols().setParent(st);
+            }
             expressions.add(ce);
         }
 
+        cm.setSymbols(st);
         cm.setParameters(cpl);
         cm.setReturnType(returnType);
         cm.setName(name);
@@ -514,6 +523,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         // prog: CoolClass+;
         CoolProgram coolProg = new CoolProgram();
         SymbolTable st = new SymbolTable();
+        coolProg.setSymbols(st);
 
         List<CoolClassContext> classes = ctx.coolClass();
         ArrayList<CoolClass> coolClasses = new ArrayList<>();
@@ -522,9 +532,12 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             CoolClass ccn = (CoolClass) this.visitCoolClass(c);
             st.addSymbol(ccn.getName(), ccn);
             coolClasses.add(ccn);
+
+            // TODO: reaching into class to set its parent is awkward,
+            // TODO: see visitMethodDef / visitMethodDefinition
+            ccn.getSymbols().setParent(st);
         }
 
-        coolProg.setSymbols(st);
         coolProg.setClasses(coolClasses);
         return coolProg;
     }

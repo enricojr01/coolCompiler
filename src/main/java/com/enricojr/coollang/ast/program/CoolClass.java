@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.semantic.SymbolTable;
+import com.enricojr.coollang.semantic.TypeEnvironment;
 
 public class CoolClass extends CoolBaseNode {
     private CoolIdentifier name;
@@ -12,7 +13,6 @@ public class CoolClass extends CoolBaseNode {
     private CoolClass parent;
     private ArrayList<CoolAttribute> attributes;
     private ArrayList<CoolMethod> methods;
-    private SymbolTable symbols;
 
     public CoolClass() {}
 
@@ -54,14 +54,6 @@ public class CoolClass extends CoolBaseNode {
 
     public void setParentName(CoolIdentifier parentName) {
         this.parentName = parentName;
-    }
-
-    public SymbolTable getSymbols() {
-        return symbols;
-    }
-
-    public void setSymbols(SymbolTable symbols) {
-        this.symbols = symbols;
     }
 
     public String toString() {

@@ -1,13 +1,13 @@
 package com.enricojr.coollang.ast.program;
 
 import com.enricojr.coollang.semantic.SymbolTable;
+import com.enricojr.coollang.semantic.TypeEnvironment;
 
 import java.util.ArrayList;
 
 public class CoolProgram extends CoolBaseNode {
-    // TODO: maybe change to a hashmap for faster lookup?
     private ArrayList<CoolClass> classes;
-    private SymbolTable symbols;
+    private TypeEnvironment typeEnvironment;
 
     public CoolProgram() {}
 
@@ -38,11 +38,7 @@ public class CoolProgram extends CoolBaseNode {
         return false;
     }
 
-    public SymbolTable getSymbols() {
-        return symbols;
-    }
-
-    public void setSymbols(SymbolTable symbols) {
-        this.symbols = symbols;
+    public TypeEnvironment getTypeEnvironment() {
+        return typeEnvironment;
     }
 }

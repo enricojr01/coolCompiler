@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 public class SymbolTable {
     private HashMap<CoolIdentifier, CoolBaseNode> symbols = new HashMap<>();
+    private SymbolTable parent;
 
     public SymbolTable() {}
 
@@ -19,7 +20,20 @@ public class SymbolTable {
     }
 
     public boolean hasSymbol(CoolIdentifier id) {
-        return symbols.containsKey(id);
+        if (this.symbols.containsKey(id)) {
+            return true;
+        }
+
+        SymbolTable next = this.parent;
+        while (this.parent != null) {
+            if (next.hasSymbol(id)) {
+                return true;
+            } else {
+                next = next.getParent();
+            }
+        }
+
+        return false;
     }
 
     public boolean isEmpty() {
@@ -32,6 +46,14 @@ public class SymbolTable {
 
     public void addAll(SymbolTable st) {
         this.symbols.putAll(st.getHashMap());
+    }
+
+    public SymbolTable getParent() {
+        return this.parent;
+    }
+
+    public void setParent(SymbolTable parent) {
+        this.parent = parent;
     }
 
     public String toString() {
