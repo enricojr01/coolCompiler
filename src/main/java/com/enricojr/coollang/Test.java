@@ -14,7 +14,7 @@ import com.enricojr.coollang.ast.program.CoolProgram;
 
 public class Test {
 
-    public static <SemanticAnalyser> void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.println("If you see this, it's working!");
         String inputFile = null;
 

@@ -5,6 +5,42 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Type Checking notes
+The notes call for 3 "type environments" that each store mappings from some
+entity to their types, for the purposes of type inference.
+
+O - maps object ids to types
+M - maps methods to types
+C - is the current class, for the purposes of the SELF_TYPE
+
+Each type environment is passed down the tree, from parent to child. They are
+like symbol tables but for types. I am not sure if I should be creating something
+that stands alongside a symbol table, or modifying the symbol table to include
+a type.
+
+### Reusing the Visitor Interface 
+So the AstBuilder class at this point does two things - it builds out the AST
+and while traversing builds up the symbol tables at each scope.
+
+Next up on the list of things to do is to start building out the type checking
+mechanism and I see two ways forward - shove this functionality into the 
+AstBuilder class somehow, or create another mechanism that goes around and
+modifies the AST with type data.
+
+The first one seems sensible but I'm against shoving too much functionality
+into the AstBuilder, I'm pretty sure I need the symbol table complete to do 
+type checking.
+
+Second option is my preferred, but the visitor interface functions take in rule 
+contexts and returns `CoolBaseNode`. I could always take CoolBaseNode and make it
+a subclass of ANTLR's rule contexts but that seems like a bad hack. There's also
+nothing stopping me from modifying the CoolBaseNode passed into each function and
+returning it again, or even just returning null, but that also seems like a bad
+hack.
+
+I suppose I'll re-watch the sections on type checking to see if there's something
+I missed.
+
 ### Do Let and Case Create Their Own Scopes? 
 It kinda makes sense that they would. But I think I'm already in a position to
 handle that since `CoolExpr` is the base class for all expressions including

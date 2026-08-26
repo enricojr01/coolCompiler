@@ -8,7 +8,7 @@
     <groupId>com.enricojr</groupId>
     <artifactId>coollang</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>The Cool Language Compiler</name>
+    <name>A Cool Language Compiler</name>
 
     <properties>
         <maven.compiler.release>23</maven.compiler.release>

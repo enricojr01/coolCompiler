@@ -10,6 +10,7 @@ import com.enricojr.coollang.semantic.exceptions.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 /* 
 semantic analysis needs to do several things, maybe not in this order: 
@@ -34,8 +35,6 @@ public class SemanticAnalyzer {
         ClassTreeBuilder ctb = new ClassTreeBuilder(this.prog);
         this.tree = ctb.getClassTree();
 
-        SymbolTableBuilder stb = new SymbolTableBuilder(this.tree);
-        this.tree = stb.getTree();
     }
 
     public String reportInheritanceTree() {
@@ -71,8 +70,11 @@ public class SemanticAnalyzer {
             sb.append(String.format("---Class: %s----\n", cc.getName()));
             sb.append(cc.getSymbols());
             if (cc.getMethods() != null) {
+                if (List.of("IO", "Int", "String", "Object").contains(cc.getName().getValue())) {
+                    continue;
+                }
                 for (CoolMethod cm : cc.getMethods()) {
-                    if (!cm.getSymbols().isEmpty()) {
+                    if (cm.getSymbols() != null && !cm.getSymbols().isEmpty()) {
                         sb.append(String.format("-----Method: %s------\n", cm.getName()));
                         sb.append(cm.getSymbols());
                         sb.append(String.format("-----/Method: %s-----\n", cm.getName()));

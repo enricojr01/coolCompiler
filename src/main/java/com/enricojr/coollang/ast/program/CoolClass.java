@@ -1,6 +1,8 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.ArrayList;
+import java.util.Objects;
+
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.semantic.SymbolTable;
 
@@ -73,5 +75,20 @@ public class CoolClass extends CoolBaseNode {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CoolClass coolClass = (CoolClass) o;
+        return Objects.equals(getName(), coolClass.getName())
+                && Objects.equals(getParentName(), coolClass.getParentName())
+                && Objects.equals(getAttributes(), coolClass.getAttributes())
+                && Objects.equals(getMethods(), coolClass.getMethods());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getParentName(), getAttributes(), getMethods());
     }
 }
