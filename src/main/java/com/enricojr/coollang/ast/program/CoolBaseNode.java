@@ -19,18 +19,6 @@ public class CoolBaseNode {
         this.parent = parent;
     }
 
-    public ArrayList<CoolBaseNode> getChildren() {
-        return children;
-    }
-
-    public void setChildren(ArrayList<CoolBaseNode> children) {
-        this.children = children;
-    };
-
-    public void addChild(CoolBaseNode child) {
-        this.children.add(child);
-    }
-
     public SymbolTable getSymbols() {
         return symbols;
     }

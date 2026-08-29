@@ -1,6 +1,8 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
+
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.program.CoolFormal;
 
 /*
@@ -51,5 +53,9 @@ public class CoolCase extends CoolExpr {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("<CoolCaseStatement - %s>", this.predicate));
         return sb.toString();
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolCase(this);
     }
 }

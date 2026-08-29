@@ -58,8 +58,10 @@ public class SymbolTable {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (CoolIdentifier ci : this.symbols.keySet()) {
-            sb.append(String.format("%s: %s\n", ci, this.symbols.get(ci)));
+        if (this.symbols.keySet() != null) {
+            for (CoolIdentifier ci : this.symbols.keySet()) {
+                sb.append(String.format("%s: %s\n", ci, this.symbols.get(ci)));
+            }
         }
         return sb.toString();
     }

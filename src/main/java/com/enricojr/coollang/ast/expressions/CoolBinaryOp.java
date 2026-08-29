@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 public class CoolBinaryOp extends CoolExpr {
     public enum OPERATOR {
         ADD,
@@ -45,5 +47,9 @@ public class CoolBinaryOp extends CoolExpr {
 
     public String toString() {
         return String.format("<CoolBinaryOp - %s>", this.op);
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolBinaryOp(this);
     }
 }

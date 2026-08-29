@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 public class CoolUnaryOp extends CoolExpr {
     public enum OPERATOR {
         NOT,
@@ -29,5 +31,9 @@ public class CoolUnaryOp extends CoolExpr {
 
     public String toString() {
         return String.format("<CoolUnaryOp - %s %s>", this.op, this.expression);
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolUnaryOp(this);
     }
 }

@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolAssign extends CoolExpr {
@@ -26,5 +27,9 @@ public class CoolAssign extends CoolExpr {
 
     public String toString() {
         return String.format("<CoolAssign - %s <- %s>", this.name.getValue(), this.expression);
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolAssign(this);
     }
 }

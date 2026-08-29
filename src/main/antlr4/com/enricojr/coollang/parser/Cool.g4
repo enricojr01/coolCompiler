@@ -23,7 +23,7 @@ expr
     |   LET attribute (',' attribute)* IN expr                   # letStatement
     |   CASE expr OF (formal DARROW expr (';'))+ ESAC            # caseStatement
     |   NEW TYPE                                                 # instantiate
-    |   ISVOID (TYPE | SELF_TYPE | SELF_KW)                      # isVoid
+    |   ISVOID expr                                              # isVoid
     |   '{' (expr ';')* '}'                                      # codeBlock
     |   '(' expr ')'                                             # parenthesisExpr
     |   expr MULT expr                                           # multiply

@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast.program;
 
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
 
@@ -41,5 +42,9 @@ public class CoolAttribute extends CoolBaseNode {
             this.typeName.getValue(),
             this.value
         );
-    } 
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolAttribute(this);
+    }
 }

@@ -1,6 +1,8 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
+
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.program.CoolAttribute;
 
 public class CoolLet extends CoolExpr {
@@ -29,5 +31,9 @@ public class CoolLet extends CoolExpr {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("<CoolLetStatement %s>", this.expression));
         return sb.toString();
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolLet(this);
     }
 }

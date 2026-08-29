@@ -129,7 +129,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             expressions.add(expression);
         }
 
-        cb.setBody(expressions);
+        cb.setExpressions(expressions);
 
         return cb;
     }
@@ -151,7 +151,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolClass cc = new CoolClass();
         CoolIdentifier className = new CoolIdentifier(ctx.TYPE(0).getText());
         CoolIdentifier parentName = null;
-        SymbolTable st = new SymbolTable();
 
         if (ctx.TYPE(1) != null) {
             parentName = new CoolIdentifier(ctx.TYPE(1).getText());
@@ -164,16 +163,13 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             if (fc instanceof AttributeDefContext) {
                 CoolAttribute ca = (CoolAttribute) this.visitAttributeDef((AttributeDefContext) fc);
                 cas.add(ca);
-                st.addSymbol(ca.getIdentifier(), ca);
             }
 
             if (fc instanceof MethodDefContext) {
                 CoolMethod cm = (CoolMethod) this.visitMethodDef((MethodDefContext) fc);
                 cms.add(cm);
-                st.addSymbol(cm.getName(), cm);
                 // TODO: this is actually kinda awkward, reaching into the child to set its parent like that.
                 // TODO: it would make more sense to pass the environment down, literally.
-                cm.getSymbols().setParent(st);
             }
         }
 
@@ -183,7 +179,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         }
         cc.setAttributes(cas);
         cc.setMethods(cms);
-        cc.setSymbols(st);
 
         return cc;
     }
@@ -338,17 +333,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     @Override
     public CoolBaseNode visitIsVoid(IsVoidContext ctx) {
         CoolIsVoid civ = new CoolIsVoid();
-        CoolIdentifier cid = null;
-        // NOTE: ISVOID rule changed to support either TYPE, SELF_TYPE, or SELF_KW so we check
-        //       each one to see which has been set. It can only ever be one of the three
-        if (ctx.TYPE() != null) {
-            cid = new CoolIdentifier(ctx.TYPE().getText());
-        } else if (ctx.SELF_KW() != null) {
-            cid = new CoolIdentifier(ctx.SELF_KW().getText());
-        } else if (ctx.SELF_TYPE() != null) {
-            cid = new CoolIdentifier(ctx.SELF_TYPE().getText());
-        }
-        civ.setType(cid);
+        CoolExpr ce = this.visitExpression(ctx.expr());
+        civ.setExpression(ce);
 
         return civ;
     }
@@ -358,19 +344,16 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolLet cl = new CoolLet();
         List<AttributeContext> attribs = ctx.attribute();
         ExprContext ec = ctx.expr();
-        SymbolTable st = new SymbolTable();
 
         ArrayList<CoolAttribute> attributes = new ArrayList<>();
         for (AttributeContext ac : attribs) {
             CoolAttribute ca = (CoolAttribute) this.visitAttribute(ac);
             attributes.add(ca);
-            st.addSymbol(ca.getIdentifier(), ca);
         }
         CoolExpr ce = this.visitExpression(ec);
 
         cl.setAttributes(attributes);
         cl.setExpression(ce);
-        cl.setSymbols(st);
 
         return cl;
     }
@@ -416,11 +399,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolParamList cpl = (CoolParamList) this.visitParamList(plc);
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier returnType = null;
-        SymbolTable st = new SymbolTable();
-
-        for (CoolFormal cf : cpl.getParameters()) {
-            st.addSymbol(cf.getName(), cf);
-        }
 
         // NOTE: it's either SELF_TYPE or TYPE never both.
         // NOTE: maybe consider not using exceptions as flow control like this
@@ -434,13 +412,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         ArrayList<CoolExpr> expressions = new ArrayList<>();
         for (ExprContext exc : ctx.expr())  {
             CoolExpr ce = this.visitExpression(exc);
-            if (ce instanceof CoolLet || ce instanceof CoolCase) {
-                ce.getSymbols().setParent(st);
-            }
             expressions.add(ce);
         }
 
-        cm.setSymbols(st);
         cm.setParameters(cpl);
         cm.setReturnType(returnType);
         cm.setName(name);
@@ -522,20 +496,13 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     public CoolBaseNode visitProg(ProgContext ctx) {
         // prog: CoolClass+;
         CoolProgram coolProg = new CoolProgram();
-        SymbolTable st = new SymbolTable();
-        coolProg.setSymbols(st);
 
         List<CoolClassContext> classes = ctx.coolClass();
         ArrayList<CoolClass> coolClasses = new ArrayList<>();
 
         for (CoolClassContext c : classes) {
             CoolClass ccn = (CoolClass) this.visitCoolClass(c);
-            st.addSymbol(ccn.getName(), ccn);
             coolClasses.add(ccn);
-
-            // TODO: reaching into class to set its parent is awkward,
-            // TODO: see visitMethodDef / visitMethodDefinition
-            ccn.getSymbols().setParent(st);
         }
 
         coolProg.setClasses(coolClasses);

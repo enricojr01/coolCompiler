@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 public class CoolIf extends CoolExpr {
     private CoolExpr predicate; 
     private CoolExpr thenExpr;
@@ -35,5 +37,9 @@ public class CoolIf extends CoolExpr {
         return String.format(
             "<CoolIfStatement %s THEN %s ELSE %s>", this.predicate, this.thenExpr, this.elseExpr
         );
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolIf(this);
     }
 }

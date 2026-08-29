@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 public class CoolParenthesisExpr extends CoolExpr {
     private CoolExpr expression;
 
@@ -17,5 +19,9 @@ public class CoolParenthesisExpr extends CoolExpr {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("<CoolParenthesizedExpr %s>", this.expression));
         return sb.toString();
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolParenthesisExpr(this);
     }
 }

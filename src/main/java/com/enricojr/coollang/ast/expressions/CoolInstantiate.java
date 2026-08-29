@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolInstantiate extends CoolExpr {
@@ -21,5 +22,9 @@ public class CoolInstantiate extends CoolExpr {
 
     public String toString() {
         return String.format("<CoolInstantiate - %s>", this.identifier);
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolInstantiate(this);
     }
 }

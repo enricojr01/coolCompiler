@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 public class CoolWhile extends CoolExpr {
     private CoolExpr predicate; 
     private CoolExpr body;
@@ -24,5 +26,9 @@ public class CoolWhile extends CoolExpr {
     
     public String toString() {
         return String.format("<CoolWhileStatement - %s>", this.predicate, this.body);
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolWhile(this);
     }
 }

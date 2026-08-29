@@ -1,6 +1,8 @@
 package com.enricojr.coollang.ast.expressions;
 
 import java.util.ArrayList;
+
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolAtMethodDispatch extends CoolExpr {
@@ -45,5 +47,9 @@ public class CoolAtMethodDispatch extends CoolExpr {
 
     public void setClassType(CoolIdentifier classType) {
         this.classType = classType;
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolAtMethodDispatch(this);
     }
 }

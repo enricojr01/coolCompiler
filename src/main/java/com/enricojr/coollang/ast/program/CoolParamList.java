@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.program;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 import java.util.ArrayList;
 
 public class CoolParamList extends CoolBaseNode {
@@ -17,5 +19,9 @@ public class CoolParamList extends CoolBaseNode {
 
     public String toString() {
         return String.format("(ParameterList - %s params)", this.parameters.size());
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolParamList(this);
     }
 }

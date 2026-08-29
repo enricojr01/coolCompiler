@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast.expressions;
 
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolConstant;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
@@ -11,6 +12,17 @@ public class CoolExpr extends CoolBaseNode {
     // NOTE: This is the only way I could think of to get symbols out of
     //       a let or case statement that may be deeply nested.
     private SymbolTable symbols;
+
+    public String symbolTableReport() {
+        StringBuilder sb = new StringBuilder();
+        if (this.symbols != null) {
+            sb.append(String.format("Symbol Table for Expression: %s", this.getClass().getName()));
+            sb.append(this.symbols.toString());
+        } else {
+            sb.append(String.format("Expression %s has no symbol table\n", this.getClass().getName()));
+        }
+        return sb.toString();
+    }
 
     public CoolClass getComputedType() {
         return this.computedType;
@@ -34,5 +46,8 @@ public class CoolExpr extends CoolBaseNode {
 
     public void setSymbols(SymbolTable st) {
         this.symbols = st;
+    }
+
+    public void accept(AstVisitor t) {
     }
 }

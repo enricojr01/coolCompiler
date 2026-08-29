@@ -3,6 +3,7 @@ package com.enricojr.coollang.ast.program;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.semantic.SymbolTable;
 import com.enricojr.coollang.semantic.TypeEnvironment;
@@ -56,6 +57,24 @@ public class CoolClass extends CoolBaseNode {
         this.parentName = parentName;
     }
 
+    public String symbolTableReport() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Class: %s\n", this.name.getValue()));
+        // classes should always have a Symbol Table, right? right?
+        if (this.getSymbols() != null) {
+            sb.append("Class fields/attributes/methods:\n");
+            sb.append(this.getSymbols());
+        }
+        if (this.methods != null) {
+            for (CoolMethod cm : this.methods) {
+                sb.append(cm.symbolTableReport());
+            }
+
+        }
+        sb.append("\n");
+        return sb.toString();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("(CoolClass - %s", this.name.getValue()));
@@ -82,5 +101,9 @@ public class CoolClass extends CoolBaseNode {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getParentName(), getAttributes(), getMethods());
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolClass(this);
     }
 }

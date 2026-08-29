@@ -6,7 +6,7 @@ import java.io.InputStream;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
-import com.enricojr.coollang.semantic.SemanticAnalyzer;
+import com.enricojr.coollang.semantic.*;
 import com.enricojr.coollang.util.DetailedErrorListener;
 import org.antlr.v4.runtime.*;
 import com.enricojr.coollang.ast.AstBuilder;
@@ -43,13 +43,16 @@ public class Test {
         AstBuilder ab = new AstBuilder();
         ProgContext prog = parser.prog();
         CoolProgram top = (CoolProgram) ab.visit(prog);
-       
-        System.out.println("Performing Semantic Analysis");
-        SemanticAnalyzer sa = new SemanticAnalyzer(top);
 
-        System.out.println(sa.reportAbstractSyntaxTree());
-        System.out.println(sa.reportInheritanceTree());
-        System.out.println(sa.reportInheritanceChains());
-        System.out.println(sa.reportSymbolTables());
+        System.out.println("Building class tree...");
+        ClassTreeBuilder ctb = new ClassTreeBuilder(top);
+        ClassTree tree = ctb.getClassTree();
+        System.out.println(tree);
+
+        System.out.println("Displaying symbol tables...");
+        SymbolTableBuilder stb = new SymbolTableBuilder();
+        SymbolTablePrinter stp = new SymbolTablePrinter();
+        stb.visitCoolProgram(top);
+        stp.visitCoolProgram(top);
     }
 }

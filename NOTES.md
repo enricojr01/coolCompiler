@@ -5,7 +5,42 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
-### Type Checking notes
+### Design Issues
+
+The further along I get the more I question my earlier design choices. Since I'm
+not under any time pressure I'd like to take some time to revisit the way I'm
+handling the inheritance tree and symbol tables.
+
+For one, I placed a "parent" field on the CoolClass, meant to hold a reference
+to another CoolClass. I'm not currently using it but I'm thinking that maybe
+I should start.
+
+Another thought I had was to maybe consider basing future work off of the
+inheritance tree because my intuition tells me that it might be easier to work
+with compared to the AST. The classes are already organized in the correct 
+hierarchy making it easier to traverse properly. It's also a lot easier to 
+traverse because it's a proper tree and not a loose collection of objects. 
+
+If I go the second option, I would probably rig up another class that will
+walk the tree and fill out symbol tables and such, because right now that
+functionality is haphazardly placed into the AstBuilder, and I feel like that's
+a bad idea, even if it does work.
+
+By doing this, there will be a nice natural flow of data from one object to
+another:
+
+- input file is fed to the lexer,
+- lexer output is converted to a token stream
+- token stream fed to a parser
+- parser output fed to AstBuilder
+- AstBuilder output fed to ClassTreeBuilder, currently housed under the 
+  SemanticAnalyzer class, but I'd like it to be standalone for consistency's
+  sake.
+
+And finally, ClassTreeBuilder outputs a ClassTree, which will be passed into 
+future components for processing.
+
+### Type Checking Notes
 The notes call for 3 "type environments" that each store mappings from some
 entity to their types, for the purposes of type inference.
 
@@ -88,6 +123,7 @@ to resolve identifiers, but I don't think that'd be too hard to figure out.
 it or something).
 
 ### Rebuilding the Symbol Table Builder
+
 Since I changed the inheritance graph to an actual tree (and renamed it to 
 ClassTree) I now have to re-do the SymbolTable builder.
 
@@ -95,6 +131,7 @@ For one I need to decide if I want to stick to the original plan of "injecting"
 the symbol tables into the AST, or if I want to build off my new class tree.
 
 ### Revisiting the Inheritance Graph
+
 So the adjacency list ended up not working out due to me adding Symbol Tables
 to some of the base classes.
 

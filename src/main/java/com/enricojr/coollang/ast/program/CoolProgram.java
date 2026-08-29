@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast.program;
 
+import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.semantic.SymbolTable;
 import com.enricojr.coollang.semantic.TypeEnvironment;
 
@@ -40,5 +41,9 @@ public class CoolProgram extends CoolBaseNode {
 
     public TypeEnvironment getTypeEnvironment() {
         return typeEnvironment;
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolProgram(this);
     }
 }
