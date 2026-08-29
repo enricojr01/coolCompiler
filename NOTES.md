@@ -5,6 +5,21 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### AstVisitor
+
+I realized at some point that it would be better to have a visitor specifically
+for the AST, one that would stand alongside the Cool Visitor class provided by
+ANTLR.
+
+So I've rigged one up, and I am using it to generate the symbol tables. It 
+basically modifies the AST in-place, which I'm sure won't come back to bite me
+later.
+
+I think this design is much cleaner and more in line with the idea that 
+compilers are just tree-parsers.
+
+Now back to type checking.
+
 ### Design Issues
 
 The further along I get the more I question my earlier design choices. Since I'm
@@ -12,7 +27,7 @@ not under any time pressure I'd like to take some time to revisit the way I'm
 handling the inheritance tree and symbol tables.
 
 For one, I placed a "parent" field on the CoolClass, meant to hold a reference
-to another CoolClass. I'm not currently using it but I'm thinking that maybe
+to another CoolClass. I'm not currently using it, but I'm thinking that maybe
 I should start.
 
 Another thought I had was to maybe consider basing future work off of the
