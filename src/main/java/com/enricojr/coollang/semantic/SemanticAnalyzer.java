@@ -58,8 +58,7 @@ public class SemanticAnalyzer {
     }
 
     public String reportAbstractSyntaxTree() {
-        AstPrinter ap = new AstPrinter(this.prog);
-        return ap + "\n";
+        return "";
     }
 
     public String reportSymbolTables() {

@@ -49,6 +49,12 @@ public class SymbolTableBuilder implements AstVisitor {
         SymbolTable st = new SymbolTable();
         cca.setSymbols(st);
 
+        CoolExpr pred = cca.getPredicate();
+        pred.accept(this);
+        if (pred.getSymbols() != null) {
+            pred.getSymbols().setParent(st);
+        }
+
         for (CoolCaseBranch ccb : cca.getBranches()) {
             ccb.accept(this);
             ccb.getSymbols().setParent(st);

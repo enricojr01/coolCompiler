@@ -3,6 +3,7 @@ package com.enricojr.coollang;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
@@ -41,8 +42,10 @@ public class Test {
 
         System.out.println("Creating AST...");
         AstBuilder ab = new AstBuilder();
+        AstPrinter ap = new AstPrinter();
         ProgContext prog = parser.prog();
         CoolProgram top = (CoolProgram) ab.visit(prog);
+        ap.visitCoolProgram(top);
 
         System.out.println("Building class tree...");
         ClassTreeBuilder ctb = new ClassTreeBuilder(top);
