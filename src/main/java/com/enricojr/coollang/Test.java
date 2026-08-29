@@ -53,9 +53,10 @@ public class Test {
         System.out.println(tree);
 
         System.out.println("Displaying symbol tables...");
-        SymbolTableBuilder stb = new SymbolTableBuilder();
-        SymbolTablePrinter stp = new SymbolTablePrinter();
-        stb.visitCoolProgram(top);
-        stp.visitCoolProgram(top);
+        SymbolTableBuilder builder = new SymbolTableBuilder();
+        SymbolTablePrinter printer = new SymbolTablePrinter();
+        builder.visitCoolProgram(top);
+        printer.visitCoolProgram(top);
+
     }
 }

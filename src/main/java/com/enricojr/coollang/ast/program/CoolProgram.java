@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 public class CoolProgram extends CoolBaseNode {
     private ArrayList<CoolClass> classes;
-    private TypeEnvironment typeEnvironment;
 
     public CoolProgram() {}
 
@@ -37,10 +36,6 @@ public class CoolProgram extends CoolBaseNode {
             }
         }
         return false;
-    }
-
-    public TypeEnvironment getTypeEnvironment() {
-        return typeEnvironment;
     }
 
     public void accept(AstVisitor t) {

@@ -16,7 +16,20 @@ public class SymbolTable {
     }
 
     public CoolBaseNode getSymbol(CoolIdentifier id) {
-        return symbols.get(id);
+        if (this.symbols.containsKey(id)) {
+            return this.symbols.get(id);
+        }
+
+        SymbolTable next = this.parent;
+        while (next.parent != null) {
+            if (next.hasSymbol(id)) {
+                return next.getSymbol(id);
+            } else {
+                next = next.getParent();
+            }
+        }
+
+        return null;
     }
 
     public boolean hasSymbol(CoolIdentifier id) {
@@ -25,7 +38,7 @@ public class SymbolTable {
         }
 
         SymbolTable next = this.parent;
-        while (this.parent != null) {
+        while (next.parent != null) {
             if (next.hasSymbol(id)) {
                 return true;
             } else {

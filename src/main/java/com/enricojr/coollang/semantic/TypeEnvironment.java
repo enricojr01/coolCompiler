@@ -7,8 +7,21 @@ import java.util.HashMap;
 
 public class TypeEnvironment {
     private HashMap<CoolIdentifier, CoolClass> environment;
+    private TypeEnvironment parent;
 
     public TypeEnvironment() {}
+
+    public void setEnvironment(HashMap<CoolIdentifier, CoolClass> environment) {
+        this.environment = environment;
+    }
+
+    public TypeEnvironment getParent() {
+        return this.parent;
+    }
+
+    public void setParent(TypeEnvironment previous) {
+        this.parent = previous;
+    }
 
     public HashMap<CoolIdentifier, CoolClass> getEnvironment() {
         return this.environment;
@@ -19,10 +32,38 @@ public class TypeEnvironment {
     }
 
     public boolean hasType(CoolIdentifier ci) {
-        return this.environment.containsKey(ci);
+        if (this.environment.containsKey(ci)) {
+            return true;
+        }
+
+        TypeEnvironment next = this.parent;
+
+        while (next.parent != null) {
+            if (next.hasType(ci)) {
+                return true;
+            } else {
+                next = next.getParent();
+            }
+        }
+
+        return false;
     }
 
     public CoolClass getType(CoolIdentifier ci) {
-        return this.environment.get(ci);
+        if (this.environment.containsKey(ci)) {
+            return this.environment.get(ci);
+        }
+
+        TypeEnvironment next = this.parent;
+
+        while (next.parent != null) {
+            if (next.hasType(ci)) {
+                return next.getType(ci);
+            } else {
+                next = next.getParent();
+            }
+        }
+
+        return null;
     }
 }

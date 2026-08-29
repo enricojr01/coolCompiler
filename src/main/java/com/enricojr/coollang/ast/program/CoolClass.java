@@ -60,6 +60,7 @@ public class CoolClass extends CoolBaseNode {
     public String symbolTableReport() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Class: %s\n", this.name.getValue()));
+
         // classes should always have a Symbol Table, right? right?
         if (this.getSymbols() != null) {
             sb.append("Class fields/attributes/methods:\n");
@@ -72,6 +73,7 @@ public class CoolClass extends CoolBaseNode {
 
         }
         sb.append("\n");
+
         return sb.toString();
     }
 
