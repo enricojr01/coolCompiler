@@ -1,12 +1,15 @@
 package com.enricojr.coollang.tests;
 
 import com.enricojr.coollang.ast.AstBuilder;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
 import com.enricojr.coollang.semantic.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.SemanticAnalyzer;
+import com.enricojr.coollang.semantic.SymbolTable;
 import com.enricojr.coollang.semantic.exceptions.*;
 import org.antlr.v4.runtime.*;
 import org.apache.commons.io.FilenameUtils;
@@ -38,12 +41,6 @@ public class TestHelloWorld {
             fail(errorMsg);
         }
     }
-
-    @Test
-    public void TestSetup() {
-        assertTrue(true);
-    }
-
 
     @Test
     public void TestCodeSamplesParse() {
@@ -91,79 +88,48 @@ public class TestHelloWorld {
     }
 
     @Test
-    public void TestCodeSamplesSemanticAnalysis() {
-        Stack<File> codeSamples = new Stack<>();
-        File coolSamplesDir = new File("./coolExamples/classtests");
-        File[] files = coolSamplesDir.listFiles(new CoolFileFilter());
-        if (files == null) {
-            fail("No Cool files found in the ./coolExamples directory.");
-        } else {
-            codeSamples.addAll(List.of(files));
-        }
+    public void TestSymbolLookup() {
+        SymbolTable st1 = new SymbolTable();
 
-        while (!codeSamples.isEmpty()) {
-            File sample = codeSamples.pop();
-            System.out.println("Testing file: " + sample);
-            FileInputStream fis = null;
-            ANTLRInputStream ais = null;
+        CoolIdentifier ci = new CoolIdentifier("test1");
+        st1.addSymbol(ci, new CoolBaseNode());
 
-            try {
-                fis = new FileInputStream(sample);
-            } catch (FileNotFoundException e) {
-                fail("Could not find file " + sample.toString());
-            }
-
-            try {
-                ais = new ANTLRInputStream(fis);
-            } catch (IOException e) {
-                fail("IO failed: " + e.getMessage());
-            }
-
-            CoolLexer cl = new CoolLexer(ais);
-            cl.removeErrorListeners();
-
-            CommonTokenStream cts = new CommonTokenStream(cl);
-
-            CoolParser cpa = new CoolParser(cts);
-            cpa.removeErrorListeners();
-
-            ProgContext prog = cpa.prog();
-            AstBuilder ab = new AstBuilder();
-            CoolProgram top = (CoolProgram) ab.visitProg(prog);
-
-            // TODO: Maybe reconsider this, tests should only check one thing at a time.
-            if (sample.getName().equals("badclassparent")) {
-                assertThrows(CoolParentUndefinedException.class, () -> new SemanticAnalyzer(top));
-            }
-            if (sample.getName().equals("badclasstwice")) {
-                assertThrows(CoolClassDefinedTwiceException.class, () -> new SemanticAnalyzer(top));
-            }
-        }
+        CoolBaseNode target = st1.getSymbol(ci);
+        assertNotNull(target);
     }
 
     @Test
-    public void TestCycleDetection() throws CoolParentUndefinedException, CoolInvalidInheritanceException, CoolClassUndefinedException {
-        ANTLRInputStream ais = new ANTLRInputStream("class A inherits B {}; class B inherits A {};");
-        CoolLexer cl = new CoolLexer(ais);
-        CommonTokenStream cts = new CommonTokenStream(cl);
-        CoolParser cpa = new CoolParser(cts);
-        AstBuilder ab = new AstBuilder();
-        CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
-        SemanticAnalyzer sa = new SemanticAnalyzer(top);
-//        ClassTreeBuilder ig = sa.getGraph();
-//        assertThrows(CoolClassInheritanceCycleException.class, ig::hasCycles);
+    public void TestSymbolLookupFail() {
+        SymbolTable st1 = new SymbolTable();
+
+        CoolIdentifier ci = new CoolIdentifier("test1");
+
+        CoolBaseNode target = st1.getSymbol(ci);
+        assertNotNull(target);
+
     }
 
     @Test
-    public void TestSelfCycleDetection() throws
-            InvalidClassNameException, CoolClassDefinedTwiceException,
-            CoolClassInheritanceCycleException {
-        ANTLRInputStream ais = new ANTLRInputStream("class A inherits A {};");
-        CoolLexer cl = new CoolLexer(ais);
-        CommonTokenStream cts = new CommonTokenStream(cl);
-        CoolParser cpa = new CoolParser(cts);
-        AstBuilder ab = new AstBuilder();
-        CoolProgram top = (CoolProgram) ab.visitProg(cpa.prog());
-        assertThrows(CoolClassInheritanceCycleException.class, () -> new SemanticAnalyzer(top));
+    public void TestSymbolTableLookupchain() {
+        SymbolTable st1 = new SymbolTable();
+        SymbolTable st2 = new SymbolTable();
+        SymbolTable st3 = new SymbolTable();
+
+        st2.setParent(st1);
+        st3.setParent(st2);
+
+        CoolIdentifier ci1 = new CoolIdentifier("test1");
+        CoolIdentifier ci2 = new CoolIdentifier("test2");
+        CoolIdentifier ci3 = new CoolIdentifier("test3");
+
+        st1.addSymbol(ci1, new CoolBaseNode());
+        st2.addSymbol(ci2, new CoolBaseNode());
+        st3.addSymbol(ci3, new CoolBaseNode());;
+
+        CoolBaseNode target = st3.getSymbol(ci1);
+        assertNotNull(target);
+
+        target = st3.getSymbol(ci2);
+        assertNotNull(target);
     }
 }

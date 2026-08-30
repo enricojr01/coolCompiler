@@ -20,12 +20,16 @@ public class SymbolTable {
             return this.symbols.get(id);
         }
 
-        SymbolTable next = this.parent;
-        while (next.parent != null) {
-            if (next.hasSymbol(id)) {
-                return next.getSymbol(id);
-            } else {
-                next = next.getParent();
+        if (this.parent != null) {
+            SymbolTable next = this.parent;
+            while (true) {
+                if (next.hasSymbol(id)) {
+                    return next.getSymbol(id);
+                } else if (next.getParent() == null) {
+                    break;
+                } else {
+                    next = next.getParent();
+                }
             }
         }
 

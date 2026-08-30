@@ -5,6 +5,21 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+
+### Interface Consistency
+
+So I realize I haven't been perfectly consistent with interfaces across the
+various AST nodes and the supporting data structures like SymbolTable, etc.
+
+I'd like to fix that at some point, so I'm going to keep a list:
+
+The AST nodes will either use .getName() or .getIdentifier() to retrieve a
+CoolIdentifier. I don't know which to standardize around honestly.
+
+SymbolTable has a .hasSymbol() and a .getSymbol() method but only a 
+.getParent() method and checks are done with `s.getParent() == null`, this 
+strikes me as a bit inconsistent.
+
 ### AstVisitor
 
 I realized at some point that it would be better to have a visitor specifically

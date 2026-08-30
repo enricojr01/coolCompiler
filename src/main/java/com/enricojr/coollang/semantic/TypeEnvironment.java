@@ -36,13 +36,16 @@ public class TypeEnvironment {
             return true;
         }
 
-        TypeEnvironment next = this.parent;
-
-        while (next.parent != null) {
-            if (next.hasType(ci)) {
-                return true;
-            } else {
-                next = next.getParent();
+        if (this.parent != null) {
+            TypeEnvironment next = this.parent;
+            while (true) {
+                if (next.hasType(ci)) {
+                    return true;
+                } else if (next.getParent() == null) {
+                    break;
+                } else {
+                    next = next.getParent();
+                }
             }
         }
 
@@ -54,16 +57,18 @@ public class TypeEnvironment {
             return this.environment.get(ci);
         }
 
-        TypeEnvironment next = this.parent;
-
-        while (next.parent != null) {
-            if (next.hasType(ci)) {
-                return next.getType(ci);
-            } else {
-                next = next.getParent();
+        if (this.parent != null) {
+            TypeEnvironment next = this.parent;
+            while (true) {
+                if (next.hasType(ci)) {
+                    return next.getType(ci);
+                } else if (next.getParent() == null) {
+                    break;
+                } else {
+                    next = next.getParent();
+                }
             }
         }
-
         return null;
     }
 }

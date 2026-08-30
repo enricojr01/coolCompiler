@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class TypeEnvironmentBuilder implements AstVisitor {
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
-
+        camd.getLhs().accept(this);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class TypeEnvironmentBuilder implements AstVisitor {
 
     @Override
     public void visitCoolAssign(CoolAssign cas) {
-
+        cas.getExpression().accept(this);
     }
 
     @Override
@@ -106,8 +106,15 @@ public class TypeEnvironmentBuilder implements AstVisitor {
     @Override
     public void visitCoolMethod(CoolMethod cm) {
         TypeEnvironment types = cm.getTypes();
+        CoolParamList cpl = cm.getParameters();
+
+        for (CoolFormal cf : cpl.getParameters()) {
+            types.addType(cf.getName(), types.getType(cf.getName()));
+        }
+
         for (CoolExpr ce : cm.getExpressions()) {
-            ce.setTypes(types);
+            TypeEnvironment te2 = new TypeEnvironment();
+            ce.setTypes(te2);
             ce.accept(this);
         }
     }
