@@ -46,11 +46,11 @@ public class SymbolTableBuilder implements AstVisitor {
         // This symbol table is empty so that the chain of tables
         // preserved - lookups that start in the branches should basically
         // skip over this one as it travels up the chain.
-        SymbolTable st = new SymbolTable();
-        cca.setSymbols(st);
+        SymbolTable st = cca.getSymbols();
 
         CoolExpr pred = cca.getPredicate();
         pred.accept(this);
+
         if (pred.getSymbols() != null) {
             pred.getSymbols().setParent(st);
         }
@@ -81,17 +81,20 @@ public class SymbolTableBuilder implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        SymbolTable st = new SymbolTable();
-        cc.setSymbols(st);
+        SymbolTable st = cc.getSymbols();
+
         for (CoolAttribute ca : cc.getAttributes()) {
             st.addSymbol(ca.getIdentifier(), ca);
         }
 
         for (CoolMethod cm : cc.getMethods()) {
             st.addSymbol(cm.getName(), cm);
+
+            SymbolTable st2 = new SymbolTable();
+            st2.setParent(st);
+            cm.setSymbols(st2);
+
             cm.accept(this);
-            // still kinda weird but OK
-            cm.getSymbols().setParent(st);
         }
 
     }
@@ -143,16 +146,16 @@ public class SymbolTableBuilder implements AstVisitor {
             st.addSymbol(ca.getIdentifier(), ca);
         }
 
+        SymbolTable st2 = new SymbolTable();
+        st2.setParent(st);
+        ce.setSymbols(st2);
+
         ce.accept(this);
-        if (ce.getSymbols() != null) {
-            ce.getSymbols().setParent(st);
-        }
     }
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
-        SymbolTable st = new SymbolTable();
-        cm.setSymbols(st);
+        SymbolTable st = cm.getSymbols();
         CoolParamList cpl = cm.getParameters();
 
         for (CoolFormal cf : cpl.getParameters()) {
@@ -188,7 +191,16 @@ public class SymbolTableBuilder implements AstVisitor {
         SymbolTable st = new SymbolTable();
         cp.setSymbols(st);
 
+        for (CoolClass cc : cp.getClasses() ) {
+            st.addSymbol(cc.getName(), cc);
+        }
+
+
         for (CoolClass cc : cp.getClasses()) {
+            SymbolTable st2 = new SymbolTable();
+            st2.setParent(st);
+            cc.setSymbols(st2);
+
             cc.accept(this);
         }
     }
