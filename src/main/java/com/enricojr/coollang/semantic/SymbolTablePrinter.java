@@ -14,7 +14,7 @@ public class SymbolTablePrinter implements AstVisitor {
     private int offset = 2;
 
     public void printSymbol(Map.Entry<CoolIdentifier, CoolBaseNode> entry) {
-        String msg = String.format("%s : %s", entry.getKey(), entry.getValue());
+        String msg = String.format("Symbol - %s : %s", entry.getKey(), entry.getValue());
         System.out.println(this.space.repeat(this.indent) + msg);
     }
 
@@ -151,7 +151,7 @@ public class SymbolTablePrinter implements AstVisitor {
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
-        System.out.println(this.space.repeat(this.indent) + cm.getName().getValue() + "{");
+        System.out.println(this.space.repeat(this.indent) + cm.getName().getValue() + " {");
         this.indent += offset;
         SymbolTable st = cm.getSymbols();
         for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : st.getHashMap().entrySet()) {
