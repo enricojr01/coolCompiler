@@ -15,6 +15,17 @@ public class CoolClass extends CoolBaseNode {
 
     public CoolClass() {}
 
+    public CoolClass(CoolIdentifier ci) {
+        this.name = ci;
+    }
+
+    public static CoolClass factory(String identifier) {
+        CoolIdentifier ci = new CoolIdentifier(identifier);
+        CoolClass cc = new CoolClass();
+        cc.setName(ci);
+        return cc;
+    }
+
     public CoolIdentifier getName() {
         return name;
     }

@@ -55,7 +55,7 @@ public class ClassTree implements Iterable<ClassTreeNode> {
         }
     }
 
-    private ClassTreeNode root;
+    private final ClassTreeNode root;
 
     public ClassTree() {
         // IO, Int, Bool, and String are the built-in classes.

@@ -3,6 +3,7 @@ package com.enricojr.coollang.tests;
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
+import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
@@ -10,6 +11,7 @@ import com.enricojr.coollang.parser.CoolParser.ProgContext;
 import com.enricojr.coollang.semantic.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.SemanticAnalyzer;
 import com.enricojr.coollang.semantic.SymbolTable;
+import com.enricojr.coollang.semantic.TypeEnvironment;
 import com.enricojr.coollang.semantic.exceptions.*;
 import org.antlr.v4.runtime.*;
 import org.apache.commons.io.FilenameUtils;
@@ -130,6 +132,42 @@ public class TestHelloWorld {
         assertNotNull(target);
 
         target = st3.getSymbol(ci2);
+        assertNotNull(target);
+    }
+
+    @Test
+    public void TestTypeEnvironmentLookup() {
+        TypeEnvironment te = new TypeEnvironment();
+        CoolIdentifier ci = new CoolIdentifier("test1");
+        CoolClass cc = new CoolClass();
+        cc.setName(ci);
+        te.addType(ci, cc);
+
+        CoolClass target = te.getType(ci);
+        assertNotNull(target);
+    }
+
+    @Test
+    public void TestTypeEnvironmentLookupFail() {
+        TypeEnvironment te = new TypeEnvironment();
+        CoolIdentifier ci = new CoolIdentifier("test1");
+
+        CoolClass target = te.getType(ci);
+        assertNull(target);
+    }
+
+    @Test
+    public void TestTypeEnvironmentLookupChain() {
+        TypeEnvironment te1 = new TypeEnvironment();
+        TypeEnvironment te2 = new TypeEnvironment();
+
+        te2.setParent(te1);
+
+        CoolClass cc = CoolClass.factory("test1");
+        te1.addType(cc.getName(), cc);
+
+        CoolClass target = te2.getType(cc.getName());
+
         assertNotNull(target);
     }
 }

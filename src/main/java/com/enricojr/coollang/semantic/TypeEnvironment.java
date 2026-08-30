@@ -6,14 +6,10 @@ import com.enricojr.coollang.ast.program.CoolClass;
 import java.util.HashMap;
 
 public class TypeEnvironment {
-    private HashMap<CoolIdentifier, CoolClass> environment;
+    private HashMap<CoolIdentifier, CoolClass> environment = new HashMap<>();
     private TypeEnvironment parent;
 
     public TypeEnvironment() {}
-
-    public void setEnvironment(HashMap<CoolIdentifier, CoolClass> environment) {
-        this.environment = environment;
-    }
 
     public TypeEnvironment getParent() {
         return this.parent;
@@ -21,10 +17,6 @@ public class TypeEnvironment {
 
     public void setParent(TypeEnvironment previous) {
         this.parent = previous;
-    }
-
-    public HashMap<CoolIdentifier, CoolClass> getEnvironment() {
-        return this.environment;
     }
 
     public void addType(CoolIdentifier ci, CoolClass cc) {
