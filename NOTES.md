@@ -5,6 +5,24 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Linking the chain
+
+With symbols right now I have it set up such that only the nodes that actually 
+introduce symbols will have a symbol table, and each one is chained to the one
+higher up in the program.
+
+My concern is that this won't work for deeply nested expressions like `let` and
+`case`.
+
+Theoretically they can show up anywhere an expression is allowed, which is a lot
+of places right now, and I'm not sure I completely capture that when recursing
+deep into a tree.
+
+### Type Environments
+
+Capture type information about the FREE VARIABLES in the program. Only worry
+about the FREE ones for now and we can use them to derive the types of expressions
+later.
 
 ### Interface Consistency
 

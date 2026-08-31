@@ -45,18 +45,22 @@ public class Test {
         AstPrinter ap = new AstPrinter();
         ProgContext prog = parser.prog();
         CoolProgram top = (CoolProgram) ab.visit(prog);
+
+        System.out.println("Printing AST...");
         ap.visitCoolProgram(top);
 
-        System.out.println("Building class tree...");
-        ClassTreeBuilder ctb = new ClassTreeBuilder(top);
-        ClassTree tree = ctb.getClassTree();
-        System.out.println(tree);
-
+        System.out.println("Building symbol tables...");
+        SymbolTableBuilder sBuilder = new SymbolTableBuilder();
+        SymbolTablePrinter sPrinter = new SymbolTablePrinter();
+        sBuilder.visitCoolProgram(top);
         System.out.println("Displaying symbol tables...");
-        SymbolTableBuilder builder = new SymbolTableBuilder();
-        SymbolTablePrinter printer = new SymbolTablePrinter();
-        builder.visitCoolProgram(top);
-        printer.visitCoolProgram(top);
+        sPrinter.visitCoolProgram(top);
 
+        System.out.println("Building type environments...");
+        TypeEnvironmentBuilder tBuilder = new TypeEnvironmentBuilder();
+        TypeEnvironmentPrinter tPrinter = new TypeEnvironmentPrinter();
+        tBuilder.visitCoolProgram(top);
+        System.out.println("Displaying type environments");
+        tPrinter.visitCoolProgram(top);
     }
 }

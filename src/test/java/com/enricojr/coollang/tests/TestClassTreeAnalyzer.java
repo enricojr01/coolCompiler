@@ -1,0 +1,64 @@
+package com.enricojr.coollang.tests;
+
+import com.enricojr.coollang.ast.program.CoolClass;
+import com.enricojr.coollang.ast.program.CoolProgram;
+import com.enricojr.coollang.semantic.ClassTreeAnalyzer;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class TestClassTreeAnalyzer {
+    @Test
+    public void testClassTreeSimple() {
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        // build a simple "program"
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("test1");
+        CoolClass cc2 = CoolClass.factory("test2");
+        cc2.setParentName(cc1.getName());
+        cc2.setParent(cc1);
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1, cc2));
+        cp.setClasses(classes);
+
+        cta.visitCoolProgram(cp);
+    }
+
+    @Test
+    public void testClassTreeClassInheritsItself() {
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("test1");
+        cc1.setParentName(cc1.getName());
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1));
+        cp.setClasses(classes);
+
+        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+    }
+
+    @Test
+    public void testClassTreeInheritanceCycle() {
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("test1");
+        CoolClass cc2 = CoolClass.factory("test2");
+
+        cc1.setParentName(cc2.getName());
+        cc2.setParentName(cc1.getName());
+
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1, cc2));
+        cp.setClasses(classes);
+
+        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+    }
+
+}

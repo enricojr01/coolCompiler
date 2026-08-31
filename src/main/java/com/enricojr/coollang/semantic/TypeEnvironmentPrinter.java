@@ -1,16 +1,32 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.builtins.CoolIOType;
-import com.enricojr.coollang.ast.builtins.CoolIntegerType;
-import com.enricojr.coollang.ast.builtins.CoolStringType;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
-public class TypeEnvironmentBuilder implements AstVisitor {
+import java.util.HashMap;
+import java.util.Map;
+
+public class TypeEnvironmentPrinter implements AstVisitor {
+    private int indent = 0;
+    private String space = " ";
+    private int offset = 2;
+
+    public void printSymbol(Map.Entry<CoolIdentifier, CoolClass> entry) {
+        String msg = String.format("Symbol - %s : %s", entry.getKey(), entry.getValue());
+        System.out.println(this.space.repeat(this.indent) + msg);
+    }
+
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
         camd.getLhs().accept(this);
+
+        this.indent += offset;
+        for (CoolExpr ce : camd.getArguments()) {
+            ce.accept(this);
+        }
+        this.indent -= offset;
     }
 
     @Override
@@ -30,72 +46,53 @@ public class TypeEnvironmentBuilder implements AstVisitor {
 
     @Override
     public void visitCoolBlock(CoolBlock cb) {
+        this.indent += offset;
         for (CoolExpr ce : cb.getExpressions()) {
             ce.accept(this);
         }
+        this.indent -= offset;
     }
 
     @Override
     public void visitCoolCase(CoolCase cca) {
-        TypeEnvironment te = cca.getTypes();
-
-        CoolExpr pred = cca.getPredicate();
-        pred.accept(this);
-
-        if (pred.getTypes() != null) {
-            pred.getTypes().setParent(te);
-        }
-
+        System.out.println(this.space.repeat(this.indent) + cca);
+        this.indent += offset;
         for (CoolCaseBranch ccb : cca.getBranches()) {
-            TypeEnvironment te2 = new TypeEnvironment();
-            ccb.setTypes(te2);
             ccb.accept(this);
-
-            if (ccb.getTypes() != null) {
-                ccb.getTypes().setParent(te);
-            }
         }
+        this.indent -= offset;
     }
 
     @Override
     public void visitCoolCaseBranch(CoolCaseBranch ccb) {
-        TypeEnvironment te = ccb.getTypes();
+        HashMap<CoolIdentifier, CoolClass> types = ccb.getTypes().getEnvironment();
+        this.indent += 1;
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : types.entrySet()) {
+            this.printSymbol(entry);
+        }
 
-        CoolFormal cf = ccb.getFormal();
-        CoolClass target = te.getType(cf.getName());
-        te.addType(cf.getName(), target);
-
-        TypeEnvironment te2 = new TypeEnvironment();
-        te2.setParent(te);
-        CoolExpr ce = ccb.getExpression();
-        ce.setTypes(te2);
-        ce.accept(this);
+        ccb.getExpression().accept(this);
+        this.indent -= 1;
     }
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        TypeEnvironment te = cc.getTypes();
-        for (CoolAttribute ca : cc.getAttributes()) {
-            CoolClass targetClass = te.getType(ca.getTypeName());
-            te.addType(ca.getIdentifier(), targetClass);
+        System.out.println(this.space.repeat(this.indent) + cc);
+        HashMap<CoolIdentifier, CoolClass> types = cc.getTypes().getEnvironment();
+        this.indent += offset;
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : types.entrySet())  {
+            this.printSymbol(entry);
         }
 
         for (CoolMethod cm : cc.getMethods()) {
-            TypeEnvironment te2 = new TypeEnvironment();
-            te2.setParent(te);
-
-            for (CoolFormal cf : cm.getParameters().getParameters()) {
-                CoolClass type = te.getType(cf.getName());
-                te2.addType(cf.getName(), type);
-            }
-
-            cm.setTypes(te2);
             cm.accept(this);
         }
+        this.indent -= offset;
     }
 
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
+        cdmd.getLhs().accept(this);
         for (CoolExpr ce : cdmd.getArguments()) {
             ce.accept(this);
         }
@@ -108,6 +105,7 @@ public class TypeEnvironmentBuilder implements AstVisitor {
 
     @Override
     public void visitCoolFormal(CoolFormal cf) {
+
     }
 
     @Override
@@ -128,41 +126,38 @@ public class TypeEnvironmentBuilder implements AstVisitor {
 
     @Override
     public void visitCoolLet(CoolLet cl) {
-        TypeEnvironment te = cl.getTypes();
-        for (CoolAttribute ca : cl.getAttributes()) {
-            CoolClass target = te.getType(ca.getIdentifier());
-            te.addType(ca.getIdentifier(), target);
-        }
+        System.out.println(this.space.repeat(this.indent) + cl);
+        HashMap<CoolIdentifier, CoolClass> types = cl.getTypes().getEnvironment();
 
-        CoolExpr ce = cl.getExpression();
-        TypeEnvironment te2 = new TypeEnvironment();
-        te2.setParent(te);
-        ce.accept(this);
+        this.indent += offset;
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : types.entrySet()) {
+            this.printSymbol(entry);
+        }
+        this.indent -= offset;
     }
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
-        TypeEnvironment types = cm.getTypes();
-        CoolParamList cpl = cm.getParameters();
+        System.out.println(this.space.repeat(this.indent) + cm + " {");
+        HashMap<CoolIdentifier, CoolClass> types = cm.getTypes().getEnvironment();
 
-        for (CoolFormal cf : cpl.getParameters()) {
-            types.addType(cf.getName(), types.getType(cf.getName()));
-        }
-
+        this.indent += offset;
         for (CoolExpr ce : cm.getExpressions()) {
-            TypeEnvironment te2 = new TypeEnvironment();
-            te2.setParent(types);
-            ce.setTypes(te2);
+            ce.accept(this);
+        }
+        this.indent -= offset;
+    }
+
+    @Override
+    public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
+        for (CoolExpr ce : cmd.getArguments()) {
             ce.accept(this);
         }
     }
 
     @Override
-    public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
-    }
-
-    @Override
     public void visitCoolParamList(CoolParamList cpl) {
+
     }
 
     @Override
@@ -172,25 +167,18 @@ public class TypeEnvironmentBuilder implements AstVisitor {
 
     @Override
     public void visitCoolProgram(CoolProgram cp) {
-        TypeEnvironment te = new TypeEnvironment();
+        System.out.println(this.space.repeat(this.indent) + cp);
+        HashMap<CoolIdentifier, CoolClass> types = cp.getTypes().getEnvironment();
 
-        CoolIOType ioType = new CoolIOType();
-        CoolIntegerType intType = new CoolIntegerType();
-        CoolStringType strType = new CoolStringType();
-
-        te.addType(ioType.getName(), ioType);
-        te.addType(intType.getName(), ioType);
-        te.addType(strType.getName(), ioType);
+        this.indent += offset;
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : types.entrySet()) {
+            this.printSymbol(entry);
+        }
 
         for (CoolClass cc : cp.getClasses()) {
-            te.addType(cc.getName(), cc);
-
-            TypeEnvironment te2 = new TypeEnvironment();
-            te2.setParent(te);
-            cc.setTypes(te2);
-
             cc.accept(this);
         }
+        this.indent -= offset;
     }
 
     @Override

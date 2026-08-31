@@ -6,14 +6,13 @@ import com.enricojr.coollang.ast.builtins.CoolObjectType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
-import com.enricojr.coollang.semantic.exceptions.CoolParentUndefinedException;
 
 import java.util.*;
 
-public class NewClassTreeBuilder implements AstVisitor {
+public class ClassTreeAnalyzer implements AstVisitor {
     private HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
 
-    public NewClassTreeBuilder() {
+    public ClassTreeAnalyzer() {
         CoolClass object = new CoolObjectType();
         CoolClass io = new CoolIOType();
 
@@ -58,11 +57,12 @@ public class NewClassTreeBuilder implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        // TODO: cycle detection somehow without a tree
         LinkedList<CoolClass> stack = new LinkedList<>();
-        CoolClass objectClass = new CoolObjectType();
-        CoolClass ioClass = new CoolIOType();
+//        CoolClass objectClass = new CoolObjectType();
+//        CoolClass ioClass = new CoolIOType();
 
+        // Cycle detection is done with a stack - starting with the
+        // class itself,
         // need to work BACKWARDS from the class up to object / IO.
         // IO inherits from object implicitly
         if (cc.getParent() != null) {
@@ -70,7 +70,20 @@ public class NewClassTreeBuilder implements AstVisitor {
             // class itself goes first
             stack.push(cc);
             while (true) {
+                // check to see if there's a parent to follow
+                if (next.getParent() == null) {
+                    // if getParent() == null, class inherits from object,
+                    // and we don't need to check
+                    break;
+                } else {
+                    // if getParent() == true we pull it in so that the
+                    // `if` check that follows checks the new class, not the one
+                    // we just pushed onto the stack
+                    next = next.getParent();
+                }
+                // if the new class is already on the stack,
                 if (stack.contains(next)) {
+                    // throw an exception and halt compilation
                     String err = String.format(
                             "Cycle detected at `class %s inherits %s`",
                             cc.getName().getValue(),
@@ -78,16 +91,11 @@ public class NewClassTreeBuilder implements AstVisitor {
                     );
                     throw new RuntimeException(err);
                 }
-                // then the parent
+                // otherwise push it onto the stack
                 stack.push(next);
-                // then we check for parent
-                if (next.getParent() == null) {
-                    break;
-                } else {
-                    next = next.getParent();
-                }
             }
-            stack.push(cc);
+
+            // if execution reaches here, and no error has occurred, then everything should be fine.
         }
     }
 
@@ -156,11 +164,17 @@ public class NewClassTreeBuilder implements AstVisitor {
                         new CoolIdentifier("Bool")
                 )
         );
-
+        // we loop twice through CoolProgram
+        // first loop builds up a list of classes
         for (CoolClass cc : cp.getClasses()) {
             this.classList.put(cc.getName(), cc);
         }
 
+        // second loop enforces inheritance rules:
+        // classes can't override IO, Int, Bool, or String
+        // classes can't inherit from Int, Bool, or String,
+        // classes can't inherit from themselves
+        // at the end of the second loop, the parent field is set.
         for (CoolClass cc : cp.getClasses()) {
             if (bannedClasses.contains(cc.getName())) {
                 String err;
@@ -177,7 +191,7 @@ public class NewClassTreeBuilder implements AstVisitor {
                 throw new RuntimeException(err);
             }
 
-            if (cc.getParentName().equals(cc.getName()))  {
+            if (cc.getParentName() != null && cc.getParentName().equals(cc.getName()))  {
                 String err = String.format(
                         "Class %s is not allowed to inherit from itself.", cc.getName().getValue()
                 );

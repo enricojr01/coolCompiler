@@ -6,7 +6,6 @@ import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
 import java.util.Map;
-import java.util.Set;
 
 public class SymbolTablePrinter implements AstVisitor {
     private int indent = 0;
@@ -161,6 +160,7 @@ public class SymbolTablePrinter implements AstVisitor {
             ce.accept(this);
         }
         this.indent -= offset;
+        System.out.println(this.space.repeat(this.indent) + "}");
     }
 
     @Override

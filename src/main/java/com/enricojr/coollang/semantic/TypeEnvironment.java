@@ -23,6 +23,10 @@ public class TypeEnvironment {
         this.environment.put(ci, cc);
     }
 
+    public HashMap<CoolIdentifier, CoolClass> getEnvironment() {
+        return this.environment;
+    }
+
     public boolean hasType(CoolIdentifier ci) {
         if (this.environment.containsKey(ci)) {
             return true;
