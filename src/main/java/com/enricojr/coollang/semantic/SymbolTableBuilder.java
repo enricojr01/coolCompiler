@@ -1,10 +1,8 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.builtins.CoolIOType;
-import com.enricojr.coollang.ast.builtins.CoolIntegerType;
-import com.enricojr.coollang.ast.builtins.CoolObjectType;
-import com.enricojr.coollang.ast.builtins.CoolStringType;
+import com.enricojr.coollang.ast.builtins.*;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -124,6 +122,9 @@ public class SymbolTableBuilder implements AstVisitor {
             st.addSymbol(ca.getIdentifier(), ca);
             st.addType(ca.getIdentifier(), st.getType(ca.getTypeName()));
         }
+
+        CoolIdentifier ci = new CoolIdentifier("SELF_TYPE");
+        st.addType(ci, cc);
 
         for (CoolMethod cm : cc.getMethods()) {
             st.addSymbol(cm.getName(), cm);
@@ -273,11 +274,13 @@ public class SymbolTableBuilder implements AstVisitor {
         CoolClass ioType = new CoolIOType();
         CoolClass intType = new CoolIntegerType();
         CoolClass strType = new CoolStringType();
+        CoolClass boolType = new CoolBooleanType();
 
         st.addType(objType.getName(), objType);
         st.addType(ioType.getName(), ioType);
         st.addType(intType.getName(), intType);
         st.addType(strType.getName(), strType);
+        st.addType(boolType.getName(), boolType);
 
         for (CoolClass cc : cp.getClasses() ) {
             st.addSymbol(cc.getName(), cc);

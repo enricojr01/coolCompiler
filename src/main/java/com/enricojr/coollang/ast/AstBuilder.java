@@ -404,7 +404,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         // NOTE: maybe consider not using exceptions as flow control like this
         try {
             ctx.SELF_TYPE().getText();
-            returnType = new CoolSelf();
+            returnType = new CoolIdentifier("SELF_TYPE");
         } catch (NullPointerException e) {
             returnType = new CoolIdentifier(ctx.TYPE().getText());
         }
