@@ -5,6 +5,9 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Changing the Symbol Table implementation
+
+
 ### Linking the chain
 
 With symbols right now I have it set up such that only the nodes that actually 

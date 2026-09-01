@@ -187,7 +187,11 @@ public class SymbolTablePrinter implements AstVisitor {
     @Override
     public void visitCoolProgram(CoolProgram cp) {
         System.out.println(this.space.repeat(indent) + "CoolProgram:");
+
         this.indent += offset;
+        for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : cp.getSymbols().getHashMap().entrySet()) {
+            this.printSymbol(entry);
+        }
         for (CoolClass cc : cp.getClasses()) {
             cc.accept(this);
         }

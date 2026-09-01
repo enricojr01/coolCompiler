@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast.program;
 
+import com.enricojr.coollang.ast.expressions.CoolExpr;
 import com.enricojr.coollang.semantic.SymbolTable;
 import com.enricojr.coollang.semantic.TypeEnvironment;
 
@@ -9,6 +10,7 @@ public class CoolBaseNode {
     private CoolBaseNode parent;
     private SymbolTable symbols;
     private TypeEnvironment types;
+    private ArrayList<CoolBaseNode> symbolTables;
 
     public CoolBaseNode() {}
 
