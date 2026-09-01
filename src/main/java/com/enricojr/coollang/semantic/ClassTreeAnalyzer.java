@@ -179,9 +179,9 @@ public class ClassTreeAnalyzer implements AstVisitor {
             if (bannedClasses.contains(cc.getName())) {
                 String err;
                 if (cc.getName().getValue().equals("IO")) {
-                    err = String.format("Class %s is not allowed to override IO.");
+                    err = String.format("Class %s is not allowed to override IO.", cc.getName().getValue());
                 } else {
-                    err = String.format("Class %s is not allowed to override Int, Bool, or String.");
+                    err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getName().getValue());
                 }
                 throw new RuntimeException(err);
             }

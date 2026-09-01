@@ -61,4 +61,44 @@ public class TestClassTreeAnalyzer {
         assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
     }
 
+    @Test
+    public void testClassInheritFromInt() {
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("Int");
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1));
+        cp.setClasses(classes);
+
+        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+    }
+
+    @Test
+    public void testClassInheritFromString() {
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("String");
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1));
+        cp.setClasses(classes);
+
+//        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+    }
+
+    @Test
+    public void testClassInheritFromBool() {
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("Bool");
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1));
+        cp.setClasses(classes);
+
+//        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+    }
 }
