@@ -1,5 +1,6 @@
 package com.enricojr.coollang.tests;
 
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.semantic.ClassTreeAnalyzer;
@@ -94,6 +95,36 @@ public class TestClassTreeAnalyzer {
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("Bool");
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1));
+        cp.setClasses(classes);
+
+//        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+    }
+
+    @Test
+    public void testClassOverrideIO() {
+        // NOTE: As a reminder, you can INHERIT from IO, but not override it.
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("IO");
+        ArrayList<CoolClass> classes = new ArrayList<>();
+        classes.addAll(List.of(cc1));
+        cp.setClasses(classes);
+
+//        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+    }
+
+    @Test
+    public void testClassInheritsBadClass() {
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+
+        CoolProgram cp = new CoolProgram();
+        CoolClass cc1 = CoolClass.factory("test1");
+        cc1.setParentName(new CoolIdentifier("doesnotexist"));
         ArrayList<CoolClass> classes = new ArrayList<>();
         classes.addAll(List.of(cc1));
         cp.setClasses(classes);

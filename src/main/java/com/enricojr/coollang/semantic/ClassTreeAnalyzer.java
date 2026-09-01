@@ -177,14 +177,13 @@ public class ClassTreeAnalyzer implements AstVisitor {
         // at the end of the second loop, the parent field is set.
         for (CoolClass cc : cp.getClasses()) {
             if (bannedClasses.contains(cc.getName())) {
-                String err;
-                if (cc.getName().getValue().equals("IO")) {
-                    err = String.format("Class %s is not allowed to override IO.", cc.getName().getValue());
-                } else {
-                    err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getName().getValue());
-                }
+                String err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getName().getValue());
                 throw new RuntimeException(err);
             }
+           if (cc.getName().getValue().equals("IO")) {
+               String err = String.format("Class %s is not allowed to override IO.", cc.getName().getValue());
+               throw new RuntimeException(err);
+           }
 
             if (bannedClasses.contains(cc.getParentName())) {
                 String err = String.format("Class %s is not allowed to inherit from Int, Bool, or String");
