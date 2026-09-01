@@ -56,11 +56,11 @@ public class Test {
         System.out.println("Displaying symbol tables...");
         sPrinter.visitCoolProgram(top);
 
-        System.out.println("Building type environments...");
-        TypeEnvironmentBuilder tBuilder = new TypeEnvironmentBuilder();
-        TypeEnvironmentPrinter tPrinter = new TypeEnvironmentPrinter();
-        tBuilder.visitCoolProgram(top);
-        System.out.println("Displaying type environments");
-        tPrinter.visitCoolProgram(top);
+//        System.out.println("Building type environments...");
+//        TypeEnvironmentBuilder tBuilder = new TypeEnvironmentBuilder();
+//        TypeEnvironmentPrinter tPrinter = new TypeEnvironmentPrinter();
+//        tBuilder.visitCoolProgram(top);
+//        System.out.println("Displaying type environments");
+//        tPrinter.visitCoolProgram(top);
     }
 }

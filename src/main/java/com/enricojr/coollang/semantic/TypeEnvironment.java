@@ -19,12 +19,12 @@ public class TypeEnvironment {
         this.parent = previous;
     }
 
-    public void addType(CoolIdentifier ci, CoolClass cc) {
-        this.environment.put(ci, cc);
-    }
-
     public HashMap<CoolIdentifier, CoolClass> getEnvironment() {
         return this.environment;
+    }
+
+    public void addType(CoolIdentifier ci, CoolClass cc) {
+        this.environment.put(ci, cc);
     }
 
     public boolean hasType(CoolIdentifier ci) {

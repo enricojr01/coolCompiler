@@ -118,9 +118,6 @@ class CellularAutomaton inherits Board {
         }
     };
 
-
-
-   
     print() : SELF_TYPE {
         
 	(let i : Int <- 0 in

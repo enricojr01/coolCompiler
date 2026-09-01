@@ -180,10 +180,11 @@ public class ClassTreeAnalyzer implements AstVisitor {
                 String err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getName().getValue());
                 throw new RuntimeException(err);
             }
-           if (cc.getName().getValue().equals("IO")) {
+
+            if (cc.getName().getValue().equals("IO")) {
                String err = String.format("Class %s is not allowed to override IO.", cc.getName().getValue());
                throw new RuntimeException(err);
-           }
+            }
 
             if (bannedClasses.contains(cc.getParentName())) {
                 String err = String.format("Class %s is not allowed to inherit from Int, Bool, or String");

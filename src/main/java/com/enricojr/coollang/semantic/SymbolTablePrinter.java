@@ -12,7 +12,7 @@ public class SymbolTablePrinter implements AstVisitor {
     private String space = " ";
     private int offset = 2;
 
-    public void printSymbol(Map.Entry<CoolIdentifier, CoolBaseNode> entry) {
+    public void printSymbol(Map.Entry<CoolIdentifier, CoolClass> entry) {
         String msg = String.format("Symbol - %s : %s", entry.getKey(), entry.getValue());
         System.out.println(this.space.repeat(this.indent) + msg);
     }
@@ -60,7 +60,7 @@ public class SymbolTablePrinter implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cca);
         this.indent += offset;
         SymbolTable st = cca.getSymbols();
-        for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : st.getHashMap().entrySet()) {
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : st.getTypes().entrySet()) {
             this.printSymbol(entry);
         }
         for (CoolCaseBranch ccb : cca.getBranches()) {
@@ -72,7 +72,7 @@ public class SymbolTablePrinter implements AstVisitor {
     @Override
     public void visitCoolCaseBranch(CoolCaseBranch ccb) {
         this.indent += offset;
-        for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : ccb.getSymbols().getHashMap().entrySet()) {
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : ccb.getSymbols().getTypes().entrySet()) {
             this.printSymbol(entry);
         }
         this.indent -= offset;
@@ -84,7 +84,7 @@ public class SymbolTablePrinter implements AstVisitor {
         SymbolTable symbols = cc.getSymbols();
 
         this.indent += offset;
-        for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : symbols.getHashMap().entrySet()) {
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : symbols.getTypes().entrySet()) {
             this.printSymbol(entry);
         }
 
@@ -141,7 +141,7 @@ public class SymbolTablePrinter implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cl);
 
         this.indent += offset;
-        for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : cl.getSymbols().getHashMap().entrySet()) {
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : cl.getSymbols().getTypes().entrySet()) {
             this.printSymbol(entry);
         }
         cl.getExpression().accept(this);
@@ -153,7 +153,7 @@ public class SymbolTablePrinter implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cm.getName().getValue() + " {");
         this.indent += offset;
         SymbolTable st = cm.getSymbols();
-        for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : st.getHashMap().entrySet()) {
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : st.getTypes().entrySet()) {
             this.printSymbol(entry);
         }
         for (CoolExpr ce : cm.getExpressions()) {
@@ -189,7 +189,7 @@ public class SymbolTablePrinter implements AstVisitor {
         System.out.println(this.space.repeat(indent) + "CoolProgram:");
 
         this.indent += offset;
-        for (Map.Entry<CoolIdentifier, CoolBaseNode> entry : cp.getSymbols().getHashMap().entrySet()) {
+        for (Map.Entry<CoolIdentifier, CoolClass> entry : cp.getSymbols().getTypes().entrySet()) {
             this.printSymbol(entry);
         }
         for (CoolClass cc : cp.getClasses()) {
