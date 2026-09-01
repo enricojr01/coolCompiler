@@ -168,8 +168,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             if (fc instanceof MethodDefContext) {
                 CoolMethod cm = (CoolMethod) this.visitMethodDef((MethodDefContext) fc);
                 cms.add(cm);
-                // TODO: this is actually kinda awkward, reaching into the child to set its parent like that.
-                // TODO: it would make more sense to pass the environment down, literally.
             }
         }
 
