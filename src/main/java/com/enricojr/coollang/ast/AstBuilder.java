@@ -105,7 +105,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             CoolFormal formal = (CoolFormal) this.visitFormal(formals.get(i));
             CoolExpr branchExpr = this.visitExpression(branches.get(i));
             CoolCaseBranch b = cc.createBranch(formal, branchExpr);
-            st.addSymbol(formal.getName(), formal);
+//            st.addType(formal.getName(), st.getType());
             if (branchExpr instanceof CoolLet || branchExpr instanceof CoolCase) {
                 branchExpr.getSymbols().setParent(st);
             }

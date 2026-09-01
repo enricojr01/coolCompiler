@@ -105,7 +105,6 @@ public class SymbolTableBuilder implements AstVisitor {
         // NOTE: I will probably need the Type of the formal later, but I don't know if its a good idea to store
         //       just the formal vs the entire branch, so I'll err on the side of caution and shove the whole
         //       branch in there
-        st.addSymbol(cf.getName(), ccb);
         st.addType(cf.getName(), st.getType(cf.getType()));
 
         SymbolTable st2 = new SymbolTable();
@@ -119,7 +118,6 @@ public class SymbolTableBuilder implements AstVisitor {
         SymbolTable st = cc.getSymbols();
 
         for (CoolAttribute ca : cc.getAttributes()) {
-            st.addSymbol(ca.getIdentifier(), ca);
             st.addType(ca.getIdentifier(), st.getType(ca.getTypeName()));
         }
 
@@ -127,7 +125,6 @@ public class SymbolTableBuilder implements AstVisitor {
         st.addType(ci, cc);
 
         for (CoolMethod cm : cc.getMethods()) {
-            st.addSymbol(cm.getName(), cm);
             st.addType(cm.getName(), st.getType(cm.getReturnType()));
 
             SymbolTable st2 = new SymbolTable();
@@ -208,7 +205,6 @@ public class SymbolTableBuilder implements AstVisitor {
         cl.setSymbols(st);
 
         for (CoolAttribute ca : cl.getAttributes()) {
-            st.addSymbol(ca.getIdentifier(), ca);
             st.addType(ca.getIdentifier(), st.getType(ca.getTypeName()));
         }
 
@@ -225,7 +221,6 @@ public class SymbolTableBuilder implements AstVisitor {
         CoolParamList cpl = cm.getParameters();
 
         for (CoolFormal cf : cpl.getParameters()) {
-            st.addSymbol(cf.getName(), cf);
             st.addType(cf.getName(), st.getType(cf.getType()));
         }
 
@@ -283,7 +278,6 @@ public class SymbolTableBuilder implements AstVisitor {
         st.addType(boolType.getName(), boolType);
 
         for (CoolClass cc : cp.getClasses() ) {
-            st.addSymbol(cc.getName(), cc);
             st.addType(cc.getName(), cc);
         }
 
