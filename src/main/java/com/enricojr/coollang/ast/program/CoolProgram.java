@@ -1,8 +1,6 @@
 package com.enricojr.coollang.ast.program;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.semantic.SymbolTable;
-import com.enricojr.coollang.semantic.TypeEnvironment;
 
 import java.util.ArrayList;
 

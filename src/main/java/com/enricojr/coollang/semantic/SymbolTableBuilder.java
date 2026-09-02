@@ -125,7 +125,18 @@ public class SymbolTableBuilder implements AstVisitor {
         st.addType(ci, cc);
 
         for (CoolMethod cm : cc.getMethods()) {
-            st.addType(cm.getName(), st.getType(cm.getReturnType()));
+            MethodTableEntry mte = new MethodTableEntry();
+            mte.setName(cm.getName());
+
+            // TODO: fix weird-ass unwrapping
+            for (CoolFormal cf : cm.getParameters().getParameters()) {
+                mte.addInput(cf.getName(), st.getType(cf.getType()));
+            }
+
+            // TODO: standardize naming convention i.e "parameter" vs "input", "output" vs "return type"
+            mte.setOutput(st.getType(cm.getReturnType()));
+            mte.setMethodObj(cm);
+            st.addMethod(cm.getName(), mte);
 
             SymbolTable st2 = new SymbolTable();
             st2.setParent(st);
@@ -133,7 +144,6 @@ public class SymbolTableBuilder implements AstVisitor {
 
             cm.accept(this);
         }
-
     }
 
     @Override

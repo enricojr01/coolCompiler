@@ -13,7 +13,12 @@ public class SymbolTablePrinter implements AstVisitor {
     private int offset = 2;
 
     public void printSymbol(Map.Entry<CoolIdentifier, CoolClass> entry) {
-        String msg = String.format("Symbol - %s : %s", entry.getKey(), entry.getValue());
+        String msg = String.format("Symbol - %s : %s", entry.getKey().getValue(), entry.getValue().getName().getValue());
+        System.out.println(this.space.repeat(this.indent) + msg);
+    }
+
+    public void printMethodSymbol(Map.Entry<CoolIdentifier, MethodTableEntry> entry) {
+        String msg = String.format("Method - %s", entry.getValue());
         System.out.println(this.space.repeat(this.indent) + msg);
     }
 
@@ -88,6 +93,10 @@ public class SymbolTablePrinter implements AstVisitor {
             this.printSymbol(entry);
         }
 
+        for (Map.Entry<CoolIdentifier, MethodTableEntry> entry : symbols.getMethods().entrySet()) {
+            this.printMethodSymbol(entry);
+        }
+
         for (CoolMethod cm : cc.getMethods()) {
             cm.accept(this);
         }
@@ -153,12 +162,15 @@ public class SymbolTablePrinter implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cm.getName().getValue() + " {");
         this.indent += offset;
         SymbolTable st = cm.getSymbols();
+
         for (Map.Entry<CoolIdentifier, CoolClass> entry : st.getTypes().entrySet()) {
             this.printSymbol(entry);
         }
+
         for (CoolExpr ce : cm.getExpressions()) {
             ce.accept(this);
         }
+
         this.indent -= offset;
         System.out.println(this.space.repeat(this.indent) + "}");
     }

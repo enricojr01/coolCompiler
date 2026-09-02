@@ -66,26 +66,6 @@ public class CoolClass extends CoolBaseNode {
         this.parentName = parentName;
     }
 
-    public String symbolTableReport() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Class: %s\n", this.name.getValue()));
-
-        // classes should always have a Symbol Table, right? right?
-        if (this.getSymbols() != null) {
-            sb.append("Class fields/attributes/methods:\n");
-            sb.append(this.getSymbols());
-        }
-        if (this.methods != null) {
-            for (CoolMethod cm : this.methods) {
-                sb.append(cm.symbolTableReport());
-            }
-
-        }
-        sb.append("\n");
-
-        return sb.toString();
-    }
-
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("(CoolClass - %s", this.name.getValue()));

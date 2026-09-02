@@ -15,9 +15,9 @@ public class TestSymbolTable {
         SymbolTable st1 = new SymbolTable();
 
         CoolIdentifier ci = new CoolIdentifier("test1");
-        st1.addSymbol(ci, new CoolBaseNode());
+        st1.addType(ci, new CoolClass());
 
-        CoolBaseNode target = st1.getSymbol(ci);
+        CoolBaseNode target = st1.getType(ci);
         assertNotNull(target);
     }
 
@@ -27,7 +27,7 @@ public class TestSymbolTable {
 
         CoolIdentifier ci = new CoolIdentifier("test1");
 
-        CoolBaseNode target = st1.getSymbol(ci);
+        CoolBaseNode target = st1.getType(ci);
         assertNull(target);
     }
 
@@ -44,14 +44,14 @@ public class TestSymbolTable {
         CoolIdentifier ci2 = new CoolIdentifier("test2");
         CoolIdentifier ci3 = new CoolIdentifier("test3");
 
-        st1.addSymbol(ci1, new CoolBaseNode());
-        st2.addSymbol(ci2, new CoolBaseNode());
-        st3.addSymbol(ci3, new CoolBaseNode());;
+        st1.addType(ci1, new CoolClass());
+        st2.addType(ci2, new CoolClass());
+        st3.addType(ci3, new CoolClass());;
 
-        CoolBaseNode target = st3.getSymbol(ci1);
+        CoolBaseNode target = st3.getType(ci1);
         assertNotNull(target);
 
-        target = st3.getSymbol(ci2);
+        target = st3.getType(ci2);
         assertNotNull(target);
     }
 

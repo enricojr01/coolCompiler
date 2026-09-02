@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.CoolExpr;
-import com.enricojr.coollang.semantic.SymbolTable;
-import com.enricojr.coollang.semantic.TypeEnvironment;
 
 public class CoolMethod extends CoolBaseNode {
     private CoolIdentifier name;
