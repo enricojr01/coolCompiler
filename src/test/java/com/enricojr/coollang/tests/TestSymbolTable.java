@@ -3,8 +3,12 @@ package com.enricojr.coollang.tests;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
+import com.enricojr.coollang.ast.program.CoolFormal;
+import com.enricojr.coollang.ast.program.CoolParamList;
 import com.enricojr.coollang.semantic.SymbolTable;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -98,5 +102,17 @@ public class TestSymbolTable {
 
         CoolClass target = st3.getType(cc1.getName());
         assertNotNull(target);
+    }
+
+    @Test
+    public void TestMethodLookup() {
+        SymbolTable st1 = new SymbolTable();
+
+        ArrayList<CoolFormal> parameters = new ArrayList<>();
+        CoolFormal cf1 = new CoolFormal();
+        cf1.setName(new CoolIdentifier("test1"));
+        cf1.setType(new CoolIdentifier("Bool"));
+
+        CoolParamList cpl = new CoolParamList();
     }
 }

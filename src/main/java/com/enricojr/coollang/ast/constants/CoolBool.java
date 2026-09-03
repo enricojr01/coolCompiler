@@ -1,6 +1,6 @@
 package com.enricojr.coollang.ast.constants;
 
-public class CoolBool extends CoolConstant {
+public class CoolBool extends CoolLiteral {
     private boolean value;
 
     public CoolBool() {

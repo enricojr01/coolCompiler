@@ -46,8 +46,8 @@ public class Test {
         ProgContext prog = parser.prog();
         CoolProgram top = (CoolProgram) ab.visit(prog);
 
-        System.out.println("Printing AST...");
-        ap.visitCoolProgram(top);
+//        System.out.println("Printing AST...");
+//        ap.visitCoolProgram(top);
 
         System.out.println("Building symbol tables...");
         SymbolTableBuilder sBuilder = new SymbolTableBuilder();

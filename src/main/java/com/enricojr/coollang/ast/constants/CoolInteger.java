@@ -1,6 +1,6 @@
 package com.enricojr.coollang.ast.constants;
 
-public class CoolInteger extends CoolConstant {
+public class CoolInteger extends CoolLiteral {
     private int value; 
 
     public CoolInteger() {}

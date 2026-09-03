@@ -1,14 +1,18 @@
 package com.enricojr.coollang.ast.constants;
 
-public class CoolIdentifier extends CoolConstant {
+public class CoolIdentifier extends CoolLiteral {
     private String value;
 
-    public CoolIdentifier(String v) {
-        this.value = v;
+    public CoolIdentifier(String s) {
+        this.value = s;
     }
 
     public String getValue() {
         return this.value;
+    }
+
+    public String getValueString() {
+        return this.value.toString();
     }
 
     public void setValue(String v) {

@@ -5,10 +5,6 @@ public class CoolSelf extends CoolIdentifier {
         super("self");
     }
 
-    public String getValue() {
-        return super.getValue();
-    }
-
     public String toString() {
         return "<SELF_TYPE>";
     }

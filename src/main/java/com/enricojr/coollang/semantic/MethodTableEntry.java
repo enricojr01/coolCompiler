@@ -8,19 +8,19 @@ import java.util.Map;
 
 public class MethodTableEntry {
     private CoolIdentifier name;
-    private SymbolTable inputs = new SymbolTable();
-    private CoolClass output;
+    private SymbolTable parameters = new SymbolTable();
+    private CoolClass returnType;
     private CoolMethod methodObj;
 
     public MethodTableEntry() {}
 
-    public void addInput(CoolIdentifier ci, CoolClass cc) {
-        this.inputs.addType(ci, cc) ;
-    }
-
-    public CoolClass getInput(CoolIdentifier ci) {
-        return this.inputs.getType(ci);
-    }
+//    public void addInput(CoolIdentifier ci, CoolClass cc) {
+//        this.parameters.addType(ci, cc);
+//    }
+//
+//    public SymbolTableEntry getInput(CoolIdentifier ci) {
+//        return this.parameters.getType(ci);
+//    }
 
     public CoolIdentifier getName() {
         return name;
@@ -30,20 +30,20 @@ public class MethodTableEntry {
         this.name = name;
     }
 
-    public SymbolTable getInputs() {
-        return inputs;
+    public SymbolTable getParameters() {
+        return parameters;
     }
 
-    public void setInputs(SymbolTable inputs) {
-        this.inputs = inputs;
+    public void setParameters(SymbolTable parameters) {
+        this.parameters = parameters;
     }
 
-    public CoolClass getOutput() {
-        return output;
+    public CoolClass getReturnType() {
+        return returnType;
     }
 
-    public void setOutput(CoolClass output) {
-        this.output = output;
+    public void setReturnType(CoolClass returnType) {
+        this.returnType = returnType;
     }
 
     public CoolMethod getMethodObj() {
@@ -58,10 +58,10 @@ public class MethodTableEntry {
         StringBuilder sb = new StringBuilder();
         sb.append(this.name.getValue()).append("(");
 
-        for (Map.Entry<CoolIdentifier, CoolClass> entry : this.inputs.getTypes().entrySet())  {
-            sb.append(String.format("%s : %s, ", entry.getKey().getValue(), entry.getValue().getName().getValue()));
+        for (Map.Entry<CoolIdentifier, SymbolTableEntry> entry : this.parameters.getTypes().entrySet())  {
+            sb.append(String.format("%s : %s, ", entry.getKey().getValue(), entry.getValue().getTypeString()));
         }
-        sb.append(") -> " + this.output.getName().getValue());
+        sb.append(") -> " + this.returnType.getName().getValue());
         return sb.toString();
     }
 }

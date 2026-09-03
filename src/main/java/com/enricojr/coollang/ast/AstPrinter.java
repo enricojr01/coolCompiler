@@ -79,7 +79,6 @@ public class AstPrinter implements AstVisitor {
             System.out.println(this.space.repeat(this.indent) + ca);
         }
         for (CoolMethod cm : cc.getMethods()) {
-            System.out.println(this.space.repeat(this.indent) + cm);
             cm.accept(this);
         }
         this.indent -= offset;

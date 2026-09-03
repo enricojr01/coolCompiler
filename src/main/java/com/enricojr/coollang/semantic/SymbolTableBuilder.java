@@ -3,6 +3,7 @@ package com.enricojr.coollang.semantic;
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.CoolString;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -105,7 +106,8 @@ public class SymbolTableBuilder implements AstVisitor {
         // NOTE: I will probably need the Type of the formal later, but I don't know if its a good idea to store
         //       just the formal vs the entire branch, so I'll err on the side of caution and shove the whole
         //       branch in there
-        st.addType(cf.getName(), st.getType(cf.getType()));
+        CoolClass typeClass =  st.getType(cf.getType());
+        st.addType(cf.getName(), typeClass);
 
         SymbolTable st2 = new SymbolTable();
         st2.setParent(st);
@@ -118,30 +120,25 @@ public class SymbolTableBuilder implements AstVisitor {
         SymbolTable st = cc.getSymbols();
 
         for (CoolAttribute ca : cc.getAttributes()) {
-            st.addType(ca.getIdentifier(), st.getType(ca.getTypeName()));
+            CoolClass typeClass = st.getType(ca.getTypeName());
+            st.addType(ca.getIdentifier(), typeClass);
         }
 
         CoolIdentifier ci = new CoolIdentifier("SELF_TYPE");
         st.addType(ci, cc);
 
         for (CoolMethod cm : cc.getMethods()) {
-            MethodTableEntry mte = new MethodTableEntry();
-            mte.setName(cm.getName());
+            SymbolTable parameters = new SymbolTable();
+            CoolClass returnType = st.getType(cm.getReturnType());
 
-            // TODO: fix weird-ass unwrapping
             for (CoolFormal cf : cm.getParameters().getParameters()) {
-                mte.addInput(cf.getName(), st.getType(cf.getType()));
+                CoolIdentifier formalName = cf.getName();
+                CoolClass typeClass = st.getType(cf.getType());
+                parameters.addType(formalName, typeClass);
             }
 
-            // TODO: standardize naming convention i.e "parameter" vs "input", "output" vs "return type"
-            mte.setOutput(st.getType(cm.getReturnType()));
-            mte.setMethodObj(cm);
-            st.addMethod(cm.getName(), mte);
-
-            SymbolTable st2 = new SymbolTable();
-            st2.setParent(st);
-            cm.setSymbols(st2);
-
+            st.addMethod(cm.getName(), parameters, returnType, cm);
+            cm.setSymbols(new SymbolTable(st));
             cm.accept(this);
         }
     }
@@ -215,7 +212,8 @@ public class SymbolTableBuilder implements AstVisitor {
         cl.setSymbols(st);
 
         for (CoolAttribute ca : cl.getAttributes()) {
-            st.addType(ca.getIdentifier(), st.getType(ca.getTypeName()));
+            CoolClass cc = st.getType(ca.getTypeName());
+            st.addType(ca.getIdentifier(), cc);
         }
 
         SymbolTable st2 = new SymbolTable();
@@ -231,7 +229,8 @@ public class SymbolTableBuilder implements AstVisitor {
         CoolParamList cpl = cm.getParameters();
 
         for (CoolFormal cf : cpl.getParameters()) {
-            st.addType(cf.getName(), st.getType(cf.getType()));
+            CoolClass cc = st.getType(cf.getType());
+            st.addType(cf.getName(), cc);
         }
 
         for (CoolExpr ce : cm.getExpressions()) {

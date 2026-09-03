@@ -26,6 +26,4 @@ public interface AstVisitor {
     void visitCoolProgram(CoolProgram cp);
     void visitCoolUnaryOp(CoolUnaryOp cuo);
     void visitCoolWhile(CoolWhile cw);
-
-
 }

@@ -2,18 +2,30 @@ package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.CoolLiteral;
 import com.enricojr.coollang.ast.program.CoolClass;
+import com.enricojr.coollang.ast.program.CoolMethod;
 
 import java.util.HashMap;
 
 public class SymbolTable {
-    private HashMap<CoolIdentifier, CoolClass> types = new HashMap<>();
+    private HashMap<CoolIdentifier, SymbolTableEntry> types = new HashMap<>();
     private HashMap<CoolIdentifier, MethodTableEntry> methods = new HashMap<>();
     private SymbolTable parent;
 
     public SymbolTable() {}
 
-    public void addMethod(CoolIdentifier ci, MethodTableEntry mte) {
+    public SymbolTable(SymbolTable parent) {
+        this.parent = parent;
+    }
+
+    public void addMethod(CoolIdentifier ci, SymbolTable parameters, CoolClass returnType, CoolMethod methodObj) {
+        MethodTableEntry mte = new MethodTableEntry();
+        mte.setName(ci);
+        mte.setParameters(parameters);
+        mte.setReturnType(returnType);
+        mte.setMethodObj(methodObj);
+
         this.methods.put(ci, mte);
     }
 
@@ -64,7 +76,17 @@ public class SymbolTable {
     }
 
     public void addType(CoolIdentifier ci, CoolClass cc) {
-        this.types.put(ci, cc);
+        SymbolTableEntry ste = new SymbolTableEntry();
+        ste.setType(cc);
+        this.types.put(ci, ste);
+    }
+
+    public void addType(CoolIdentifier ci, CoolClass cc, CoolLiteral cl) {
+        SymbolTableEntry ste = new SymbolTableEntry();
+        ste.setType(cc);
+        ste.setValue(cl);
+
+        this.types.put(ci, ste);
     }
 
     public boolean hasType(CoolIdentifier ci) {
@@ -90,7 +112,8 @@ public class SymbolTable {
 
     public CoolClass getType(CoolIdentifier ci) {
         if (this.types.containsKey(ci)) {
-            return this.types.get(ci);
+            SymbolTableEntry ste = this.types.get(ci);
+            return ste.getType();
         }
 
         if (this.parent != null) {
@@ -116,7 +139,7 @@ public class SymbolTable {
         this.parent = parent;
     }
 
-    public HashMap<CoolIdentifier, CoolClass> getTypes() {
+    public HashMap<CoolIdentifier, SymbolTableEntry> getTypes() {
         return types;
     }
 

@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.CoolString;
 
 public class CoolClass extends CoolBaseNode {
     private CoolIdentifier name;
@@ -28,6 +29,10 @@ public class CoolClass extends CoolBaseNode {
 
     public CoolIdentifier getName() {
         return name;
+    }
+
+    public String getNameString() {
+        return this.name.getValue().toString();
     }
 
     public void setName(CoolIdentifier name) {
@@ -60,6 +65,10 @@ public class CoolClass extends CoolBaseNode {
 
     public CoolIdentifier getParentName() {
         return parentName;
+    }
+
+    public String getParentNameString() {
+        return this.parentName.getValue().toString();
     }
 
     public void setParentName(CoolIdentifier parentName) {

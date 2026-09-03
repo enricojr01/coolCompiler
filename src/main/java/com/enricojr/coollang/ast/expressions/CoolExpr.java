@@ -1,14 +1,14 @@
 package com.enricojr.coollang.ast.expressions;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.constants.CoolConstant;
+import com.enricojr.coollang.ast.constants.CoolLiteral;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.semantic.SymbolTable;
 
 public class CoolExpr extends CoolBaseNode {
     private CoolClass computedType;
-    private CoolConstant computedValue;
+    private CoolLiteral computedValue;
     // NOTE: This is the only way I could think of to get symbols out of
     //       a let or case statement that may be deeply nested.
     private SymbolTable symbols;
@@ -32,11 +32,11 @@ public class CoolExpr extends CoolBaseNode {
         this.computedType = type;
     }
 
-    public CoolConstant getComputedValue() {
+    public CoolLiteral getComputedValue() {
         return this.computedValue;
     }
 
-    public void setValue(CoolConstant value) {
+    public void setValue(CoolLiteral value) {
         this.computedValue = value;
     }
 

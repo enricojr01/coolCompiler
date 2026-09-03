@@ -1,6 +1,6 @@
 package com.enricojr.coollang.ast.constants;
 
-public class CoolString extends CoolConstant {
+public class CoolString extends CoolLiteral {
     private String value;
 
     public CoolString() {}
@@ -18,6 +18,6 @@ public class CoolString extends CoolConstant {
     }
 
     public String toString() {
-        return String.format("<String - %s>", value);
+        return String.format("'%s'", value);
     }
 }

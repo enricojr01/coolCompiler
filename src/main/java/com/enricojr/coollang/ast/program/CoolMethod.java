@@ -18,6 +18,10 @@ public class CoolMethod extends CoolBaseNode {
         return name;
     }
 
+    public String getNameString() {
+        return this.name.getValue().toString();
+    }
+
     public void setName(CoolIdentifier name) {
         this.name = name;
     }
@@ -32,6 +36,10 @@ public class CoolMethod extends CoolBaseNode {
 
     public CoolIdentifier getReturnType() {
         return returnType;
+    }
+
+    public String getReturnTypeString() {
+        return this.returnType.getValue().toString();
     }
 
     public void setReturnType(CoolIdentifier returnType) {

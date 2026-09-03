@@ -13,12 +13,20 @@ public class CoolFormal extends CoolBaseNode {
         return name;
     }
 
+    public String getNameString() {
+        return this.name.getValue().toString();
+    }
+
     public void setName(CoolIdentifier name) {
         this.name = name;
     }
 
     public CoolIdentifier getType() {
         return type;
+    }
+
+    public String getTypeString() {
+        return this.type.getValue().toString();
     }
 
     public void setType(CoolIdentifier type) {
