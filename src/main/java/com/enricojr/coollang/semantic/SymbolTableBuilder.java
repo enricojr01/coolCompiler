@@ -3,7 +3,6 @@ package com.enricojr.coollang.semantic;
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.constants.CoolString;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -106,8 +105,8 @@ public class SymbolTableBuilder implements AstVisitor {
         // NOTE: I will probably need the Type of the formal later, but I don't know if its a good idea to store
         //       just the formal vs the entire branch, so I'll err on the side of caution and shove the whole
         //       branch in there
-        CoolClass typeClass =  st.getType(cf.getType());
-        st.addType(cf.getName(), typeClass);
+        CoolClass typeClass =  st.getSymbolType(cf.getType());
+        st.addSymbolType(cf.getName(), typeClass);
 
         SymbolTable st2 = new SymbolTable();
         st2.setParent(st);
@@ -120,21 +119,26 @@ public class SymbolTableBuilder implements AstVisitor {
         SymbolTable st = cc.getSymbols();
 
         for (CoolAttribute ca : cc.getAttributes()) {
-            CoolClass typeClass = st.getType(ca.getTypeName());
-            st.addType(ca.getIdentifier(), typeClass);
+            CoolClass typeClass = st.getSymbolType(ca.getTypeName());
+            st.addSymbolType(ca.getIdentifier(), typeClass);
         }
 
         CoolIdentifier ci = new CoolIdentifier("SELF_TYPE");
-        st.addType(ci, cc);
+        st.addSymbolType(ci, cc);
 
         for (CoolMethod cm : cc.getMethods()) {
             SymbolTable parameters = new SymbolTable();
-            CoolClass returnType = st.getType(cm.getReturnType());
+            CoolClass returnType = st.getSymbolType(cm.getReturnType());
+            if (returnType == null) {
+                String msg = String.format("Couldn't find type for return type %s in method %s", cm.getReturnType(), cm);
+                st.printSymbolTableChain();
+                throw new RuntimeException(msg);
+            }
 
             for (CoolFormal cf : cm.getParameters().getParameters()) {
                 CoolIdentifier formalName = cf.getName();
-                CoolClass typeClass = st.getType(cf.getType());
-                parameters.addType(formalName, typeClass);
+                CoolClass typeClass = st.getSymbolType(cf.getType());
+                parameters.addSymbolType(formalName, typeClass);
             }
 
             st.addMethod(cm.getName(), parameters, returnType, cm);
@@ -212,8 +216,8 @@ public class SymbolTableBuilder implements AstVisitor {
         cl.setSymbols(st);
 
         for (CoolAttribute ca : cl.getAttributes()) {
-            CoolClass cc = st.getType(ca.getTypeName());
-            st.addType(ca.getIdentifier(), cc);
+            CoolClass cc = st.getSymbolType(ca.getTypeName());
+            st.addSymbolType(ca.getIdentifier(), cc);
         }
 
         SymbolTable st2 = new SymbolTable();
@@ -229,8 +233,8 @@ public class SymbolTableBuilder implements AstVisitor {
         CoolParamList cpl = cm.getParameters();
 
         for (CoolFormal cf : cpl.getParameters()) {
-            CoolClass cc = st.getType(cf.getType());
-            st.addType(cf.getName(), cc);
+            CoolClass cc = st.getSymbolType(cf.getType());
+            st.addSymbolType(cf.getName(), cc);
         }
 
         for (CoolExpr ce : cm.getExpressions()) {
@@ -280,20 +284,29 @@ public class SymbolTableBuilder implements AstVisitor {
         CoolClass strType = new CoolStringType();
         CoolClass boolType = new CoolBooleanType();
 
-        st.addType(objType.getName(), objType);
-        st.addType(ioType.getName(), ioType);
-        st.addType(intType.getName(), intType);
-        st.addType(strType.getName(), strType);
-        st.addType(boolType.getName(), boolType);
+        st.addSymbolType(objType.getName(), objType);
+        st.addSymbolType(ioType.getName(), ioType);
+        st.addSymbolType(intType.getName(), intType);
+        st.addSymbolType(strType.getName(), strType);
+        st.addSymbolType(boolType.getName(), boolType);
 
-        for (CoolClass cc : cp.getClasses() ) {
-            st.addType(cc.getName(), cc);
+        for (CoolClass cc : cp.getClasses()) {
+//            System.out.println(String.format("Adding %s: %s to global symbol table", cc.getName(), cc));
+            st.addSymbolType(cc.getName(), cc);
+        }
+
+//        System.out.println("Global symbol table is: ");
+//        System.out.println(st);
+
+        // all symbol tables need to exist on the classes first
+        // before proper linking can take place
+        for (CoolClass cc : cp.getClasses()) {
+            SymbolTable st2 = new SymbolTable(st);
+            st2.setParent(st);
+            cc.setSymbols(st2);
         }
 
         for (CoolClass cc : cp.getClasses()) {
-            SymbolTable st2 = new SymbolTable();
-            st2.setParent(st);
-            cc.setSymbols(st2);
             cc.accept(this);
         }
     }

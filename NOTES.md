@@ -5,8 +5,48 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
-### Changing the Symbol Table implementation
+### Problem: method and symbol resolution needs to respect the class hierarchy
 
+So right now there is a symbol table on the CoolProgram, CoolClass, CoolMethod, 
+and CoolExpr classes. Because the hierarchy of the AST is already naturally
+aligned with the scope rules, this was the simplest & easiest way to model that.
+
+But this didn't take into account the class hierarchy, in which children inherit
+the attributes and methods of the parent.
+
+I'm brainstorming a solution to this, and it seems the simplest way to get what
+I want is to actually nest the classes in one another such that:
+
+```
+CoolProgram
+    CoolClass
+        CoolMethod
+    CoolClass
+        CoolMethod
+        CoolMethod
+    CoolClass
+        CoolMethod
+```
+
+becomes something like:
+
+```
+CoolProgram
+    CoolClass
+        CoolClass
+            CoolMethod
+    CoolClass
+        CoolClass
+            CoolClass        
+```
+
+But I don't know right now if this would break scope rules later down the line.
+
+Method and symbol resolution need to follow the class hierarchy before checking
+the global symbol table, and I don't quite know how to get that with the setup I
+have here.
+
+I'm sure its ultimately a simple solution I just can't think of it right now.
 
 ### Linking the chain
 

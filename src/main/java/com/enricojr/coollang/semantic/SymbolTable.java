@@ -1,6 +1,5 @@
 package com.enricojr.coollang.semantic;
 
-import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.constants.CoolLiteral;
 import com.enricojr.coollang.ast.program.CoolClass;
@@ -50,16 +49,17 @@ public class SymbolTable {
         return false;
     }
 
-    public MethodTableEntry getMethod(CoolIdentifier ci) {
+    public CoolClass getMethodType(CoolIdentifier ci) {
         if (this.methods.containsKey(ci)) {
-            return this.methods.get(ci);
+            MethodTableEntry mte = this.methods.get(ci);
+            return mte.getReturnType();
         }
 
         if (this.parent != null) {
             SymbolTable next = this.parent;
             while (true) {
                 if (next.hasType(ci)) {
-                    return next.getMethod(ci);
+                    return next.getMethodType(ci);
                 } else if (next.getParent() == null) {
                     break;
                 } else {
@@ -75,13 +75,13 @@ public class SymbolTable {
         return methods;
     }
 
-    public void addType(CoolIdentifier ci, CoolClass cc) {
+    public void addSymbolType(CoolIdentifier ci, CoolClass cc) {
         SymbolTableEntry ste = new SymbolTableEntry();
         ste.setType(cc);
         this.types.put(ci, ste);
     }
 
-    public void addType(CoolIdentifier ci, CoolClass cc, CoolLiteral cl) {
+    public void addSymbolType(CoolIdentifier ci, CoolClass cc, CoolLiteral cl) {
         SymbolTableEntry ste = new SymbolTableEntry();
         ste.setType(cc);
         ste.setValue(cl);
@@ -110,7 +110,7 @@ public class SymbolTable {
         return false;
     }
 
-    public CoolClass getType(CoolIdentifier ci) {
+    public CoolClass getSymbolType(CoolIdentifier ci) {
         if (this.types.containsKey(ci)) {
             SymbolTableEntry ste = this.types.get(ci);
             return ste.getType();
@@ -120,7 +120,7 @@ public class SymbolTable {
             SymbolTable next = this.parent;
             while (true) {
                 if (next.hasType(ci)) {
-                    return next.getType(ci);
+                    return next.getSymbolType(ci);
                 } else if (next.getParent() == null) {
                     break;
                 } else {
@@ -141,6 +141,21 @@ public class SymbolTable {
 
     public HashMap<CoolIdentifier, SymbolTableEntry> getTypes() {
         return types;
+    }
+
+    public void printSymbolTableChain() {
+        System.out.println(this);
+        if (this.parent != null && this.getParent() != null) {
+            SymbolTable next = this.parent;
+            while (true) {
+                System.out.println(next.toString());
+                if (next.getParent() == null) {
+                    break;
+                } else {
+                    next = next.getParent();
+                }
+            }
+        }
     }
 
     public String toString() {

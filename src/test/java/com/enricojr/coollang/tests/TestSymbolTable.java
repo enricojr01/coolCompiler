@@ -19,9 +19,9 @@ public class TestSymbolTable {
         SymbolTable st1 = new SymbolTable();
 
         CoolIdentifier ci = new CoolIdentifier("test1");
-        st1.addType(ci, new CoolClass());
+        st1.addSymbolType(ci, new CoolClass());
 
-        CoolBaseNode target = st1.getType(ci);
+        CoolBaseNode target = st1.getSymbolType(ci);
         assertNotNull(target);
     }
 
@@ -31,7 +31,7 @@ public class TestSymbolTable {
 
         CoolIdentifier ci = new CoolIdentifier("test1");
 
-        CoolBaseNode target = st1.getType(ci);
+        CoolBaseNode target = st1.getSymbolType(ci);
         assertNull(target);
     }
 
@@ -48,14 +48,14 @@ public class TestSymbolTable {
         CoolIdentifier ci2 = new CoolIdentifier("test2");
         CoolIdentifier ci3 = new CoolIdentifier("test3");
 
-        st1.addType(ci1, new CoolClass());
-        st2.addType(ci2, new CoolClass());
-        st3.addType(ci3, new CoolClass());;
+        st1.addSymbolType(ci1, new CoolClass());
+        st2.addSymbolType(ci2, new CoolClass());
+        st3.addSymbolType(ci3, new CoolClass());;
 
-        CoolBaseNode target = st3.getType(ci1);
+        CoolBaseNode target = st3.getSymbolType(ci1);
         assertNotNull(target);
 
-        target = st3.getType(ci2);
+        target = st3.getSymbolType(ci2);
         assertNotNull(target);
     }
 
@@ -65,9 +65,9 @@ public class TestSymbolTable {
 
         CoolClass cc1 = CoolClass.factory("test1");
 
-        st1.addType(cc1.getName(), cc1);
+        st1.addSymbolType(cc1.getName(), cc1);
 
-        CoolClass target = st1.getType(cc1.getName());
+        CoolClass target = st1.getSymbolType(cc1.getName());
 
         assertNotNull(target);
     }
@@ -81,9 +81,9 @@ public class TestSymbolTable {
 
         CoolClass cc1 = CoolClass.factory("test1");
 
-        st1.addType(cc1.getName(), cc1);
+        st1.addSymbolType(cc1.getName(), cc1);
 
-        CoolClass target = st2.getType(cc1.getName());
+        CoolClass target = st2.getSymbolType(cc1.getName());
         assertNotNull(target);
 
     }
@@ -98,9 +98,9 @@ public class TestSymbolTable {
         st3.setParent(st2);
 
         CoolClass cc1 = CoolClass.factory("Test1");
-        st1.addType(cc1.getName(), cc1);
+        st1.addSymbolType(cc1.getName(), cc1);
 
-        CoolClass target = st3.getType(cc1.getName());
+        CoolClass target = st3.getSymbolType(cc1.getName());
         assertNotNull(target);
     }
 

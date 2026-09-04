@@ -42,11 +42,15 @@ public class Test {
 
         System.out.println("Creating AST...");
         AstBuilder ab = new AstBuilder();
-        AstPrinter ap = new AstPrinter();
         ProgContext prog = parser.prog();
         CoolProgram top = (CoolProgram) ab.visit(prog);
 
+        System.out.println("Enforcing inheritance rules...");
+        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        cta.visitCoolProgram(top);
+
 //        System.out.println("Printing AST...");
+//        AstPrinter ap = new AstPrinter();
 //        ap.visitCoolProgram(top);
 
         System.out.println("Building symbol tables...");

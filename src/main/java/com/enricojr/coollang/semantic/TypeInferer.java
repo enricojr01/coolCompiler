@@ -12,7 +12,8 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
-
+        // if the attribute has an assignment expression, check to see if the expression matches the type specified
+        // in the formal definition - maybe I don't need to drop into visitCoolAssign for this?
     }
 
     @Override
@@ -32,12 +33,11 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolCase(CoolCase cca) {
-
     }
 
     @Override
     public void visitCoolCaseBranch(CoolCaseBranch ccb) {
-
+        // make sure that the expression matches the formal definition
     }
 
     @Override
@@ -82,7 +82,8 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
-
+        // the type of a method is the type of the last expression in it.
+        // check to make sure it conforms to the return type specified in the signature.
     }
 
     @Override
@@ -92,7 +93,6 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolParamList(CoolParamList cpl) {
-
     }
 
     @Override
