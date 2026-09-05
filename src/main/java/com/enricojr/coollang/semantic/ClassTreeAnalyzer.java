@@ -164,6 +164,7 @@ public class ClassTreeAnalyzer implements AstVisitor {
                 )
         );
 
+        cp.setRoot(new CoolObjectType());
         ArrayList<CoolClass> builtins = new ArrayList<>(
                 List.of(
                         new CoolIOType(cp.getRoot()),
@@ -181,7 +182,6 @@ public class ClassTreeAnalyzer implements AstVisitor {
             this.classList.put(cc.getName(), cc);
         }
 
-        cp.setRoot(new CoolObjectType());
 
         // second loop enforces inheritance rules:
         // classes can't override IO, Int, Bool, or String

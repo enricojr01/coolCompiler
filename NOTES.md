@@ -5,6 +5,80 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Solution: method and symbol resolution (summary)
+
+Now that I've actually solved the problem I can step back and document it 
+properly for posterity.
+
+When I went to implement Type Checking according to the manual I discovered that
+I'd overlooked a very important detail - that method / symbol resolution should
+travel up the class tree, from child to parent, before checking the global
+symbol table.
+
+The heart of the issue was the way I had been building the AST - All the 
+`CoolClass` nodes were simply children of `CoolProgram`, and all siblings with
+one another despite there being a clear hierarchy established.
+
+TO paraphrase the manual - `Object` is the top-level class and all others 
+inherit from it implicitly. If a `CoolClass` does not specify a parent class, it 
+automatically inherits from `Object`.
+
+The builtin classes `IO`, `String', `Int`, and `Bool` all inherit from `Object`
+by definition.
+
+Of the builtins, you are only allowed to inherit from `IO`. None of the builtins
+can be overridden (redefined).
+
+Finally, only single inheritance is allowed, i.e. classes can only have one 
+parent.
+
+With all this in mind you can trace a path from any class back to object, and we
+can clearly see that the classes within a Cool program form a tree, in which each
+node has a single parent, and 0 or more children.
+
+So in addition to the CoolProgram itself being parsed into a tree structure 
+whose nodes follow the structure laid out by the parser/grammar, the classes 
+themselves also form a "subtree" within the CoolProgram that follows the 
+hierarchy of the defined classes.
+
+I thought this would be a harder problem to solve, but I ended up making far
+fewer changes than I anticipated.
+
+First, I refactored the classes in `coollang.ast.builtins` to inherit from a new
+parent class called `CoolBuiltInType`. This enabled me to exclude them from
+any iteration through a simple `!(x instanceof CoolBuiltInType)` check.
+
+`CoolBuiltInType` was given a constructor that took a `CoolClass` as an argument,
+and set that as the parent. This is to allow the setting of a root node as
+parent for each of the builtins, as defined by spec.
+
+I then added a proper `children` field to the CoolClass. Alongside the existing 
+`parent` field, `CoolClass` is now a proper N-tree node.
+
+Next, I added a `root` field to CoolProgram, with type `CoolClass` and this set
+in place the foundation of a proper Class Tree.
+
+Next, the `ClassTreeAnalyzer.visitCoolProgram` function was modified to do a few
+new things:
+
+First, the `CoolProgram.root` was set to a blank `CoolObjectType` instance.
+
+Second, the new builtins were added to the initial `CoolProgram` classList. Each
+one had its parent.
+
+Third, as `visitCoolProgram` iterates through the full list of classes in `cp` it
+sets `cc.parent` to the appropriate class, if `cc.parentName() != null`. If 
+`cc.parentName == null` then `cc.parent` is set to `cp.getRoot()`. In both cases
+`cc` is added to either the `parent` class' `children` or the root's `children`
+thus forming the class tree.
+
+Finally, `ClassTreePrinter` iterates through the tree in a depth-first fashion
+printing out the nodes so I can verify that everything is correct.
+
+All that's left to do is to write tests to guard against regressions and I can
+finally move on to the next task.
+
+
 ### Problem: method and symbol resolution ... pt3
 
 I come back to it and realize the classes are ALREADY nested by virture of the 
