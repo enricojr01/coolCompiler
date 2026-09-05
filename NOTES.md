@@ -5,6 +5,30 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Problem: method and symbol resolution ... pt3
+
+I come back to it and realize the classes are ALREADY nested by virture of the 
+CoolClass.parent field. The ClassTreeAnalyzer sets everything up and I would
+probably just have to adjust the SymbolTableBuilder to follow classes down.
+
+But CoolClass only has a "parent" field, and not a "children" field, maybe I
+should change that.
+
+When you have only the "parent" field you can't traverse down the tree only
+back up
+
+### Problem: method and symbol resolution ... pt2
+
+Nesting the classes inside one another won't work in my setup because of how
+tightly the AST follows the structure of the program.
+
+And the symbol tables themselves are separate attributes within the class and
+I don't know how to make them "aware" of the class they're in such that they
+can follow the class hierarchy.
+
+It's also just not a good idea to do that since these components ought to be 
+separate as part of good design.
+
 ### Problem: method and symbol resolution needs to respect the class hierarchy
 
 So right now there is a symbol table on the CoolProgram, CoolClass, CoolMethod, 

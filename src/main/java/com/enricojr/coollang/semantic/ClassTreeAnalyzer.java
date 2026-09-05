@@ -1,8 +1,7 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.builtins.CoolIOType;
-import com.enricojr.coollang.ast.builtins.CoolObjectType;
+import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
@@ -164,11 +163,25 @@ public class ClassTreeAnalyzer implements AstVisitor {
                         new CoolIdentifier("Bool")
                 )
         );
+
+        ArrayList<CoolClass> builtins = new ArrayList<>(
+                List.of(
+                        new CoolIOType(cp.getRoot()),
+                        new CoolObjectType(cp.getRoot()),
+                        new CoolIntegerType(cp.getRoot()),
+                        new CoolStringType(cp.getRoot()),
+                        new CoolBooleanType(cp.getRoot())
+                )
+        );
+        cp.getClasses().addAll(builtins);
+
         // we loop twice through CoolProgram
         // first loop builds up a list of classes
         for (CoolClass cc : cp.getClasses()) {
             this.classList.put(cc.getName(), cc);
         }
+
+        cp.setRoot(new CoolObjectType());
 
         // second loop enforces inheritance rules:
         // classes can't override IO, Int, Bool, or String
@@ -176,17 +189,17 @@ public class ClassTreeAnalyzer implements AstVisitor {
         // classes can't inherit from themselves
         // at the end of the second loop, the parent field is set.
         for (CoolClass cc : cp.getClasses()) {
-            if (bannedClasses.contains(cc.getName())) {
+            if (!(cc instanceof CoolBuiltInType) && bannedClasses.contains(cc.getName())) {
                 String err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getName().getValue());
                 throw new RuntimeException(err);
             }
 
-            if (cc.getName().getValue().equals("IO")) {
+            if (!(cc instanceof CoolBuiltInType) && cc.getName().getValue().equals("IO")) {
                String err = String.format("Class %s is not allowed to override IO.", cc.getName().getValue());
                throw new RuntimeException(err);
             }
 
-            if (bannedClasses.contains(cc.getParentName())) {
+            if (!(cc instanceof CoolBuiltInType) && bannedClasses.contains(cc.getParentName())) {
                 String err = String.format("Class %s is not allowed to inherit from Int, Bool, or String");
                 throw new RuntimeException(err);
             }
@@ -210,6 +223,11 @@ public class ClassTreeAnalyzer implements AstVisitor {
                     throw new RuntimeException(err);
                 }
                 cc.setParent(parentClass);
+                parentClass.addChild(cc);
+            } else {
+                cc.setParentName(cp.getRoot().getName());
+                cc.setParent(cp.getRoot());
+                cp.getRoot().addChild(cc);
             }
         }
 

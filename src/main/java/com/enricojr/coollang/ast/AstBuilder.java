@@ -1,5 +1,6 @@
 package com.enricojr.coollang.ast;
 
+import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
@@ -502,7 +503,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             CoolClass ccn = (CoolClass) this.visitCoolClass(c);
             coolClasses.add(ccn);
         }
-
         coolProg.setClasses(coolClasses);
         return coolProg;
     }

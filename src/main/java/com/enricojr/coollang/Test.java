@@ -47,18 +47,20 @@ public class Test {
 
         System.out.println("Enforcing inheritance rules...");
         ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreePrinter ctp = new ClassTreePrinter();
         cta.visitCoolProgram(top);
+        ctp.visitCoolProgram(top);
 
 //        System.out.println("Printing AST...");
 //        AstPrinter ap = new AstPrinter();
 //        ap.visitCoolProgram(top);
 
-        System.out.println("Building symbol tables...");
-        SymbolTableBuilder sBuilder = new SymbolTableBuilder();
-        SymbolTablePrinter sPrinter = new SymbolTablePrinter();
-        sBuilder.visitCoolProgram(top);
-        System.out.println("Displaying symbol tables...");
-        sPrinter.visitCoolProgram(top);
+//        System.out.println("Building symbol tables...");
+//        SymbolTableBuilder sBuilder = new SymbolTableBuilder();
+//        SymbolTablePrinter sPrinter = new SymbolTablePrinter();
+//        sBuilder.visitCoolProgram(top);
+//        System.out.println("Displaying symbol tables...");
+//        sPrinter.visitCoolProgram(top);
 
 //        System.out.println("Building type environments...");
 //        TypeEnvironmentBuilder tBuilder = new TypeEnvironmentBuilder();

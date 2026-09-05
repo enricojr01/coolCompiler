@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class CoolProgram extends CoolBaseNode {
     private ArrayList<CoolClass> classes;
+    private CoolClass root;
 
     public CoolProgram() {}
 
@@ -15,6 +16,14 @@ public class CoolProgram extends CoolBaseNode {
 
     public void setClasses(ArrayList<CoolClass> classes) {
         this.classes = classes;
+    }
+
+    public CoolClass getRoot() {
+        return root;
+    }
+
+    public void setRoot(CoolClass root) {
+        this.root = root;
     }
 
     public String toString() {

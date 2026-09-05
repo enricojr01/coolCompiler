@@ -13,6 +13,7 @@ public class CoolClass extends CoolBaseNode {
     private CoolClass parent;
     private ArrayList<CoolAttribute> attributes;
     private ArrayList<CoolMethod> methods;
+    private ArrayList<CoolClass> children = new ArrayList<>();
 
     public CoolClass() {}
 
@@ -73,6 +74,14 @@ public class CoolClass extends CoolBaseNode {
 
     public void setParentName(CoolIdentifier parentName) {
         this.parentName = parentName;
+    }
+
+    public void addChild(CoolClass cc) {
+        this.children.add(cc);
+    }
+
+    public ArrayList<CoolClass> getChildren() {
+        return this.children;
     }
 
     public String toString() {
