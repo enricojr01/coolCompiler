@@ -49,6 +49,8 @@ public class Test {
         ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
         ClassTreePrinter ctp = new ClassTreePrinter();
         cta.visitCoolProgram(top);
+
+        System.out.println("Printing class tree...");
         ctp.visitCoolProgram(top);
 
 //        System.out.println("Printing AST...");

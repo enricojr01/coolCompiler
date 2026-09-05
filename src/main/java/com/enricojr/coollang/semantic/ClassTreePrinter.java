@@ -15,7 +15,11 @@ public class ClassTreePrinter implements AstVisitor {
     private String space = " ";
 
     private HashSet<CoolIdentifier> dontBother = new HashSet<>(
-            List.of(new CoolIdentifier("Int"), new CoolIdentifier("Bool"), new CoolIdentifier("String"))
+            List.of(
+                    new CoolIdentifier("Int"),
+                    new CoolIdentifier("Bool"),
+                    new CoolIdentifier("String")
+            )
     );
 
     @Override
