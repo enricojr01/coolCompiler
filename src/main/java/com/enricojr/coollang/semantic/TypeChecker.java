@@ -63,6 +63,10 @@ public class TypeChecker implements AstVisitor {
             ca.accept(this);
         }
 
+        for (CoolMethod cm : cc.getMethods()) {
+            cm.accept(this);
+        }
+
         for (CoolClass child : cc.getChildren()) {
             child.accept(this);
         }
