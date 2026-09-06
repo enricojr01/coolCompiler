@@ -3,6 +3,7 @@ package com.enricojr.coollang;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
@@ -44,24 +45,45 @@ public class Test {
         ProgContext prog = parser.prog();
         CoolProgram top = (CoolProgram) ab.visit(prog);
 
+        System.out.println("Printing AST...");
+        AstPrinter ap = new AstPrinter();
+        ap.visitCoolProgram(top);
+
+        System.out.println("Setting up class tree...");
+        ClassTreeSetup cts = new ClassTreeSetup();
+        cts.visitCoolProgram(top);
+
+        System.out.println("Linking classes...");
+        ClassTreeLinker ctl = new ClassTreeLinker();
+        ctl.visitCoolProgram(top);
+
         System.out.println("Enforcing inheritance rules...");
-        ClassTreeBuilder cta = new ClassTreeBuilder();
-        ClassTreePrinter ctp = new ClassTreePrinter();
-        cta.visitCoolProgram(top);
+        ClassTreeBuilder ctb = new ClassTreeBuilder();
+        ctb.visitCoolProgram(top);
 
         System.out.println("Printing class tree...");
+        ClassTreePrinter ctp = new ClassTreePrinter();
         ctp.visitCoolProgram(top);
 
+        System.out.println("Initializing/Linking class symbol tables...");
+        SymbolTableLinker sLinker = new SymbolTableLinker();
+        sLinker.visitCoolProgram(top);
+
+        System.out.println("Populating class symbol tables...");
+        SymbolTableBuilder sBuilder = new SymbolTableBuilder();
+        sBuilder.visitCoolProgram(top);
+
+        System.out.println("Printing symbol tables...");
+        SymbolTablePrinter sPrinter = new SymbolTablePrinter();
+        sPrinter.visitCoolProgram(top);
 //        System.out.println("Printing AST...");
 //        AstPrinter ap = new AstPrinter();
 //        ap.visitCoolProgram(top);
 
-        System.out.println("Building symbol tables...");
-        SymbolTableBuilder sBuilder = new SymbolTableBuilder();
-        SymbolTablePrinter sPrinter = new SymbolTablePrinter();
-        sBuilder.visitCoolProgram(top);
-        System.out.println("Displaying symbol tables...");
-        sPrinter.visitCoolProgram(top);
+
+//        OldSymbolTableBuilder sBuilder = new OldSymbolTableBuilder();
+//        sBuilder.visitCoolProgram(top);
+//        System.out.println("Displaying symbol tables...");
 
 //        System.out.println("Building type environments...");
 //        TypeEnvironmentBuilder tBuilder = new TypeEnvironmentBuilder();

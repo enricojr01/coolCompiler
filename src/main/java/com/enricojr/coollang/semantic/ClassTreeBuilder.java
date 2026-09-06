@@ -86,6 +86,7 @@ public class ClassTreeBuilder implements AstVisitor {
                             cc.getName().getValue(),
                             cc.getParentName().getValue()
                     );
+                    System.out.println(stack);
                     throw new RuntimeException(err);
                 }
                 // otherwise push it onto the stack
@@ -162,23 +163,11 @@ public class ClassTreeBuilder implements AstVisitor {
                 )
         );
 
-        cp.setRoot(new CoolObjectType());
-        ArrayList<CoolClass> builtins = new ArrayList<>(
-                List.of(
-                        new CoolIOType(cp.getRoot()),
-                        new CoolIntegerType(cp.getRoot()),
-                        new CoolStringType(cp.getRoot()),
-                        new CoolBooleanType(cp.getRoot())
-                )
-        );
-        cp.getClasses().addAll(builtins);
-
         // we loop twice through CoolProgram
         // first loop builds up a list of classes
         for (CoolClass cc : cp.getClasses()) {
             this.classList.put(cc.getName(), cc);
         }
-
 
         // second loop enforces inheritance rules:
         // classes can't override IO, Int, Bool, or String
@@ -206,25 +195,6 @@ public class ClassTreeBuilder implements AstVisitor {
                         "Class %s is not allowed to inherit from itself.", cc.getName().getValue()
                 );
                 throw new RuntimeException(err);
-            }
-
-            if (cc.getParentName() != null) {
-                CoolClass parentClass = this.classList.get(cc.getParentName());
-                if (parentClass == null) {
-                    String err = String.format(
-                            "Class %s inherits from nonexistent parent %s.",
-                            cc.getName().getValue(),
-                            cc.getParentName().getValue()
-                    );
-
-                    throw new RuntimeException(err);
-                }
-                cc.setParent(parentClass);
-                parentClass.addChild(cc);
-            } else {
-                cc.setParentName(cp.getRoot().getName());
-                cc.setParent(cp.getRoot());
-                cp.getRoot().addChild(cc);
             }
         }
 

@@ -100,29 +100,10 @@ public class SymbolTablePrinter implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        if (this.dontBother.contains(cc.getName())) {
-            return;
-        }
         System.out.println(this.space.repeat(this.indent) + cc);
         SymbolTable symbols = cc.getSymbols();
 
         this.indent += offset;
-        if (cc.getParent() != null) {
-            CoolClass next = cc.getParent();
-            SymbolTable parentSymbols = next.getSymbols();
-            while (true) {
-                for (Map.Entry<CoolIdentifier, SymbolTableEntry> entry : parentSymbols.getTypes().entrySet()) {
-                    this.printSymbol(entry);
-                }
-                System.out.println(this.space.repeat(this.indent) + "======");
-                if (next.getParent() != null) {
-                    next = next.getParent();
-                } else {
-                    break;
-                }
-            }
-        }
-
         for (Map.Entry<CoolIdentifier, SymbolTableEntry> entry : symbols.getTypes().entrySet()) {
             this.printSymbol(entry);
         }
@@ -133,6 +114,9 @@ public class SymbolTablePrinter implements AstVisitor {
 
         for (CoolMethod cm : cc.getMethods()) {
             cm.accept(this);
+        }
+        for (CoolClass child : cc.getChildren()) {
+            child.accept(this);
         }
         this.indent -= offset;
     }
@@ -238,9 +222,8 @@ public class SymbolTablePrinter implements AstVisitor {
         for (Map.Entry<CoolIdentifier, SymbolTableEntry> entry : cp.getSymbols().getTypes().entrySet()) {
             this.printSymbol(entry);
         }
-        for (CoolClass cc : cp.getClasses()) {
-            cc.accept(this);
-        }
+
+        cp.getRoot().accept(this);
         this.indent -= offset;
     }
 
