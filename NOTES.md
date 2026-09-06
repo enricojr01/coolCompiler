@@ -5,6 +5,39 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### method and symbol resolution pt N
+
+I ended up tearing apart the old ClassTreeBuilder and SymbolTableBuilder classes
+as they were becoming too big to debug efficiently. I've split them into several
+smaller classes:
+
+`ClassTreeBuilder` has become `ClassTreeSetup`, `ClassTreeLinker`, 
+`ClassTreeBuilder`, and `ClassTreePrinter`.
+
+`SymbolTableBuilder` has become `SymbolTableLinker` and `SymbolTableBuilder`
+
+`ClassTreeSetup` handles inserting instances of the `CoolBuiltInTypes`. It sets
+the root `Object` instance, and sets parent/child relationships on the remaining
+built-in types. It then adds these new classes into the `CoolProgram.classes`
+ArrayList for the next step.
+
+`ClassTreeLinker` handles setting parent/child on each of the non-builtin 
+classes, including adding the classes to their respective `CoolClass.children`
+ArrayLists.
+
+`ClassTreeBuilder` handles enforcing the inheritance rules, just like before.
+
+`ClassTreePrinter` prints out the class tree to make debugging easier.
+
+`SymbolTableLinker` is responsible for creating and linking the symbol tables
+from the root on downards. The symbol tables are empty at this point to keep 
+things simple.
+
+`SymbolTableBuilder` is responsible for populating the symbol tables and has
+basically been rewritten from scratch. 
+
+`SymbolTablePrinter` hasn't changed and only prints out the Symbol Tables.
+
 ### Solution: method and symbol resolution (summary)
 
 Now that I've actually solved the problem I can step back and document it 
