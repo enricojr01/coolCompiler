@@ -5,12 +5,22 @@ import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 public class SymbolTablePrinter implements AstVisitor {
     private int indent = 0;
     private String space = " ";
     private int offset = 2;
+    private HashSet<CoolIdentifier> dontBother = new HashSet<>(
+            List.of(
+                    new CoolIdentifier("Int"),
+                    new CoolIdentifier("String"),
+                    new CoolIdentifier("Bool"),
+                    new CoolIdentifier("IO")
+            )
+    );
 
     public void printSymbol(Map.Entry<CoolIdentifier, SymbolTableEntry> entry) {
         SymbolTableEntry ste = entry.getValue();
@@ -90,6 +100,9 @@ public class SymbolTablePrinter implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
+        if (this.dontBother.contains(cc.getName())) {
+            return;
+        }
         System.out.println(this.space.repeat(this.indent) + cc);
         SymbolTable symbols = cc.getSymbols();
 

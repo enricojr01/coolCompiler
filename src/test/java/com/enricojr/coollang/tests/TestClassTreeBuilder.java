@@ -3,7 +3,7 @@ package com.enricojr.coollang.tests;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
-import com.enricojr.coollang.semantic.ClassTreeAnalyzer;
+import com.enricojr.coollang.semantic.ClassTreeBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -12,10 +12,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TestClassTreeAnalyzer {
+public class TestClassTreeBuilder {
     @Test
     public void testClassTreeSimple() {
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         // build a simple "program"
         CoolProgram cp = new CoolProgram();
@@ -32,7 +32,7 @@ public class TestClassTreeAnalyzer {
 
     @Test
     public void testClassTreeClassInheritsItself() {
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");
@@ -46,7 +46,7 @@ public class TestClassTreeAnalyzer {
 
     @Test
     public void testClassTreeInheritanceCycle() {
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");
@@ -64,7 +64,7 @@ public class TestClassTreeAnalyzer {
 
     @Test
     public void testClassInheritFromInt() {
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("Int");
@@ -77,7 +77,7 @@ public class TestClassTreeAnalyzer {
 
     @Test
     public void testClassInheritFromString() {
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("String");
@@ -91,7 +91,7 @@ public class TestClassTreeAnalyzer {
 
     @Test
     public void testClassInheritFromBool() {
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("Bool");
@@ -106,7 +106,7 @@ public class TestClassTreeAnalyzer {
     @Test
     public void testClassOverrideIO() {
         // NOTE: As a reminder, you can INHERIT from IO, but not override it.
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("IO");
@@ -120,7 +120,7 @@ public class TestClassTreeAnalyzer {
 
     @Test
     public void testClassInheritsBadClass() {
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");

@@ -8,10 +8,10 @@ import com.enricojr.coollang.ast.program.*;
 
 import java.util.*;
 
-public class ClassTreeAnalyzer implements AstVisitor {
+public class ClassTreeBuilder implements AstVisitor {
     private HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
 
-    public ClassTreeAnalyzer() {
+    public ClassTreeBuilder() {
         CoolClass object = new CoolObjectType();
         CoolClass io = new CoolIOType();
 
@@ -57,8 +57,6 @@ public class ClassTreeAnalyzer implements AstVisitor {
     @Override
     public void visitCoolClass(CoolClass cc) {
         LinkedList<CoolClass> stack = new LinkedList<>();
-//        CoolClass objectClass = new CoolObjectType();
-//        CoolClass ioClass = new CoolIOType();
 
         // Cycle detection is done with a stack - starting with the
         // class itself,
@@ -168,7 +166,6 @@ public class ClassTreeAnalyzer implements AstVisitor {
         ArrayList<CoolClass> builtins = new ArrayList<>(
                 List.of(
                         new CoolIOType(cp.getRoot()),
-                        new CoolObjectType(cp.getRoot()),
                         new CoolIntegerType(cp.getRoot()),
                         new CoolStringType(cp.getRoot()),
                         new CoolBooleanType(cp.getRoot())

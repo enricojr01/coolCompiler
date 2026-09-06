@@ -33,4 +33,8 @@ public class SymbolTableEntry {
     public void setValue(CoolLiteral value) {
         this.value = value;
     }
+
+    public String toString() {
+        return String.format("%s : %s", this.type, this.value);
+    }
 }

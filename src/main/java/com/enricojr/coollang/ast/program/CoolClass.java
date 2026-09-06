@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.constants.CoolString;
 
 public class CoolClass extends CoolBaseNode {
     private CoolIdentifier name;

@@ -3,7 +3,6 @@ package com.enricojr.coollang;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
@@ -46,7 +45,7 @@ public class Test {
         CoolProgram top = (CoolProgram) ab.visit(prog);
 
         System.out.println("Enforcing inheritance rules...");
-        ClassTreeAnalyzer cta = new ClassTreeAnalyzer();
+        ClassTreeBuilder cta = new ClassTreeBuilder();
         ClassTreePrinter ctp = new ClassTreePrinter();
         cta.visitCoolProgram(top);
 
@@ -57,12 +56,12 @@ public class Test {
 //        AstPrinter ap = new AstPrinter();
 //        ap.visitCoolProgram(top);
 
-//        System.out.println("Building symbol tables...");
-//        SymbolTableBuilder sBuilder = new SymbolTableBuilder();
-//        SymbolTablePrinter sPrinter = new SymbolTablePrinter();
-//        sBuilder.visitCoolProgram(top);
-//        System.out.println("Displaying symbol tables...");
-//        sPrinter.visitCoolProgram(top);
+        System.out.println("Building symbol tables...");
+        SymbolTableBuilder sBuilder = new SymbolTableBuilder();
+        SymbolTablePrinter sPrinter = new SymbolTablePrinter();
+        sBuilder.visitCoolProgram(top);
+        System.out.println("Displaying symbol tables...");
+        sPrinter.visitCoolProgram(top);
 
 //        System.out.println("Building type environments...");
 //        TypeEnvironmentBuilder tBuilder = new TypeEnvironmentBuilder();

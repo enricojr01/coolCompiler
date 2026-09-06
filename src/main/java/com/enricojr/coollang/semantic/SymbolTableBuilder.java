@@ -7,8 +7,18 @@ import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class SymbolTableBuilder implements AstVisitor {
+    private HashSet<CoolIdentifier> dontBother = new HashSet<>(
+            List.of(
+                    new CoolIdentifier("String"),
+                    new CoolIdentifier("Bool"),
+                    new CoolIdentifier("Int")
+            )
+    );
+
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
         CoolExpr ce = camd.getLhs();
@@ -118,32 +128,54 @@ public class SymbolTableBuilder implements AstVisitor {
     public void visitCoolClass(CoolClass cc) {
         SymbolTable st = cc.getSymbols();
 
-        for (CoolAttribute ca : cc.getAttributes()) {
-            CoolClass typeClass = st.getSymbolType(ca.getTypeName());
-            st.addSymbolType(ca.getIdentifier(), typeClass);
+        // NOTE: Object, String, Int, Bool, and IO classes don't have any attributes.
+        // I've decided to check and guard vs skipping because I'm worried that skipping will break the
+        // order in which they're processed.
+        if (cc.getAttributes() != null && cc.getAttributes().size() >= 0) {
+            for (CoolAttribute ca : cc.getAttributes()) {
+                CoolClass typeClass = st.getSymbolType(ca.getTypeName());
+                st.addSymbolType(ca.getIdentifier(), typeClass);
+            }
         }
 
         CoolIdentifier ci = new CoolIdentifier("SELF_TYPE");
         st.addSymbolType(ci, cc);
 
-        for (CoolMethod cm : cc.getMethods()) {
-            SymbolTable parameters = new SymbolTable();
-            CoolClass returnType = st.getSymbolType(cm.getReturnType());
-            if (returnType == null) {
-                String msg = String.format("Couldn't find type for return type %s in method %s", cm.getReturnType(), cm);
-                st.printSymbolTableChain();
-                throw new RuntimeException(msg);
-            }
+        if (cc.getMethods() != null && cc.getMethods().size() > 0) {
+            for (CoolMethod cm : cc.getMethods()) {
+                SymbolTable parameters = new SymbolTable();
+                CoolClass returnType = st.getSymbolType(cm.getReturnType());
+                if (returnType == null) {
+                    String msg = String.format(
+                            "Couldn't find type for return type %s in method %s",
+                            cm.getReturnType(),
+                            cm
+                    );
+                    System.out.println("examining method: " + cm);
+                    st.printSymbolTableChain();
+                    throw new RuntimeException(msg);
+                }
 
-            for (CoolFormal cf : cm.getParameters().getParameters()) {
-                CoolIdentifier formalName = cf.getName();
-                CoolClass typeClass = st.getSymbolType(cf.getType());
-                parameters.addSymbolType(formalName, typeClass);
-            }
+                for (CoolFormal cf : cm.getParameters().getParameters()) {
+                    CoolIdentifier formalName = cf.getName();
+                    CoolClass typeClass = st.getSymbolType(cf.getType());
+                    parameters.addSymbolType(formalName, typeClass);
+                }
 
-            st.addMethod(cm.getName(), parameters, returnType, cm);
-            cm.setSymbols(new SymbolTable(st));
-            cm.accept(this);
+                // add to main symbol table
+                st.addMethod(cm.getName(), parameters, returnType, cm);
+                cm.setSymbols(new SymbolTable(st));
+                cm.accept(this);
+            }
+        }
+
+        if (cc.getChildren() != null && cc.getChildren().size() > 0) {
+            for (CoolClass child : cc.getChildren()) {
+                // yes, this overwrites the parent we set in the initial pass through the classes
+                // but that's how it goes I guess
+                child.getSymbols().setParent(st);
+                child.accept(this);
+            }
         }
     }
 
@@ -275,28 +307,14 @@ public class SymbolTableBuilder implements AstVisitor {
     public void visitCoolProgram(CoolProgram cp) {
         SymbolTable st = new SymbolTable();
         cp.setSymbols(st);
+        cp.getRoot().getSymbols().setParent(st);
 
-        // IO, Int, String, and Bool need to be added to the top-level
-        // symbol table
-        CoolClass objType = new CoolObjectType();
-        CoolClass ioType = new CoolIOType();
-        CoolClass intType = new CoolIntegerType();
-        CoolClass strType = new CoolStringType();
-        CoolClass boolType = new CoolBooleanType();
-
-        st.addSymbolType(objType.getName(), objType);
-        st.addSymbolType(ioType.getName(), ioType);
-        st.addSymbolType(intType.getName(), intType);
-        st.addSymbolType(strType.getName(), strType);
-        st.addSymbolType(boolType.getName(), boolType);
-
+        // NOTE: ClassTreeAnalyzer is now responsible for adding the initial builtins to the
+        // list of classes, so this line is now all that's needed to populate the initial symbol table
         for (CoolClass cc : cp.getClasses()) {
-//            System.out.println(String.format("Adding %s: %s to global symbol table", cc.getName(), cc));
             st.addSymbolType(cc.getName(), cc);
         }
-
-//        System.out.println("Global symbol table is: ");
-//        System.out.println(st);
+        st.addSymbolType(cp.getRoot().getName(), cp.getRoot());
 
         // all symbol tables need to exist on the classes first
         // before proper linking can take place
@@ -306,9 +324,7 @@ public class SymbolTableBuilder implements AstVisitor {
             cc.setSymbols(st2);
         }
 
-        for (CoolClass cc : cp.getClasses()) {
-            cc.accept(this);
-        }
+        cp.getRoot().accept(this);
     }
 
     @Override
