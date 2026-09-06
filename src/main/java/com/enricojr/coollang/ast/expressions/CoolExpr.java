@@ -14,7 +14,7 @@ public class CoolExpr extends CoolBaseNode {
         return this.computedType;
     }
 
-    public void setType(CoolClass type) {
+    public void setComputedType(CoolClass type) {
         this.computedType = type;
     }
 
@@ -22,7 +22,7 @@ public class CoolExpr extends CoolBaseNode {
         return this.computedValue;
     }
 
-    public void setValue(CoolLiteral value) {
+    public void setComputedValue(CoolLiteral value) {
         this.computedValue = value;
     }
 
