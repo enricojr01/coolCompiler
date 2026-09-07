@@ -8,8 +8,8 @@ import com.enricojr.coollang.ast.program.*;
 public class AstPrinter implements AstVisitor {
     // oh this is going to be SO bad.
     private int indent = 0;
-    private String space = " ";
-    private int offset = 2;
+    private final String space = " ";
+    private final int offset = 2;
 
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {

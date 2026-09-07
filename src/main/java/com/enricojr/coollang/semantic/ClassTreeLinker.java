@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ClassTreeLinker implements AstVisitor {
-    private HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
+    private final HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
 
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {

@@ -89,7 +89,7 @@ public class SymbolTableBuilder implements AstVisitor {
         }
 
         for (CoolMethod cm : cc.getMethods()) {
-            SymbolTable method = new SymbolTable(current);;
+            SymbolTable method = new SymbolTable(current);
             cm.setSymbols(method);
 
             cm.accept(this);
@@ -148,7 +148,6 @@ public class SymbolTableBuilder implements AstVisitor {
 
     @Override
     public void visitCoolIsVoid(CoolIsVoid civ) {
-        SymbolTable current = civ.getSymbols();
         CoolExpr expr = civ.getExpression();
         expr.accept(this);
     }

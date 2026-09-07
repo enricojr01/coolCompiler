@@ -21,7 +21,7 @@ public class TypeChecker implements AstVisitor {
         CoolClass declaredType = current.getSymbolType(ca.getTypeName());
         CoolClass computedValueType = value.getComputedType();
 
-        if (!(declaredType.equals(computedValueType))) {
+        if (!(declaredType.equalOrSubrelation(computedValueType))) {
             String msg = String.format(
                     "Value assigned to attribute %s does not match declared type %s",
                     computedValueType.getName(),
@@ -41,7 +41,7 @@ public class TypeChecker implements AstVisitor {
         assignment.accept(this);
         CoolClass computedType = assignment.getComputedType();
 
-        if (!(computedType.equals(declaredType))) {
+        if (!(computedType.equalOrSubrelation(declaredType))) {
             String msg = String.format(
                     "Value of expression in assignment to %s (%s) does not match type of %s (%s)",
                     variable.getValueString(),
@@ -71,7 +71,8 @@ public class TypeChecker implements AstVisitor {
                 CoolExpr rhs = cbo.getRhs();
                 rhs.accept(this);
 
-                if (!(rhs.getComputedType().equals(expected)) || !(lhs.getComputedType().equals(expected))) {
+                if (!(rhs.getComputedType().equalOrSubrelation(expected)) ||
+                        !(lhs.getComputedType().equalOrSubrelation(expected))) {
                     String msg = String.format(
                             "Left hand side %s and/or right hand side %s expression does not match expected value %s",
                             lhs.getComputedType(),
@@ -80,6 +81,9 @@ public class TypeChecker implements AstVisitor {
                     );
                     throw new RuntimeException(msg);
                 }
+
+                CoolClass computedType = current.getSymbolType(new CoolIdentifier("Int"));
+                cbo.setComputedType(computedType);
                 break;
             }
             case GT:
@@ -92,7 +96,8 @@ public class TypeChecker implements AstVisitor {
                 CoolExpr rhs = cbo.getRhs();
                 rhs.accept(this);
 
-                if (!(rhs.getComputedType().equals(expected)) || !(lhs.getComputedType().equals(expected))) {
+                if (!(rhs.getComputedType().equalOrSubrelation(expected)) ||
+                        !(lhs.getComputedType().equalOrSubrelation(expected))) {
                     String msg = String.format(
                             "Left hand side %s and/or right hand side %s expression does not match expected value %s",
                             lhs.getComputedType(),
@@ -101,6 +106,9 @@ public class TypeChecker implements AstVisitor {
                     );
                     throw new RuntimeException(msg);
                 }
+
+                CoolClass computedType = current.getSymbolType(new CoolIdentifier("Bool"));
+                cbo.setComputedType(computedType);
                 break;
             }
         }
@@ -147,17 +155,42 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolExpr(CoolExpr ce) {
-
+        ce.accept(this);
     }
 
     @Override
     public void visitCoolFormal(CoolFormal cf) {
-
+        SymbolTable current = cf.getSymbols();
+        CoolClass target = current.getSymbolType(cf.getType());
+        if (target == null) {
+            String msg = String.format(
+                    "Variable %s declares a type %s that does not exist!",
+                    cf.getName(),
+                    cf.getType()
+            );
+            throw new RuntimeException(msg);
+        }
     }
 
     @Override
     public void visitCoolIf(CoolIf cif) {
+        SymbolTable current = cif.getSymbols();
+        CoolClass boolTarget = current.getSymbolType(new CoolIdentifier("Bool"));
+        CoolExpr pred = cif.getPredicate();
+        pred.accept(this);
+        if (!(pred.getComputedType().equalOrSubrelation(boolTarget))) {
+            // TODO: need to get line numbers into this somehow these error messages are nigh useless otherwise!
+            String msg = String.format("Predicate of an if statement must be a bool");
+            throw new RuntimeException(msg);
+        }
+        CoolExpr then = cif.getThenExpr();
+        then.accept(this);
+        CoolExpr elseExpr = cif.getElseExpr();
+        elseExpr.accept(this);
 
+        // TODO: Figure out exactly what the "join" is, and how it determines the type of the if
+        // i.e. given T and F as the static types of the branches, the static type of the conditional is T join F
+        // or some shit
     }
 
     @Override

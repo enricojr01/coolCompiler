@@ -8,8 +8,8 @@ import com.enricojr.coollang.ast.program.CoolMethod;
 import java.util.HashMap;
 
 public class SymbolTable {
-    private HashMap<CoolIdentifier, SymbolTableEntry> types = new HashMap<>();
-    private HashMap<CoolIdentifier, MethodTableEntry> methods = new HashMap<>();
+    private final HashMap<CoolIdentifier, SymbolTableEntry> types = new HashMap<>();
+    private final HashMap<CoolIdentifier, MethodTableEntry> methods = new HashMap<>();
     private SymbolTable parent;
 
     public SymbolTable() {}

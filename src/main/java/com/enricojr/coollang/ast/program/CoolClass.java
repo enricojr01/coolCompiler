@@ -12,7 +12,7 @@ public class CoolClass extends CoolBaseNode {
     private CoolClass parent;
     private ArrayList<CoolAttribute> attributes;
     private ArrayList<CoolMethod> methods;
-    private ArrayList<CoolClass> children = new ArrayList<>();
+    private final ArrayList<CoolClass> children = new ArrayList<>();
 
     public CoolClass() {}
 
@@ -25,6 +25,27 @@ public class CoolClass extends CoolBaseNode {
         CoolClass cc = new CoolClass();
         cc.setName(ci);
         return cc;
+    }
+
+    public boolean equalOrSubrelation(CoolClass b) {
+        if (this.equals(b)) {
+            return true;
+        }
+
+        if (this.parent != null) {
+            CoolClass next = this.parent;
+            while (true) {
+                if (b.equals(next)) {
+                    return true;
+                } else if (next.getParent() != null) {
+                    next = next.getParent();
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     public CoolIdentifier getName() {

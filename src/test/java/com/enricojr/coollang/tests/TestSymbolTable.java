@@ -50,7 +50,7 @@ public class TestSymbolTable {
 
         st1.addSymbolType(ci1, new CoolClass());
         st2.addSymbolType(ci2, new CoolClass());
-        st3.addSymbolType(ci3, new CoolClass());;
+        st3.addSymbolType(ci3, new CoolClass());
 
         CoolBaseNode target = st3.getSymbolType(ci1);
         assertNotNull(target);
@@ -106,13 +106,12 @@ public class TestSymbolTable {
 
     @Test
     public void TestMethodLookup() {
-        SymbolTable st1 = new SymbolTable();
+        new SymbolTable();
 
-        ArrayList<CoolFormal> parameters = new ArrayList<>();
         CoolFormal cf1 = new CoolFormal();
         cf1.setName(new CoolIdentifier("test1"));
         cf1.setType(new CoolIdentifier("Bool"));
 
-        CoolParamList cpl = new CoolParamList();
+        new CoolParamList();
     }
 }

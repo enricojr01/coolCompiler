@@ -21,7 +21,7 @@ public class TestParser {
         }
     }
 
-    public class TestCancelListener extends BaseErrorListener {
+    public static class TestCancelListener extends BaseErrorListener {
         @Override
         public void syntaxError(
                 Recognizer<?, ?> recognizer,
@@ -55,7 +55,7 @@ public class TestParser {
             try {
                 fis = new FileInputStream(sample);
             } catch (FileNotFoundException e) {
-                fail("Could not find file " + sample.toString());
+                fail("Could not find file " + sample);
             }
 
             try {

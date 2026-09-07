@@ -7,7 +7,7 @@ import com.enricojr.coollang.ast.program.CoolMethod;
 import java.util.ArrayList;
 
 public class CoolBuiltInType extends CoolClass {
-    private boolean isBuiltIn = true;
+    private final boolean isBuiltIn = true;
 
     public CoolBuiltInType() {
         this.setAttributes(new ArrayList<>());

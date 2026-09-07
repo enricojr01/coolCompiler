@@ -51,7 +51,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         // expr '@' TYPE '.' ID '(' (expr (',' expr)*)? ')' SEMICOLON?
         CoolAtMethodDispatch camd = new CoolAtMethodDispatch();
         List<ExprContext> expressions = ctx.expr();
-        CoolExpr lhs = this.visitExpression(expressions.get(0));
+        CoolExpr lhs = this.visitExpression(expressions.getFirst());
         CoolIdentifier classType = new CoolIdentifier(ctx.TYPE().getText());
         CoolIdentifier methodName = new CoolIdentifier(ctx.ID().getText());
 
@@ -203,7 +203,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
         // this first check is probably not needed I just like to be thorough.
         if (expressions.size() == 1) {
-            paramListContext = null;
+            // pass
         } else if (expressions.size() == 2) {
             paramListContext = new ArrayList<>();
             paramListContext.add(expressions.get(1));
@@ -233,8 +233,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     public CoolExpr visitExpression(ExprContext exc) {
         if (exc != null) {
-            CoolExpr expr = (CoolExpr) exc.accept(this);
-            return expr;
+            return (CoolExpr) exc.accept(this);
         } else {
             return null;
         }
@@ -284,8 +283,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitIdentifier(IdentifierContext ctx) {
-        CoolIdentifier ci = new CoolIdentifier(ctx.getText());
-        return ci;
+        return new CoolIdentifier(ctx.getText());
     }
 
     @Override
@@ -509,8 +507,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitSelf(SelfContext ctx) {
-        CoolSelf cs = new CoolSelf();
-        return cs;
+        return new CoolSelf();
     }
 
     @Override
@@ -554,11 +551,6 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     @Override
     public CoolBaseNode visit(ParseTree tree) {
         return tree.accept(this);
-//        if (tree instanceof ProgContext) {
-//            return this.visitProg((ProgContext) tree);
-//        } else {
-//            return null;
-//        }
     }
 
     @Override

@@ -23,8 +23,7 @@ public class TestClassTreeBuilder {
         CoolClass cc2 = CoolClass.factory("test2");
         cc2.setParentName(cc1.getName());
         cc2.setParent(cc1);
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1, cc2));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1, cc2));
         cp.setClasses(classes);
 
         cta.visitCoolProgram(cp);
@@ -37,11 +36,10 @@ public class TestClassTreeBuilder {
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");
         cc1.setParentName(cc1.getName());
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1));
         cp.setClasses(classes);
 
-        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> cta.visitCoolProgram(cp));
     }
 
     @Test
@@ -53,13 +51,14 @@ public class TestClassTreeBuilder {
         CoolClass cc2 = CoolClass.factory("test2");
 
         cc1.setParentName(cc2.getName());
+        cc1.setParent(cc2);
         cc2.setParentName(cc1.getName());
+        cc2.setParent(cc1);
 
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1, cc2));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1, cc2));
         cp.setClasses(classes);
 
-        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> cta.visitCoolProgram(cp));
     }
 
     @Test
@@ -68,11 +67,10 @@ public class TestClassTreeBuilder {
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("Int");
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1));
         cp.setClasses(classes);
 
-        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> cta.visitCoolProgram(cp));
     }
 
     @Test
@@ -81,12 +79,11 @@ public class TestClassTreeBuilder {
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("String");
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1));
         cp.setClasses(classes);
 
 //        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
-        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> cta.visitCoolProgram(cp));
     }
 
     @Test
@@ -95,12 +92,11 @@ public class TestClassTreeBuilder {
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("Bool");
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1));
         cp.setClasses(classes);
 
 //        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
-        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> cta.visitCoolProgram(cp));
     }
 
     @Test
@@ -110,12 +106,11 @@ public class TestClassTreeBuilder {
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("IO");
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1));
         cp.setClasses(classes);
 
 //        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
-        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> cta.visitCoolProgram(cp));
     }
 
     @Test
@@ -125,11 +120,10 @@ public class TestClassTreeBuilder {
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");
         cc1.setParentName(new CoolIdentifier("doesnotexist"));
-        ArrayList<CoolClass> classes = new ArrayList<>();
-        classes.addAll(List.of(cc1));
+        ArrayList<CoolClass> classes = new ArrayList<>(List.of(cc1));
         cp.setClasses(classes);
 
 //        assertDoesNotThrow(() -> {cta.visitCoolProgram(cp);});
-        assertThrows(RuntimeException.class, () -> {cta.visitCoolProgram(cp);});
+        assertThrows(RuntimeException.class, () -> cta.visitCoolProgram(cp));
     }
 }

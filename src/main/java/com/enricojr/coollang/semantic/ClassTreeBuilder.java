@@ -9,7 +9,7 @@ import com.enricojr.coollang.ast.program.*;
 import java.util.*;
 
 public class ClassTreeBuilder implements AstVisitor {
-    private HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
+    private final HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
 
     public ClassTreeBuilder() {
         CoolClass object = new CoolObjectType();
@@ -176,24 +176,34 @@ public class ClassTreeBuilder implements AstVisitor {
         // at the end of the second loop, the parent field is set.
         for (CoolClass cc : cp.getClasses()) {
             if (!(cc instanceof CoolBuiltInType) && bannedClasses.contains(cc.getName())) {
-                String err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getName().getValue());
+                String err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getNameString());
                 throw new RuntimeException(err);
             }
 
             if (!(cc instanceof CoolBuiltInType) && cc.getName().getValue().equals("IO")) {
-               String err = String.format("Class %s is not allowed to override IO.", cc.getName().getValue());
+               String err = String.format("Class %s is not allowed to override IO.", cc.getNameString());
                throw new RuntimeException(err);
             }
 
             if (!(cc instanceof CoolBuiltInType) && bannedClasses.contains(cc.getParentName())) {
-                String err = String.format("Class %s is not allowed to inherit from Int, Bool, or String");
+                String err = String.format("Class %s is not allowed to inherit from Int, Bool, or String", cc.getNameString());
                 throw new RuntimeException(err);
             }
 
             if (cc.getParentName() != null && cc.getParentName().equals(cc.getName()))  {
                 String err = String.format(
-                        "Class %s is not allowed to inherit from itself.", cc.getName().getValue()
+                        "Class %s is not allowed to inherit from itself.", cc.getNameString()
                 );
+                throw new RuntimeException(err);
+            }
+
+            if (this.classList.get(cc.getParentName()) == null) {
+                String err = String.format(
+                        "Class %s inherits from nonexistent class %s.",
+                        cc.getNameString(),
+                        cc.getParentNameString()
+                );
+
                 throw new RuntimeException(err);
             }
         }

@@ -11,9 +11,9 @@ import java.util.Map;
 
 public class SymbolTablePrinter implements AstVisitor {
     private int indent = 0;
-    private String space = " ";
-    private int offset = 2;
-    private HashSet<CoolIdentifier> dontBother = new HashSet<>(
+    private final String space = " ";
+    private final int offset = 2;
+    private final HashSet<CoolIdentifier> dontBother = new HashSet<>(
             List.of(
                     new CoolIdentifier("Int"),
                     new CoolIdentifier("String"),

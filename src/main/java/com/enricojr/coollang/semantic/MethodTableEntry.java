@@ -14,14 +14,6 @@ public class MethodTableEntry {
 
     public MethodTableEntry() {}
 
-//    public void addInput(CoolIdentifier ci, CoolClass cc) {
-//        this.parameters.addType(ci, cc);
-//    }
-//
-//    public SymbolTableEntry getInput(CoolIdentifier ci) {
-//        return this.parameters.getType(ci);
-//    }
-
     public CoolIdentifier getName() {
         return name;
     }
@@ -61,7 +53,7 @@ public class MethodTableEntry {
         for (Map.Entry<CoolIdentifier, SymbolTableEntry> entry : this.parameters.getTypes().entrySet())  {
             sb.append(String.format("%s : %s, ", entry.getKey().getValue(), entry.getValue().getTypeString()));
         }
-        sb.append(") -> " + this.returnType.getName().getValue());
+        sb.append(") -> ").append(this.returnType.getName().getValue());
         return sb.toString();
     }
 }

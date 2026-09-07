@@ -11,10 +11,9 @@ import java.util.List;
 
 public class ClassTreePrinter implements AstVisitor {
     private int indent = 0;
-    private int offset = 2;
-    private String space = " ";
+    private final int offset = 2;
 
-    private HashSet<CoolIdentifier> dontBother = new HashSet<>(
+    private final HashSet<CoolIdentifier> dontBother = new HashSet<>(
             List.of(
                     new CoolIdentifier("Int"),
                     new CoolIdentifier("Bool"),
@@ -62,7 +61,8 @@ public class ClassTreePrinter implements AstVisitor {
         if (this.dontBother.contains(cc.getName())) {
             return;
         }
-        System.out.println(this.space.repeat(this.indent) + cc);
+        String space = " ";
+        System.out.println(space.repeat(this.indent) + cc);
         this.indent += offset;
         for (CoolClass child : cc.getChildren()) {
             this.visitCoolClass(child);
@@ -127,13 +127,6 @@ public class ClassTreePrinter implements AstVisitor {
 
     @Override
     public void visitCoolProgram(CoolProgram cp) {
-        HashSet<CoolIdentifier> bannedClasses = new HashSet<>(
-                List.of(
-                        new CoolIdentifier("Int"),
-                        new CoolIdentifier("String"),
-                        new CoolIdentifier("Bool")
-                )
-        );
         this.indent += offset;
         this.visitCoolClass(cp.getRoot());
         this.indent -= offset;
