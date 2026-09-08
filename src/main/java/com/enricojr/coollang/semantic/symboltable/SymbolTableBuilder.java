@@ -109,7 +109,7 @@ public class SymbolTableBuilder implements AstVisitor {
             ce.accept(this);
         }
 
-        CoolExpr expr = cdmd.getLhs();
+        CoolExpr expr = cdmd.getClassName();
         expr.setSymbols(new SymbolTable(current));
         expr.accept(this);
     }

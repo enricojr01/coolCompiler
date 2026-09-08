@@ -1,6 +1,7 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
@@ -62,5 +63,19 @@ public class CoolMethod extends CoolBaseNode {
 
     public void accept(AstVisitor t) {
         t.visitCoolMethod(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CoolMethod that = (CoolMethod) o;
+        return Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getReturnType(), that.getReturnType()) &&
+                Objects.equals(getParameters(), that.getParameters());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getReturnType(), getParameters());
     }
 }

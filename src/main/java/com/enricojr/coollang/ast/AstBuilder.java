@@ -58,7 +58,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolAtMethodDispatch camd = new CoolAtMethodDispatch();
         List<ExprContext> expressions = ctx.expr();
         CoolExpr lhs = this.visitExpression(expressions.getFirst());
-        CoolIdentifier classType = new CoolIdentifier(ctx.TYPE().getText());
+        CoolIdentifier className = new CoolIdentifier(ctx.TYPE().getText());
         CoolIdentifier methodName = new CoolIdentifier(ctx.ID().getText());
 
         ArrayList<CoolExpr> params = new ArrayList<>();
@@ -67,8 +67,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         camd.setCharPos(ctx.getStart().getCharPositionInLine());
 
         camd.setLhs(lhs);
-        camd.setIdentifier(methodName);
-        camd.setClassType(classType);
+        camd.setClassName(className);
+        camd.setMethodName(methodName);
         camd.setArguments(params);
 
         return camd;
@@ -253,8 +253,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolDotMethodDispatch cdmd = new CoolDotMethodDispatch();
         cdmd.setLine(ctx.getStart().getLine());
         cdmd.setCharPos(ctx.getStart().getCharPositionInLine());
-        cdmd.setName(name);
-        cdmd.setLhs(lhs);
+        cdmd.setMethodName(name);
+        cdmd.setClassName(lhs);
         cdmd.setArguments(arguments);
 
         return cdmd;
@@ -504,8 +504,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             argumentList.add(ce);
         }
 
-        cmd.setLhs(new CoolSelf());
-        cmd.setName(cid);
+        cmd.setClassName(new CoolSelf());
+        cmd.setMethodName(cid);
         cmd.setArguments(argumentList);
 
         return cmd;

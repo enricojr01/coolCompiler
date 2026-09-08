@@ -124,7 +124,7 @@ public class SymbolTablePrinter implements AstVisitor {
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
         this.indent += offset;
-        CoolExpr ce = cdmd.getLhs();
+        CoolExpr ce = cdmd.getClassName();
         ce.accept(this);
         this.indent -= offset;
     }

@@ -27,25 +27,14 @@ public class CoolClass extends CoolBaseNode {
         return cc;
     }
 
-    public boolean equalOrSubrelation(CoolClass b) {
-        if (this.equals(b)) {
-            return true;
-        }
-
-        if (this.parent != null) {
-            CoolClass next = this.parent;
-            while (true) {
-                if (b.equals(next)) {
-                    return true;
-                } else if (next.getParent() != null) {
-                    next = next.getParent();
-                } else {
-                    break;
-                }
+    public CoolMethod classMethodSearch(CoolIdentifier id) {
+        for (CoolMethod cm : this.methods) {
+            if (cm.getName().equals(id)) {
+                return cm;
             }
         }
 
-        return false;
+        return null;
     }
 
     public CoolIdentifier getName() {
@@ -125,6 +114,27 @@ public class CoolClass extends CoolBaseNode {
                 && Objects.equals(getParentName(), coolClass.getParentName())
                 && Objects.equals(getAttributes(), coolClass.getAttributes())
                 && Objects.equals(getMethods(), coolClass.getMethods());
+    }
+
+    public boolean equalOrSubrelation(CoolClass b) {
+        if (this.equals(b)) {
+            return true;
+        }
+
+        if (this.parent != null) {
+            CoolClass next = this.parent;
+            while (true) {
+                if (b.equals(next)) {
+                    return true;
+                } else if (next.getParent() != null) {
+                    next = next.getParent();
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override

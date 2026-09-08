@@ -7,18 +7,18 @@ import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolAtMethodDispatch extends CoolExpr {
     private CoolExpr lhs; 
-    private CoolIdentifier identifier;
-    private CoolIdentifier classType;
+    private CoolIdentifier className;
+    private CoolIdentifier methodName;
     private ArrayList<CoolExpr> arguments;
 
     public CoolAtMethodDispatch() {}
 
-    public CoolIdentifier getIdentifier() {
-        return identifier;
+    public CoolIdentifier getClassName() {
+        return className;
     }
 
-    public void setIdentifier(CoolIdentifier identifier) {
-        this.identifier = identifier;
+    public void setClassName(CoolIdentifier className) {
+        this.className = className;
     }
 
     public CoolExpr getLhs() {
@@ -38,15 +38,15 @@ public class CoolAtMethodDispatch extends CoolExpr {
     }
 
     public String toString() {
-        return String.format("<CoolAtMethodCall - %s>", this.identifier);
+        return String.format("<CoolAtMethodCall - %s>", this.className);
     }
 
-    public CoolIdentifier getClassType() {
-        return classType;
+    public CoolIdentifier getMethodName() {
+        return methodName;
     }
 
-    public void setClassType(CoolIdentifier classType) {
-        this.classType = classType;
+    public void setMethodName(CoolIdentifier methodName) {
+        this.methodName = methodName;
     }
 
     public void accept(AstVisitor t) {

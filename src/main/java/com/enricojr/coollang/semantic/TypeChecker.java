@@ -7,9 +7,24 @@ import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
 import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
+import java.util.ArrayList;
+
 public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
+        SymbolTable current = camd.getSymbols();
+        CoolExpr ce = camd.getLhs();
+        ce.accept(this);
+        CoolClass exprType = ce.getComputedType();
+        CoolClass targetClass = current.getSymbolType(camd.getClassName());
+
+        if (!(exprType.equalOrSubrelation(targetClass))) {
+            String msg = String.format("Both sides of @ must evaluate to the same type, (%s @ %s)", exprType, targetClass);
+            throw TypeCheckerException.factory(msg, camd);
+        }
+
+
+
     }
 
     @Override
@@ -127,11 +142,36 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolCase(CoolCase cca) {
+        SymbolTable current = cca.getSymbols();
+        for (CoolCaseBranch ccb : cca.getBranches()) {
+            ccb.accept(this);
+        }
+
+        // NOTE: this is horrible
+        for (CoolCaseBranch ccb1 : cca.getBranches()) {
+            for (CoolCaseBranch ccb2 : cca.getBranches()) {
+                if (ccb1.getComputedType().equals(ccb2.getComputedType())) {
+                    continue;
+                } else {
+                    if (!(ccb1.getComputedType().equalOrSubrelation(ccb2.getComputedType()))) {
+                        String msg = String.format(
+                                "All branches in a case expression must be equal / have a common ancestor! %s != %s",
+                                ccb1,
+                                ccb2
+                        );
+                        throw TypeCheckerException.factory(msg, cca);
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void visitCoolCaseBranch(CoolCaseBranch ccb) {
-
+        CoolExpr expr = ccb.getExpression();
+        expr.accept(this);
+        CoolClass result = expr.getComputedType();
+        ccb.setComputedType(result);
     }
 
     @Override
@@ -151,7 +191,62 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
+        SymbolTable current = cdmd.getSymbols();
+        CoolExpr className = cdmd.getClassName();
+        className.accept(this);
+        CoolClass concreteClass = className.getComputedType();
 
+        if (concreteClass == null) {
+            String msg = String.format("Static dispatch expression evalutates to invalid type: %s", className.getComputedType());
+            throw TypeCheckerException.factory(msg, cdmd);
+        }
+
+        // check for the correct method by name
+        CoolIdentifier methodName = cdmd.getMethodName();
+        CoolMethod methodObj = concreteClass.classMethodSearch(methodName);
+        if (methodObj == null) {
+            String msg = String.format(
+                    "Class %s does not have method named method %s.",
+                    concreteClass.getNameString(),
+                    methodName.getValueString()
+            );
+            throw TypeCheckerException.factory(msg, concreteClass);
+        }
+
+        // check for the correct # of params/args
+        ArrayList<CoolExpr> args = cdmd.getArguments();
+        ArrayList<CoolFormal> params = methodObj.getParameters().getParameters();
+        if (args.size() != params.size()) {
+            String msg = String.format(
+                    "Method call %s has the incorrect # of arguments. Expected %s and but only %s were found.",
+                    methodObj.getName().getValueString(),
+                    params.size(),
+                    args.size()
+            );
+            throw TypeCheckerException.factory(msg, cdmd);
+        }
+
+        // check each arg to see if it matches the formal definition, both position and type must match
+        for (CoolExpr ce : args) {
+            for (CoolFormal cf : params) {
+                ce.accept(this);
+                CoolClass providedType = ce.getComputedType();
+                CoolClass expectedType = current.getSymbolType(cf.getType());
+                if (!(providedType.equalOrSubrelation(expectedType))) {
+                    String msg = String.format(
+                            "In method call %s, argument %s of type %s does not match expected type %s",
+                            cdmd,
+                            ce,
+                            providedType,
+                            expectedType
+                    );
+                    throw TypeCheckerException.factory(msg, cdmd);
+                }
+            }
+        }
+
+        CoolClass computedType = current.getSymbolType(methodObj.getReturnType());
+        cdmd.setComputedType(computedType);
     }
 
     @Override

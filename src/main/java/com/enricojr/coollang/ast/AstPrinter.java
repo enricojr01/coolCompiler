@@ -86,7 +86,7 @@ public class AstPrinter implements AstVisitor {
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
         System.out.println(this.space.repeat(this.indent) + cdmd);
         this.indent += offset;
-        cdmd.getLhs().accept(this);
+        cdmd.getClassName().accept(this);
         for (CoolExpr ce : cdmd.getArguments()) {
             ce.accept(this);
         }
