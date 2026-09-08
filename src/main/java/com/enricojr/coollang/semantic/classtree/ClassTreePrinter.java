@@ -1,10 +1,25 @@
-package com.enricojr.coollang.semantic;
+package com.enricojr.coollang.semantic.classtree;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
-public class TypeInferer implements AstVisitor {
+import java.util.HashSet;
+import java.util.List;
+
+public class ClassTreePrinter implements AstVisitor {
+    private int indent = 0;
+    private final int offset = 2;
+
+    private final HashSet<CoolIdentifier> dontBother = new HashSet<>(
+            List.of(
+                    new CoolIdentifier("Int"),
+                    new CoolIdentifier("Bool"),
+                    new CoolIdentifier("String")
+            )
+    );
+
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
 
@@ -12,8 +27,7 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
-        // if the attribute has an assignment expression, check to see if the expression matches the type specified
-        // in the formal definition - maybe I don't need to drop into visitCoolAssign for this?
+
     }
 
     @Override
@@ -33,16 +47,26 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolCase(CoolCase cca) {
+
     }
 
     @Override
     public void visitCoolCaseBranch(CoolCaseBranch ccb) {
-        // make sure that the expression matches the formal definition
+
     }
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-
+        if (this.dontBother.contains(cc.getName())) {
+            return;
+        }
+        String space = " ";
+        System.out.println(space.repeat(this.indent) + cc);
+        this.indent += offset;
+        for (CoolClass child : cc.getChildren()) {
+            this.visitCoolClass(child);
+        }
+        this.indent -= offset;
     }
 
     @Override
@@ -82,8 +106,7 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
-        // the type of a method is the type of the last expression in it.
-        // check to make sure it conforms to the return type specified in the signature.
+
     }
 
     @Override
@@ -93,6 +116,7 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolParamList(CoolParamList cpl) {
+
     }
 
     @Override
@@ -102,7 +126,9 @@ public class TypeInferer implements AstVisitor {
 
     @Override
     public void visitCoolProgram(CoolProgram cp) {
-
+        this.indent += offset;
+        this.visitCoolClass(cp.getRoot());
+        this.indent -= offset;
     }
 
     @Override

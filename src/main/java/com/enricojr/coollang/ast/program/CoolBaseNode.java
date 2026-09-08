@@ -1,6 +1,6 @@
 package com.enricojr.coollang.ast.program;
 
-import com.enricojr.coollang.semantic.SymbolTable;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolBaseNode {
     private SymbolTable symbols;

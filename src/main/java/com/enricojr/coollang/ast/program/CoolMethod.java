@@ -10,7 +10,7 @@ public class CoolMethod extends CoolBaseNode {
     private CoolIdentifier name;
     private CoolIdentifier returnType;
     private CoolParamList parameters;
-    private ArrayList<CoolExpr> expressions;
+    private ArrayList<CoolExpr> body;
 
     public CoolMethod() {}
 
@@ -26,12 +26,12 @@ public class CoolMethod extends CoolBaseNode {
         this.name = name;
     }
 
-    public ArrayList<CoolExpr> getExpressions() {
-        return expressions;
+    public ArrayList<CoolExpr> getBody() {
+        return body;
     }
 
-    public void setExpressions(ArrayList<CoolExpr> expressions) {
-        this.expressions = expressions;
+    public void setBody(ArrayList<CoolExpr> body) {
+        this.body = body;
     }
 
     public CoolIdentifier getReturnType() {

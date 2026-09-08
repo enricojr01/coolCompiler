@@ -1,4 +1,4 @@
-package com.enricojr.coollang.semantic;
+package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.constants.CoolLiteral;

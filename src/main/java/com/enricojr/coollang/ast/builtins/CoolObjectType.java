@@ -2,7 +2,7 @@ package com.enricojr.coollang.ast.builtins;
 
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
-import com.enricojr.coollang.semantic.SymbolTable;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolObjectType extends CoolBuiltInType {
     public CoolObjectType() {

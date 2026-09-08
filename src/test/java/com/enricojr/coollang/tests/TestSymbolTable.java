@@ -5,10 +5,8 @@ import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolFormal;
 import com.enricojr.coollang.ast.program.CoolParamList;
-import com.enricojr.coollang.semantic.SymbolTable;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

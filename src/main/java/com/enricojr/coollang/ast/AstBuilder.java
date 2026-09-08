@@ -6,7 +6,7 @@ import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.parser.CoolBaseVisitor;
 import com.enricojr.coollang.parser.CoolParser.*;
 import com.enricojr.coollang.parser.CoolVisitor;
-import com.enricojr.coollang.semantic.SymbolTable;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -341,9 +341,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolExpr thenExpr = this.visitExpression(ctx.expr(1));
         CoolExpr elseExpr = this.visitExpression(ctx.expr(2));
 
-        cif.setPredicate(predicate);
-        cif.setThenExpr(thenExpr);
-        cif.setElseExpr(elseExpr);
+        cif.setGuard(predicate);
+        cif.setConsequent(thenExpr);
+        cif.setAlternative(elseExpr);
 
         return cif;
     }
@@ -483,7 +483,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         cm.setParameters(cpl);
         cm.setReturnType(returnType);
         cm.setName(name);
-        cm.setExpressions(expressions);
+        cm.setBody(expressions);
 
         return cm;
     }

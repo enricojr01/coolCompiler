@@ -1,7 +1,5 @@
 package com.enricojr.coollang.ast;
 
-import java.util.ArrayList;
-
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -109,9 +107,9 @@ public class AstPrinter implements AstVisitor {
     public void visitCoolIf(CoolIf cif) {
         System.out.println(this.space.repeat(this.indent) + cif);
         this.indent += offset;
-        cif.getPredicate().accept(this);
-        cif.getThenExpr().accept(this);
-        cif.getElseExpr().accept(this);
+        cif.getGuard().accept(this);
+        cif.getConsequent().accept(this);
+        cif.getAlternative().accept(this);
         this.indent -= offset;
     }
 
@@ -140,7 +138,7 @@ public class AstPrinter implements AstVisitor {
     public void visitCoolMethod(CoolMethod cm) {
         System.out.println(this.space.repeat(this.indent) + cm);
         this.indent += offset;
-        for (CoolExpr ce : cm.getExpressions()) {
+        for (CoolExpr ce : cm.getBody()) {
             ce.accept(this);
         }
         this.indent -= offset;

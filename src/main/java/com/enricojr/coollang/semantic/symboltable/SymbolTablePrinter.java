@@ -1,4 +1,4 @@
-package com.enricojr.coollang.semantic;
+package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
@@ -141,9 +141,9 @@ public class SymbolTablePrinter implements AstVisitor {
     @Override
     public void visitCoolIf(CoolIf cif) {
         this.indent += offset;
-        CoolExpr predExpr = cif.getPredicate();
-        CoolExpr thenExpr = cif.getThenExpr();
-        CoolExpr elseExpr = cif.getElseExpr();
+        CoolExpr predExpr = cif.getGuard();
+        CoolExpr thenExpr = cif.getConsequent();
+        CoolExpr elseExpr = cif.getAlternative();
 
         predExpr.accept(this);
         thenExpr.accept(this);
@@ -185,7 +185,7 @@ public class SymbolTablePrinter implements AstVisitor {
             this.printSymbol(entry);
         }
 
-        for (CoolExpr ce : cm.getExpressions()) {
+        for (CoolExpr ce : cm.getBody()) {
             ce.accept(this);
         }
 

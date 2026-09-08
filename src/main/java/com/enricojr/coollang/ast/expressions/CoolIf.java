@@ -3,39 +3,39 @@ package com.enricojr.coollang.ast.expressions;
 import com.enricojr.coollang.ast.AstVisitor;
 
 public class CoolIf extends CoolExpr {
-    private CoolExpr predicate; 
-    private CoolExpr thenExpr;
-    private CoolExpr elseExpr;
+    private CoolExpr guard;
+    private CoolExpr consequent;
+    private CoolExpr alternative;
 
     public CoolIf() {}
 
-    public CoolExpr getPredicate() {
-        return predicate;
+    public CoolExpr getGuard() {
+        return guard;
     }
 
-    public void setPredicate(CoolExpr predicate) {
-        this.predicate = predicate;
+    public void setGuard(CoolExpr guard) {
+        this.guard = guard;
     }
 
-    public CoolExpr getThenExpr() {
-        return thenExpr;
+    public CoolExpr getConsequent() {
+        return consequent;
     }
 
-    public void setThenExpr(CoolExpr thenExpr) {
-        this.thenExpr = thenExpr;
+    public void setConsequent(CoolExpr consequent) {
+        this.consequent = consequent;
     }
 
-    public CoolExpr getElseExpr() {
-        return elseExpr;
+    public CoolExpr getAlternative() {
+        return alternative;
     }
 
-    public void setElseExpr(CoolExpr elseExpr) {
-        this.elseExpr = elseExpr;
+    public void setAlternative(CoolExpr alternative) {
+        this.alternative = alternative;
     }
 
     public String toString() {
         return String.format(
-            "<CoolIfStatement %s THEN %s ELSE %s>", this.predicate, this.thenExpr, this.elseExpr
+            "<CoolIfStatement %s THEN %s ELSE %s>", this.guard, this.consequent, this.alternative
         );
     }
 

@@ -1,26 +1,10 @@
-package com.enricojr.coollang.semantic;
+package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-
-public class ClassTreePrinter implements AstVisitor {
-    private int indent = 0;
-    private final int offset = 2;
-
-    private final HashSet<CoolIdentifier> dontBother = new HashSet<>(
-            List.of(
-                    new CoolIdentifier("Int"),
-                    new CoolIdentifier("Bool"),
-                    new CoolIdentifier("String")
-            )
-    );
-
+public class SymbolTableLinker implements AstVisitor {
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
 
@@ -58,16 +42,12 @@ public class ClassTreePrinter implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        if (this.dontBother.contains(cc.getName())) {
-            return;
-        }
-        String space = " ";
-        System.out.println(space.repeat(this.indent) + cc);
-        this.indent += offset;
+        SymbolTable current = cc.getSymbols();
+
         for (CoolClass child : cc.getChildren()) {
-            this.visitCoolClass(child);
+            child.setSymbols(new SymbolTable(current));
+            child.accept(this);
         }
-        this.indent -= offset;
     }
 
     @Override
@@ -127,9 +107,11 @@ public class ClassTreePrinter implements AstVisitor {
 
     @Override
     public void visitCoolProgram(CoolProgram cp) {
-        this.indent += offset;
-        this.visitCoolClass(cp.getRoot());
-        this.indent -= offset;
+        SymbolTable st = new SymbolTable();
+        cp.setSymbols(st);
+
+        cp.getRoot().getSymbols().setParent(st);
+        cp.getRoot().accept(this);
     }
 
     @Override

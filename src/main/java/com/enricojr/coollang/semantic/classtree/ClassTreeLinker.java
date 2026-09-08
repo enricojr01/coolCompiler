@@ -1,10 +1,17 @@
-package com.enricojr.coollang.semantic;
+package com.enricojr.coollang.semantic.classtree;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
-public class SymbolTableLinker implements AstVisitor {
+import java.util.HashMap;
+import java.util.List;
+
+public class ClassTreeLinker implements AstVisitor {
+    private final HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
+
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
 
@@ -41,14 +48,7 @@ public class SymbolTableLinker implements AstVisitor {
     }
 
     @Override
-    public void visitCoolClass(CoolClass cc) {
-        SymbolTable current = cc.getSymbols();
-
-        for (CoolClass child : cc.getChildren()) {
-            child.setSymbols(new SymbolTable(current));
-            child.accept(this);
-        }
-    }
+    public void visitCoolClass(CoolClass cc) {}
 
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
@@ -107,11 +107,29 @@ public class SymbolTableLinker implements AstVisitor {
 
     @Override
     public void visitCoolProgram(CoolProgram cp) {
-        SymbolTable st = new SymbolTable();
-        cp.setSymbols(st);
+        for (CoolClass cc : cp.getClasses()) {
+            this.classList.put(cc.getName(), cc);
+        }
 
-        cp.getRoot().getSymbols().setParent(st);
-        cp.getRoot().accept(this);
+        List<CoolClass> nonBuiltin = cp
+                .getClasses()
+                .stream()
+                .filter(x -> !(x instanceof CoolBuiltInType))
+                .toList();
+
+        for (CoolClass cc : nonBuiltin) {
+            if (cc.getParentName() == null) {
+                cc.setParentName(cp.getRoot().getName());
+                cc.setParent(cp.getRoot());
+                cp.getRoot().addChild(cc);
+            } else {
+                CoolClass type = this.classList.get(cc.getParentName());
+                type.addChild(cc);
+                cc.setParentName(type.getName());
+                cc.setParent(type);
+            }
+            cc.accept(this);
+        }
     }
 
     @Override

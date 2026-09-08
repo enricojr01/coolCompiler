@@ -4,7 +4,6 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolLiteral;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
-import com.enricojr.coollang.semantic.SymbolTable;
 
 public class CoolExpr extends CoolBaseNode {
     private CoolClass computedType;

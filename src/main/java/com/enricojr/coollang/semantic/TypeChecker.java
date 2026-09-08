@@ -5,6 +5,7 @@ import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class TypeChecker implements AstVisitor {
     @Override
@@ -178,35 +179,59 @@ public class TypeChecker implements AstVisitor {
         // TODO: refactor fields on CoolIf to be "guard", "consequent", "alternative".
         SymbolTable current = cif.getSymbols();
         CoolClass boolTarget = current.getSymbolType(new CoolIdentifier("Bool"));
-        CoolExpr pred = cif.getPredicate();
+        CoolExpr pred = cif.getGuard();
         pred.accept(this);
+
         if (!(pred.getComputedType().equals(boolTarget))) {
             String msg = String.format("Predicate of an if statement must be a bool");
-            throw new RuntimeException(msg);
+            throw TypeCheckerException.factory(msg, cif);
         }
-        CoolExpr then = cif.getThenExpr();
+
+        CoolExpr then = cif.getConsequent();
         then.accept(this);
-        CoolExpr elseExpr = cif.getElseExpr();
+        CoolExpr elseExpr = cif.getAlternative();
         elseExpr.accept(this);
 
         // the type of an if statement is the least upper bound type between the consequent
-        // and alternative.
-        // what exactly am I supposed to put here?
+        // and alternative. throw an exception if they're not
+        if (!(then.getComputedType().equalOrSubrelation(elseExpr.getComputedType()))) {
+            String msg = String.format(
+                    "Type mismatch between consequent and alternative, %s, %s.",
+                    then.getComputedType(),
+                    elseExpr.getComputedType()
+            );
+            throw TypeCheckerException.factory(msg, cif);
+        }
     }
 
     @Override
     public void visitCoolInstantiate(CoolInstantiate ci) {
-
+        SymbolTable current = ci.getSymbols();
+        CoolClass cc = current.getSymbolType(ci.getIdentifier());
+        if (cc == null) {
+            String msg = String.format("Cannot instantiate non-existant type %s", ci.getIdentifier());
+            throw TypeCheckerException.factory(msg, ci);
+        } else {
+            ci.setComputedType(cc);
+        }
     }
 
     @Override
     public void visitCoolIsVoid(CoolIsVoid civ) {
-
+        SymbolTable current = civ.getSymbols();
+        CoolClass boolType = current.getSymbolType(new CoolIdentifier("Bool"));
+        civ.setComputedType(boolType);
     }
 
     @Override
     public void visitCoolLet(CoolLet cl) {
-
+        // the type of any let expression is the type of the last expression in its body.
+        for (CoolAttribute ca : cl.getAttributes()) {
+            ca.accept(this);
+        }
+        CoolExpr body = cl.getExpression();
+        body.accept(this);
+        cl.setComputedType(body.getComputedType());
     }
 
     @Override
@@ -216,14 +241,13 @@ public class TypeChecker implements AstVisitor {
         SymbolTable current = cm.getSymbols();
         CoolClass returnType = current.getMethodType(cm.getName());
 
-        for (CoolExpr ce : cm.getExpressions()) {
+        for (CoolExpr ce : cm.getBody()) {
             ce.accept(this);
         }
 
-        CoolExpr last = cm.getExpressions().getLast();
+        CoolExpr last = cm.getBody().getLast();
         CoolClass lastType = last.getComputedType();
         if (!(lastType.equalOrSubrelation(returnType))) {
-            // TODO: no really, I need to write better error messages.
             String msg = String.format(
                     "Return value of method %s (%s) does not match its declared return type %s.",
                     cm.getName(),
@@ -246,7 +270,10 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolParenthesisExpr(CoolParenthesisExpr cpe) {
-
+        CoolExpr expr = cpe.getExpression();
+        expr.accept(this);
+        CoolClass result = expr.getComputedType();
+        cpe.setComputedType(result);
     }
 
     @Override
