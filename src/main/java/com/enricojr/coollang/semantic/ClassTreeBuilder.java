@@ -197,7 +197,7 @@ public class ClassTreeBuilder implements AstVisitor {
                 throw new RuntimeException(err);
             }
 
-            if (this.classList.get(cc.getParentName()) == null) {
+            if (cc.getParentName() != null && this.classList.get(cc.getParentName()) == null) {
                 String err = String.format(
                         "Class %s inherits from nonexistent class %s.",
                         cc.getNameString(),

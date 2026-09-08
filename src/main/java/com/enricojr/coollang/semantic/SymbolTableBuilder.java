@@ -16,7 +16,7 @@ public class SymbolTableBuilder implements AstVisitor {
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
         SymbolTable current = ca.getSymbols();
-        CoolExpr expr = ca.getValue();
+        CoolExpr expr = ca.getInitExpression();
         expr.setSymbols(new SymbolTable(current));
         expr.accept(this);
     }

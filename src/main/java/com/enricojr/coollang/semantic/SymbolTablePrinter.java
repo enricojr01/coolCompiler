@@ -47,7 +47,7 @@ public class SymbolTablePrinter implements AstVisitor {
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
         this.indent += offset;
-        ca.getValue().accept(this);
+        ca.getInitExpression().accept(this);
         this.indent -= offset;
     }
 

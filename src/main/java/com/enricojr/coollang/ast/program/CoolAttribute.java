@@ -7,7 +7,7 @@ import com.enricojr.coollang.ast.expressions.CoolExpr;
 public class CoolAttribute extends CoolBaseNode {
     private CoolIdentifier identifier;
     private CoolIdentifier typeName;
-    private CoolExpr value;
+    private CoolExpr initExpression;
 
     public CoolAttribute() {}
 
@@ -19,12 +19,12 @@ public class CoolAttribute extends CoolBaseNode {
         this.identifier = identifier;
     }
 
-    public CoolExpr getValue() {
-        return value;
+    public CoolExpr getInitExpression() {
+        return initExpression;
     }
 
-    public void setValue(CoolExpr value) {
-        this.value = value;
+    public void setInitExpression(CoolExpr value) {
+        this.initExpression = value;
     }
 
     public CoolIdentifier getTypeName() {
@@ -40,7 +40,7 @@ public class CoolAttribute extends CoolBaseNode {
             "(CoolAttribute: %s: %s <- %s)", 
             this.identifier.getValue(), 
             this.typeName.getValue(),
-            this.value
+            this.initExpression
         );
     }
 

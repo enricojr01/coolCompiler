@@ -1,6 +1,5 @@
 package com.enricojr.coollang.ast;
 
-import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
@@ -26,6 +25,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolExpr lhs = this.visitExpression(lhsrhs.get(0));
         CoolExpr rhs = this.visitExpression(lhsrhs.get(1));
 
+        add.setLine(ctx.getStart().getLine());
+        add.setCharPos(ctx.getStart().getCharPositionInLine());
+
         add.setOp(CoolBinaryOp.OPERATOR.ADD);
         add.setRhs(rhs);
         add.setLhs(lhs);
@@ -39,6 +41,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolAssign ca = new CoolAssign();
         CoolIdentifier id = new CoolIdentifier(ctx.ID().getText());
         CoolExpr ce = this.visitExpression(ctx.expr());
+
+        // TODO: consider setting this in the constructor and remove the setters so nothing accidentally overwrites it.
+        ca.setLine(ctx.getStart().getLine());
+        ca.setCharPos(ctx.getStart().getCharPositionInLine());
 
         ca.setName(id);
         ca.setExpression(ce);
@@ -57,6 +63,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
         ArrayList<CoolExpr> params = new ArrayList<>();
 
+        camd.setLine(ctx.getStart().getLine());
+        camd.setCharPos(ctx.getStart().getCharPositionInLine());
+
         camd.setLhs(lhs);
         camd.setIdentifier(methodName);
         camd.setClassType(classType);
@@ -71,6 +80,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolAttribute ca = new CoolAttribute();
         CoolExpr expr = this.visitExpression(ctx.expr());
 
+        ca.setLine(ctx.getStart().getLine());
+        ca.setCharPos(ctx.getStart().getCharPositionInLine());
+
         CoolIdentifier id = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier type = new CoolIdentifier(ctx.TYPE().getText());
 
@@ -78,7 +90,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         ca.setTypeName(type);
         // Should I have to check null here? Did I make a mistake designing this?
         if (expr != null) {
-            ca.setValue(expr);
+            ca.setInitExpression(expr);
         }
 
         return ca;
@@ -100,6 +112,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         List<ExprContext> branches = expressions.subList(1, expressions.size() - 1);
         ExprContext predicate = expressions.getFirst();
         SymbolTable st = new SymbolTable();
+
+        cc.setLine(ctx.getStart().getLine());
+        cc.setCharPos(ctx.getStart().getCharPositionInLine());
 
         ArrayList<CoolCaseBranch> ccBranches = new ArrayList<>();
         for (int i = 0; i < formals.size() - 1; i++) {
@@ -125,6 +140,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolBlock cb = new CoolBlock();
         List<ExprContext> contexts = ctx.expr();
         ArrayList<CoolExpr> expressions = new ArrayList<>();
+
+        cb.setLine(ctx.getStart().getLine());
+        cb.setCharPos(ctx.getStart().getLine());
+
         for (ExprContext e : contexts) {
             CoolExpr expression = this.visitExpression(e);
             expressions.add(expression);
@@ -140,6 +159,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolUnaryOp cuo = new CoolUnaryOp();
         CoolExpr expression = this.visitExpression(ctx.expr());
 
+        cuo.setLine(ctx.getStart().getLine());
+        cuo.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cuo.setOp(CoolUnaryOp.OPERATOR.COMPLEMENT);
         cuo.setExpression(expression);
 
@@ -152,6 +174,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolClass cc = new CoolClass();
         CoolIdentifier className = new CoolIdentifier(ctx.TYPE(0).getText());
         CoolIdentifier parentName = null;
+        cc.setLine(ctx.getStart().getLine());
+        cc.setCharPos(ctx.getStart().getCharPositionInLine());
 
         if (ctx.TYPE(1) != null) {
             parentName = new CoolIdentifier(ctx.TYPE(1).getText());
@@ -189,6 +213,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolExpr lhs = this.visitExpression(expressions.get(0));
         CoolExpr rhs = this.visitExpression(expressions.get(1));
 
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getLine());
+
         cbo.setLhs(lhs);
         cbo.setOp(CoolBinaryOp.OPERATOR.DIV);
         cbo.setRhs(rhs);
@@ -224,6 +251,8 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         }
 
         CoolDotMethodDispatch cdmd = new CoolDotMethodDispatch();
+        cdmd.setLine(ctx.getStart().getLine());
+        cdmd.setCharPos(ctx.getStart().getCharPositionInLine());
         cdmd.setName(name);
         cdmd.setLhs(lhs);
         cdmd.setArguments(arguments);
@@ -249,6 +278,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolFormal cf = new CoolFormal();
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier type = new CoolIdentifier(ctx.TYPE().getText());
+
+        cf.setLine(ctx.getStart().getLine());
+        cf.setLine(ctx.getStart().getCharPositionInLine());
+
         cf.setName(name);
         cf.setType(type);
 
@@ -260,6 +293,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolBinaryOp cbo = new CoolBinaryOp();
         CoolExpr lhs = this.visitExpression(ctx.expr(0));
         CoolExpr rhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getCharPositionInLine());
 
         cbo.setLhs(lhs);
         cbo.setRhs(rhs);
@@ -274,6 +310,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolExpr lhs = this.visitExpression(ctx.expr(0));
         CoolExpr rhs = this.visitExpression(ctx.expr(1));
 
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cbo.setLhs(lhs);
         cbo.setRhs(rhs);
         cbo.setOp(CoolBinaryOp.OPERATOR.GTE);
@@ -283,12 +322,20 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitIdentifier(IdentifierContext ctx) {
-        return new CoolIdentifier(ctx.getText());
+        CoolIdentifier ci = new CoolIdentifier(ctx.getText());
+
+        ci.setLine(ctx.getStart().getLine());
+        ci.setCharPos(ctx.getStart().getCharPositionInLine());
+
+        return ci;
     }
 
     @Override
     public CoolBaseNode visitIfStatement(IfStatementContext ctx) {
         CoolIf cif = new CoolIf();
+
+        cif.setLine(ctx.getStart().getLine());
+        cif.setCharPos(ctx.getStart().getLine());
 
         CoolExpr predicate = this.visitExpression(ctx.expr(0));
         CoolExpr thenExpr = this.visitExpression(ctx.expr(1));
@@ -304,7 +351,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     @Override
     public CoolBaseNode visitInstantiate(InstantiateContext ctx) {
         CoolInstantiate cn = new CoolInstantiate();
+
         cn.setIdentifier(new CoolIdentifier(ctx.getText()));
+        cn.setLine(ctx.getStart().getLine());
+        cn.setCharPos(ctx.getStart().getCharPositionInLine());
 
         return cn;
     }
@@ -320,6 +370,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolExpr lhs = this.visitExpression(ctx.expr(0));
         CoolExpr rhs = this.visitExpression(ctx.expr(1));
 
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cbo.setLhs(lhs);
         cbo.setOp(CoolBinaryOp.OPERATOR.EQ);
         cbo.setRhs(rhs);
@@ -331,6 +384,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     public CoolBaseNode visitIsVoid(IsVoidContext ctx) {
         CoolIsVoid civ = new CoolIsVoid();
         CoolExpr ce = this.visitExpression(ctx.expr());
+
+        civ.setLine(ctx.getStart().getLine());
+        civ.setCharPos(ctx.getStart().getCharPositionInLine());
         civ.setExpression(ce);
 
         return civ;
@@ -341,6 +397,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolLet cl = new CoolLet();
         List<AttributeContext> attribs = ctx.attribute();
         ExprContext ec = ctx.expr();
+
+        cl.setLine(ctx.getStart().getLine());
+        cl.setCharPos(ctx.getStart().getCharPositionInLine());
 
         ArrayList<CoolAttribute> attributes = new ArrayList<>();
         for (AttributeContext ac : attribs) {
@@ -361,6 +420,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolExpr rhs = this.visitExpression(ctx.expr(0));
         CoolExpr lhs = this.visitExpression(ctx.expr(1));
 
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cbo.setRhs(rhs);
         cbo.setOp(CoolBinaryOp.OPERATOR.LT);
         cbo.setLhs(lhs);
@@ -373,6 +435,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolBinaryOp cbo = new CoolBinaryOp();
         CoolExpr rhs = this.visitExpression(ctx.expr(0));
         CoolExpr lhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getLine());
 
         cbo.setRhs(rhs);
         cbo.setOp(CoolBinaryOp.OPERATOR.LTE);
@@ -397,8 +462,11 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolIdentifier name = new CoolIdentifier(ctx.ID().getText());
         CoolIdentifier returnType = null;
 
+        cm.setLine(ctx.getStart().getLine());
+        cm.setCharPos(ctx.getStart().getCharPositionInLine());
+
         // NOTE: it's either SELF_TYPE or TYPE never both.
-        // NOTE: maybe consider not using exceptions as flow control like this
+        // NOTE: maybe consider not using exceptions like this
         try {
             ctx.SELF_TYPE().getText();
             returnType = new CoolIdentifier("SELF_TYPE");
@@ -428,6 +496,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         List<ExprContext> argumentContexts = ctx.expr();
         ArrayList<CoolExpr> argumentList = new ArrayList<>();
 
+        cmd.setLine(ctx.getStart().getLine());
+        cmd.setCharPos(ctx.getStart().getCharPositionInLine());
+
         for (ExprContext ec : argumentContexts) {
             CoolExpr ce = this.visitExpression(ec);
             argumentList.add(ce);
@@ -445,6 +516,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolBinaryOp cbo = new CoolBinaryOp();
         CoolExpr rhs = this.visitExpression(ctx.expr(0));
         CoolExpr lhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cbo.setRhs(rhs);
         cbo.setOp(CoolBinaryOp.OPERATOR.MUL);
         cbo.setLhs(lhs);
@@ -457,6 +532,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolUnaryOp cuo = new CoolUnaryOp();
         CoolExpr expression = this.visitExpression(ctx.expr());
 
+        cuo.setLine(ctx.getStart().getLine());
+        cuo.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cuo.setOp(CoolUnaryOp.OPERATOR.NOT);
         cuo.setExpression(expression);
 
@@ -467,6 +545,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     public CoolBaseNode visitParamList(ParamListContext ctx) {
         CoolParamList cpl = new CoolParamList();
         List<FormalContext> formalContexts = ctx.formal();
+
+        cpl.setLine(ctx.getStart().getLine());
+        cpl.setCharPos(ctx.getStart().getCharPositionInLine());
 
         ArrayList<CoolFormal> parameters = new ArrayList<>();
         for (FormalContext fc : formalContexts) {
@@ -484,6 +565,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolParenthesisExpr cpe = new CoolParenthesisExpr();
         CoolExpr expression = this.visitExpression(ctx.expr());
 
+        cpe.setLine(ctx.getStart().getLine());
+        cpe.setLine(ctx.getStart().getCharPositionInLine());
+
         cpe.setExpression(expression);
 
         return cpe;
@@ -491,6 +575,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitProg(ProgContext ctx) {
+        // TODO: rewrite this to get the line and character of the start token
+        // the relevant field is "start" of type Token (antlr class)
+        // the relevant ParserRuleContext method is .getStart() -> Token
+        // the relevant Token methods are .getLine(), .getCharPositionInLine();
         // prog: CoolClass+;
         CoolProgram coolProg = new CoolProgram();
 
@@ -501,6 +589,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             CoolClass ccn = (CoolClass) this.visitCoolClass(c);
             coolClasses.add(ccn);
         }
+
         coolProg.setClasses(coolClasses);
         return coolProg;
     }
@@ -513,6 +602,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     @Override
     public CoolBaseNode visitString(StringContext ctx) {
         CoolString cs = new CoolString();
+
+        cs.setLine(ctx.getStart().getLine());
+        cs.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cs.setValue(ctx.getText());
         return cs;
     }
@@ -522,6 +615,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolBinaryOp cbo = new CoolBinaryOp();
         CoolExpr rhs = this.visitExpression(ctx.expr(0));
         CoolExpr lhs = this.visitExpression(ctx.expr(1));
+
+        cbo.setLine(ctx.getStart().getLine());
+        cbo.setCharPos(ctx.getStart().getCharPositionInLine());
 
         cbo.setOp(CoolBinaryOp.OPERATOR.SUB);
         cbo.setLhs(lhs);
@@ -533,7 +629,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     @Override
     public CoolBaseNode visitTrue(TrueContext ctx) {
         CoolBool cb = new CoolBool();
+        cb.setLine(ctx.getStart().getLine());
+        cb.setCharPos(ctx.getStart().getCharPositionInLine());
         cb.setValue(true);
+
         return cb;
     }
 
@@ -542,6 +641,10 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
         CoolWhile cw = new CoolWhile();
         CoolExpr predicate = this.visitExpression(ctx.expr(0));
         CoolExpr body = this.visitExpression(ctx.expr(1));
+
+        cw.setLine(ctx.getStart().getLine());
+        cw.setCharPos(ctx.getStart().getCharPositionInLine());
+
         cw.setPredicate(predicate);
         cw.setBody(body);
 

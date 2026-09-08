@@ -4,18 +4,18 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
+import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
 
 public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
-
     }
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
         SymbolTable current = ca.getSymbols();
 
-        CoolExpr value = ca.getValue();
+        CoolExpr value = ca.getInitExpression();
         value.accept(this);
 
         CoolClass declaredType = current.getSymbolType(ca.getTypeName());
@@ -27,7 +27,7 @@ public class TypeChecker implements AstVisitor {
                     computedValueType.getName(),
                     declaredType.getName()
             );
-            throw new RuntimeException(msg);
+            throw TypeCheckerException.factory(msg, ca);
         }
     }
 
@@ -49,7 +49,7 @@ public class TypeChecker implements AstVisitor {
                     variable.getValueString(),
                     declaredType
             );
-            throw new RuntimeException(msg);
+            throw TypeCheckerException.factory(msg, cas);
         }
     }
 
@@ -79,7 +79,7 @@ public class TypeChecker implements AstVisitor {
                             rhs.getComputedType(),
                             expected
                     );
-                    throw new RuntimeException(msg);
+                    throw TypeCheckerException.factory(msg, cbo);
                 }
 
                 CoolClass computedType = current.getSymbolType(new CoolIdentifier("Int"));
@@ -104,7 +104,7 @@ public class TypeChecker implements AstVisitor {
                             rhs.getComputedType(),
                             expected
                     );
-                    throw new RuntimeException(msg);
+                    throw TypeCheckerException.factory(msg, cbo);
                 }
 
                 CoolClass computedType = current.getSymbolType(new CoolIdentifier("Bool"));
@@ -160,6 +160,7 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolFormal(CoolFormal cf) {
+        // TODO: Should this not have been done while building the symbol table
         SymbolTable current = cf.getSymbols();
         CoolClass target = current.getSymbolType(cf.getType());
         if (target == null) {
@@ -168,18 +169,18 @@ public class TypeChecker implements AstVisitor {
                     cf.getName(),
                     cf.getType()
             );
-            throw new RuntimeException(msg);
+            throw TypeCheckerException.factory(msg, cf);
         }
     }
 
     @Override
     public void visitCoolIf(CoolIf cif) {
+        // TODO: refactor fields on CoolIf to be "guard", "consequent", "alternative".
         SymbolTable current = cif.getSymbols();
         CoolClass boolTarget = current.getSymbolType(new CoolIdentifier("Bool"));
         CoolExpr pred = cif.getPredicate();
         pred.accept(this);
-        if (!(pred.getComputedType().equalOrSubrelation(boolTarget))) {
-            // TODO: need to get line numbers into this somehow these error messages are nigh useless otherwise!
+        if (!(pred.getComputedType().equals(boolTarget))) {
             String msg = String.format("Predicate of an if statement must be a bool");
             throw new RuntimeException(msg);
         }
@@ -188,9 +189,9 @@ public class TypeChecker implements AstVisitor {
         CoolExpr elseExpr = cif.getElseExpr();
         elseExpr.accept(this);
 
-        // TODO: Figure out exactly what the "join" is, and how it determines the type of the if
-        // i.e. given T and F as the static types of the branches, the static type of the conditional is T join F
-        // or some shit
+        // the type of an if statement is the least upper bound type between the consequent
+        // and alternative.
+        // what exactly am I supposed to put here?
     }
 
     @Override
@@ -221,7 +222,7 @@ public class TypeChecker implements AstVisitor {
 
         CoolExpr last = cm.getExpressions().getLast();
         CoolClass lastType = last.getComputedType();
-        if (!(lastType.equals(returnType))) {
+        if (!(lastType.equalOrSubrelation(returnType))) {
             // TODO: no really, I need to write better error messages.
             String msg = String.format(
                     "Return value of method %s (%s) does not match its declared return type %s.",
@@ -229,7 +230,7 @@ public class TypeChecker implements AstVisitor {
                     lastType,
                     returnType
             );
-            throw new RuntimeException(msg);
+            throw TypeCheckerException.factory(msg, cm);
         }
     }
 
