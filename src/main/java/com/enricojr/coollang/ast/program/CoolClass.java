@@ -116,6 +116,7 @@ public class CoolClass extends CoolBaseNode {
                 && Objects.equals(getMethods(), coolClass.getMethods());
     }
 
+    // TODO: will this even work? Now that I look at it again I'm not sure it will
     public boolean equalOrSubrelation(CoolClass b) {
         if (this.equals(b)) {
             return true;
@@ -135,6 +136,27 @@ public class CoolClass extends CoolBaseNode {
         }
 
         return false;
+    }
+
+    public static CoolClass leastCommonAncestor(CoolClass a, CoolClass b) {
+        CoolClass next1 = a.getParent();
+        CoolClass next2 = b.getParent();
+
+        if (next1 != null && next2 != null) {
+            while(true) {
+                if (next1.equals(next2)) {
+                    // really it doesn't matter which one at this point
+                    return next1;
+                } else if (next1.getParent() == null || next2.getParent() == null){
+                    break;
+                } else {
+                    next1 = next1.getParent();
+                    next2 = next2.getParent();
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override

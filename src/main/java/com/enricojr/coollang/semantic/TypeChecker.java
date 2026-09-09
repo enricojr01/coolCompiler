@@ -8,6 +8,7 @@ import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
 import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class TypeChecker implements AstVisitor {
     @Override
@@ -19,31 +20,66 @@ public class TypeChecker implements AstVisitor {
         CoolClass targetClass = current.getSymbolType(camd.getClassName());
 
         if (!(exprType.equalOrSubrelation(targetClass))) {
-            String msg = String.format("Both sides of @ must evaluate to the same type, (%s @ %s)", exprType, targetClass);
+            String msg = String.format("Both sides of @ must evaluate to equal or subrelated classes, (%s @ %s).", exprType, targetClass);
             throw TypeCheckerException.factory(msg, camd);
         }
 
+        CoolIdentifier methodName = camd.getMethodName();
+        CoolMethod methodObj = exprType.classMethodSearch(methodName);
+        if (methodObj == null) {
+            String msg = String.format(
+                    "Class %s does not have a method named %s.",
+                    exprType.getNameString(),
+                    methodName.getValueString()
+            );
+            throw TypeCheckerException.factory(msg, camd);
+        }
 
+        ArrayList<CoolExpr> args = camd.getArguments();
+        ArrayList<CoolFormal> params = methodObj.getParameters().getParameters();
+        for (CoolExpr arg : args) {
+            for (CoolFormal cf : params) {
+                arg.accept(this);
+                CoolClass providedType = arg.getComputedType();
+                CoolClass expectedType = current.getSymbolType(cf.getType());
+                if (!(providedType.equalOrSubrelation(expectedType))) {
+                    String msg = String.format(
+                            "In method call %s, argument %s of type %s does not match expected type %s",
+                            camd,
+                            ce,
+                            providedType,
+                            expectedType
+                    );
+                    throw TypeCheckerException.factory(msg, camd);
+                }
+            }
+        }
 
+        CoolClass resultType = current.getSymbolType(methodObj.getReturnType());
+        camd.setComputedType(resultType);
     }
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
+        // TODO: should I move computedType up to the BaseNode?
+        //  as it stands right nowCoolFormal and CoolAttribute are not expressions.
         SymbolTable current = ca.getSymbols();
 
         CoolExpr value = ca.getInitExpression();
-        value.accept(this);
+        if (value != null) {
+            value.accept(this);
 
-        CoolClass declaredType = current.getSymbolType(ca.getTypeName());
-        CoolClass computedValueType = value.getComputedType();
+            CoolClass declaredType = current.getSymbolType(ca.getTypeName());
+            CoolClass computedValueType = value.getComputedType();
 
-        if (!(declaredType.equalOrSubrelation(computedValueType))) {
-            String msg = String.format(
-                    "Value assigned to attribute %s does not match declared type %s",
-                    computedValueType.getName(),
-                    declaredType.getName()
-            );
-            throw TypeCheckerException.factory(msg, ca);
+            if (!(declaredType.equalOrSubrelation(computedValueType))) {
+                String msg = String.format(
+                        "Value assigned to attribute %s does not match declared type %s",
+                        computedValueType.getName(),
+                        declaredType.getName()
+                );
+                throw TypeCheckerException.factory(msg, ca);
+            }
         }
     }
 
@@ -147,23 +183,21 @@ public class TypeChecker implements AstVisitor {
             ccb.accept(this);
         }
 
-        // NOTE: this is horrible
-        for (CoolCaseBranch ccb1 : cca.getBranches()) {
-            for (CoolCaseBranch ccb2 : cca.getBranches()) {
-                if (ccb1.getComputedType().equals(ccb2.getComputedType())) {
-                    continue;
-                } else {
-                    if (!(ccb1.getComputedType().equalOrSubrelation(ccb2.getComputedType()))) {
-                        String msg = String.format(
-                                "All branches in a case expression must be equal / have a common ancestor! %s != %s",
-                                ccb1,
-                                ccb2
-                        );
-                        throw TypeCheckerException.factory(msg, cca);
-                    }
-                }
-            }
+        LinkedList<CoolClass> stack = (
+                (LinkedList<CoolClass>) cca.getBranches()
+                        .stream()
+                        .map(x -> x.getComputedType())
+                        .toList()
+        );
+
+        while (stack.size() != 1) {
+            CoolClass cc1 = stack.pop();
+            CoolClass cc2 = stack.pop();
+            CoolClass result = CoolClass.leastCommonAncestor(cc1, cc2);
+            stack.push(result);
         }
+
+        cca.setComputedType(stack.getFirst());
     }
 
     @Override
@@ -271,7 +305,6 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolIf(CoolIf cif) {
-        // TODO: refactor fields on CoolIf to be "guard", "consequent", "alternative".
         SymbolTable current = cif.getSymbols();
         CoolClass boolTarget = current.getSymbolType(new CoolIdentifier("Bool"));
         CoolExpr pred = cif.getGuard();
@@ -282,20 +315,24 @@ public class TypeChecker implements AstVisitor {
             throw TypeCheckerException.factory(msg, cif);
         }
 
-        CoolExpr then = cif.getConsequent();
-        then.accept(this);
+        CoolExpr thenExpr = cif.getConsequent();
+        thenExpr.accept(this);
         CoolExpr elseExpr = cif.getAlternative();
         elseExpr.accept(this);
 
         // the type of an if statement is the least upper bound type between the consequent
         // and alternative. throw an exception if they're not
-        if (!(then.getComputedType().equalOrSubrelation(elseExpr.getComputedType()))) {
+        CoolClass result = CoolClass.leastCommonAncestor(thenExpr.getComputedType(), elseExpr.getComputedType());
+        if (result == null) {
             String msg = String.format(
                     "Type mismatch between consequent and alternative, %s, %s.",
-                    then.getComputedType(),
+                    thenExpr.getComputedType(),
                     elseExpr.getComputedType()
             );
             throw TypeCheckerException.factory(msg, cif);
+
+        } else {
+            cif.setComputedType(result);
         }
     }
 
@@ -355,7 +392,6 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
-
     }
 
     @Override
@@ -378,7 +414,24 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolUnaryOp(CoolUnaryOp cuo) {
-
+        SymbolTable current = cuo.getSymbols();
+        CoolUnaryOp.OPERATOR op = cuo.getOp();
+        switch (op) {
+            case NOT: {
+                CoolClass result = current.getSymbolType(new CoolIdentifier("Bool"));
+                cuo.setComputedType(result);
+                break;
+            }
+            case COMPLEMENT: {
+                CoolClass result = current.getSymbolType(new CoolIdentifier("Int"));
+                cuo.setComputedType(result);
+                break;
+            }
+            default: {
+                String msg = String.format("Expression %s has invalid operator type %s", cuo, op);
+                throw TypeCheckerException.factory(msg, cuo);
+            }
+        }
     }
 
     @Override
