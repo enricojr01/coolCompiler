@@ -6,6 +6,7 @@ import com.enricojr.coollang.ast.constants.CoolIdentifier;
 public class CoolFormal extends CoolBaseNode {
     private CoolIdentifier name;
     private CoolIdentifier type;
+    private CoolClass computedType;
 
     public CoolFormal() {}
 
@@ -31,6 +32,14 @@ public class CoolFormal extends CoolBaseNode {
 
     public void setType(CoolIdentifier type) {
         this.type = type;
+    }
+
+    public CoolClass getComputedType() {
+        return computedType;
+    }
+
+    public void setComputedType(CoolClass computedType) {
+        this.computedType = computedType;
     }
 
     public String toString() {

@@ -1,6 +1,7 @@
 package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -82,6 +83,9 @@ public class SymbolTableBuilder implements AstVisitor {
     @Override
     public void visitCoolClass(CoolClass cc) {
         SymbolTable current = cc.getSymbols();
+
+        current.addSymbolType(new CoolIdentifier("SELF_TYPE"), cc);
+        current.addSymbolType(new CoolIdentifier("self"), cc);
 
         for (CoolAttribute ca : cc.getAttributes()) {
             CoolClass type = current.getSymbolType(ca.getTypeName());

@@ -64,12 +64,12 @@ public class TypeChecker implements AstVisitor {
         // TODO: should I move computedType up to the BaseNode?
         //  as it stands right nowCoolFormal and CoolAttribute are not expressions.
         SymbolTable current = ca.getSymbols();
+        CoolClass declaredType = current.getSymbolType(ca.getTypeName());
 
         CoolExpr value = ca.getInitExpression();
         if (value != null) {
             value.accept(this);
 
-            CoolClass declaredType = current.getSymbolType(ca.getTypeName());
             CoolClass computedValueType = value.getComputedType();
 
             if (!(declaredType.equalOrSubrelation(computedValueType))) {
@@ -80,6 +80,10 @@ public class TypeChecker implements AstVisitor {
                 );
                 throw TypeCheckerException.factory(msg, ca);
             }
+
+            ca.setComputedType(computedValueType);
+        } else {
+            ca.setComputedType(declaredType);
         }
     }
 
@@ -103,6 +107,8 @@ public class TypeChecker implements AstVisitor {
             );
             throw TypeCheckerException.factory(msg, cas);
         }
+
+        cas.setComputedType(computedType);
     }
 
     @Override
@@ -392,6 +398,9 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
+        SymbolTable current = cmd.getSymbols();
+        CoolIdentifier methodName = cmd.getIdentifier();
+        CoolClass targetClass = current.getSymbolType(new CoolIdentifier("SELF_TYPE"));
     }
 
     @Override
@@ -416,6 +425,7 @@ public class TypeChecker implements AstVisitor {
     public void visitCoolUnaryOp(CoolUnaryOp cuo) {
         SymbolTable current = cuo.getSymbols();
         CoolUnaryOp.OPERATOR op = cuo.getOp();
+
         switch (op) {
             case NOT: {
                 CoolClass result = current.getSymbolType(new CoolIdentifier("Bool"));
@@ -436,6 +446,21 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolWhile(CoolWhile cw) {
+        SymbolTable current = cw.getSymbols();
+        CoolExpr pred = cw.getPredicate();
+        CoolExpr body = cw.getBody();
 
+        pred.accept(this);
+        CoolClass predType = pred.getComputedType();
+        CoolClass requiredType = current.getSymbolType(new CoolIdentifier("Bool"));
+        if (!(predType.equals(requiredType))) {
+            String msg = String.format("Predicate of a while loop must have static type Bool");
+            throw TypeCheckerException.factory(msg, cw);
+        }
+
+        body.accept(this);
+        CoolClass bodyType = body.getComputedType();
+
+        cw.setComputedType(bodyType);
     }
 }

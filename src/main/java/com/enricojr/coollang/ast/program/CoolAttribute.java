@@ -8,6 +8,7 @@ public class CoolAttribute extends CoolBaseNode {
     private CoolIdentifier identifier;
     private CoolIdentifier typeName;
     private CoolExpr initExpression;
+    private CoolClass computedType;
 
     public CoolAttribute() {}
 
@@ -33,6 +34,14 @@ public class CoolAttribute extends CoolBaseNode {
 
     public void setTypeName(CoolIdentifier typeName) {
         this.typeName = typeName;
+    }
+
+    public CoolClass getComputedType() {
+        return computedType;
+    }
+
+    public void setComputedType(CoolClass computedType) {
+        this.computedType = computedType;
     }
 
     public String toString() {

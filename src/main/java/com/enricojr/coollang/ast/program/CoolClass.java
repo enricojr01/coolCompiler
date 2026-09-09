@@ -138,6 +138,29 @@ public class CoolClass extends CoolBaseNode {
         return false;
     }
 
+    public static boolean equalOrSubrelation(CoolClass a, CoolClass b) {
+        // NOTE: returns whether a <= b for conformance purposes
+        // i.e. a <= b if they are the same type, or share a common ancestor.
+        if (a.equals(b)) {
+            return true;
+        }
+
+        if (a.getParent() != null) {
+            CoolClass next = a.getParent();
+            while (true) {
+                if (b.equals(next)) {
+                    return true;
+                } else if (next.getParent() != null) {
+                    next = next.getParent();
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public static CoolClass leastCommonAncestor(CoolClass a, CoolClass b) {
         CoolClass next1 = a.getParent();
         CoolClass next2 = b.getParent();
