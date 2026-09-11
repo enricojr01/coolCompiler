@@ -19,7 +19,7 @@ public class TypeChecker implements AstVisitor {
         CoolClass exprType = ce.getComputedType();
         CoolClass targetClass = current.getSymbolType(camd.getClassName());
 
-        if (!(exprType.equalOrSubrelation(targetClass))) {
+        if (!(CoolClass.equalOrSubrelation(exprType, targetClass))) {
             String msg = String.format("Both sides of @ must evaluate to equal or subrelated classes, (%s @ %s).", exprType, targetClass);
             throw TypeCheckerException.factory(msg, camd);
         }
@@ -61,8 +61,6 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
-        // TODO: should I move computedType up to the BaseNode?
-        //  as it stands right nowCoolFormal and CoolAttribute are not expressions.
         SymbolTable current = ca.getSymbols();
         CoolClass declaredType = current.getSymbolType(ca.getTypeName());
 
@@ -307,6 +305,8 @@ public class TypeChecker implements AstVisitor {
             );
             throw TypeCheckerException.factory(msg, cf);
         }
+
+        cf.setComputedType(target);
     }
 
     @Override
@@ -394,6 +394,8 @@ public class TypeChecker implements AstVisitor {
             );
             throw TypeCheckerException.factory(msg, cm);
         }
+
+        cm.setComputedType(returnType);
     }
 
     @Override

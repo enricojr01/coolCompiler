@@ -13,7 +13,7 @@ import java.util.Stack;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestParser {
+public class TestIntegrationParser {
     private static class CoolFileFilter implements FilenameFilter {
         public boolean accept(File dir, String name) {
             String ext = FilenameUtils.getExtension(name);

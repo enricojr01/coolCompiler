@@ -12,6 +12,7 @@ public class CoolMethod extends CoolBaseNode {
     private CoolIdentifier returnType;
     private CoolParamList parameters;
     private ArrayList<CoolExpr> body;
+    private CoolClass computedType;
 
     public CoolMethod() {}
 
@@ -21,6 +22,14 @@ public class CoolMethod extends CoolBaseNode {
 
     public String getNameString() {
         return this.name.getValue().toString();
+    }
+
+    public CoolClass getComputedType() {
+        return computedType;
+    }
+
+    public void setComputedType(CoolClass computedType) {
+        this.computedType = computedType;
     }
 
     public void setName(CoolIdentifier name) {

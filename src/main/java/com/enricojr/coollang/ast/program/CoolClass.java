@@ -117,6 +117,7 @@ public class CoolClass extends CoolBaseNode {
     }
 
     // TODO: will this even work? Now that I look at it again I'm not sure it will
+    // TODO: no, I'm sure it will work
     public boolean equalOrSubrelation(CoolClass b) {
         if (this.equals(b)) {
             return true;
@@ -138,6 +139,7 @@ public class CoolClass extends CoolBaseNode {
         return false;
     }
 
+    // TODO: need to actually start using this I think its a lot clearer than the old one
     public static boolean equalOrSubrelation(CoolClass a, CoolClass b) {
         // NOTE: returns whether a <= b for conformance purposes
         // i.e. a <= b if they are the same type, or share a common ancestor.

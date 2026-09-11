@@ -159,7 +159,12 @@ public class SymbolTableBuilder implements AstVisitor {
     @Override
     public void visitCoolLet(CoolLet cl) {
         SymbolTable current = cl.getSymbols();
-
+        for (CoolAttribute ca : cl.getAttributes()) {
+            System.out.println(ca);
+            CoolIdentifier id = ca.getIdentifier();
+            CoolClass type = current.getSymbolType(ca.getTypeName());
+            current.addSymbolType(id, type);
+        }
         CoolExpr expr = cl.getExpression();
         expr.setSymbols(new SymbolTable(current));
         expr.accept(this);
@@ -231,5 +236,9 @@ public class SymbolTableBuilder implements AstVisitor {
         CoolExpr predicate = cw.getPredicate();
         predicate.setSymbols(new SymbolTable(current));
         predicate.accept(this);
+
+        CoolExpr body = cw.getBody();
+        body.setSymbols(new SymbolTable(current));
+        body.accept(this);
     }
 }
