@@ -2,6 +2,7 @@ package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.CoolString;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
@@ -232,7 +233,16 @@ public class TypeChecker implements AstVisitor {
         SymbolTable current = cdmd.getSymbols();
         CoolExpr className = cdmd.getClassName();
         className.accept(this);
-        CoolClass concreteClass = className.getComputedType();
+        CoolClass concreteClass = null;
+
+        if (className instanceof CoolIdentifier) {
+            CoolIdentifier ci = (CoolIdentifier) className;
+            if (ci.getValue().equals("SELF_TYPE")) {
+                concreteClass = current.getSymbolType(ci);
+            }
+        } else {
+            concreteClass = className.getComputedType();
+        }
 
         if (concreteClass == null) {
             String msg = String.format("Static dispatch expression evalutates to invalid type: %s", className.getComputedType());
@@ -508,5 +518,11 @@ public class TypeChecker implements AstVisitor {
         CoolClass bodyType = body.getComputedType();
 
         cw.setComputedType(bodyType);
+    }
+
+    @Override
+    public void visitCoolString(CoolString cs) {
+        SymbolTable current = cs.getSymbols();
+        cs.setComputedType(current.getSymbolType(new CoolIdentifier("String")));
     }
 }

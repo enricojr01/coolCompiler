@@ -11,7 +11,7 @@ public class CoolMethod extends CoolBaseNode {
     private CoolIdentifier name;
     private CoolIdentifier returnType;
     private CoolParamList parameters;
-    private ArrayList<CoolExpr> body;
+    private ArrayList<CoolExpr> body = new ArrayList<>();
     private CoolClass computedType;
 
     public CoolMethod() {}

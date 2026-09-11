@@ -34,6 +34,20 @@ public class CoolClass extends CoolBaseNode {
             }
         }
 
+        if (this.parent != null) {
+            CoolClass next = this.parent;
+            while (true) {
+                CoolMethod cm = next.classMethodSearch(id);
+                if (cm != null) {
+                    return cm;
+                } else if (next.getParent() != null){
+                    next = next.getParent();
+                } else {
+                    break;
+                }
+            }
+        }
+
         return null;
     }
 

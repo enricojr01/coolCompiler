@@ -24,6 +24,17 @@ public class TestSymbolTable {
     }
 
     @Test
+    public void TestSymbolLookupDeepSelf() {
+        SymbolTable st1 = new SymbolTable();
+        SymbolTable st2 = new SymbolTable();
+
+        st2.setParent(st1);
+
+        st1.addSymbolType(new CoolIdentifier("SELF_TYPE"), new CoolClass());
+
+    }
+
+    @Test
     public void TestSymbolLookupFail() {
         SymbolTable st1 = new SymbolTable();
 

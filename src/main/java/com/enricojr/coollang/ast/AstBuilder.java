@@ -504,7 +504,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             argumentList.add(ce);
         }
 
-        cmd.setClassName(new CoolSelf());
+        cmd.setClassName(new CoolIdentifier("SELF_TYPE"));
         cmd.setMethodName(cid);
         cmd.setArguments(argumentList);
 

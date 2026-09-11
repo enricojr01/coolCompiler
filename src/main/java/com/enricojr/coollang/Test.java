@@ -7,6 +7,7 @@ import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
+import com.enricojr.coollang.semantic.TypeChecker;
 import com.enricojr.coollang.semantic.classtree.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.classtree.ClassTreeLinker;
 import com.enricojr.coollang.semantic.classtree.ClassTreePrinter;
@@ -82,6 +83,12 @@ public class Test {
         System.out.println("Printing symbol tables...");
         SymbolTablePrinter sPrinter = new SymbolTablePrinter();
         sPrinter.visitCoolProgram(top);
+
+        System.out.println("Initializing type checker...");
+        TypeChecker tc = new TypeChecker();
+        tc.visitCoolProgram(top);
+        System.out.println("If you see this, the type checker didn't find anything wrong.");
+
 //        System.out.println("Printing AST...");
 //        AstPrinter ap = new AstPrinter();
 //        ap.visitCoolProgram(top);

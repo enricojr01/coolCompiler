@@ -5,6 +5,10 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Type checking bullshit
+
+- "Object" should be added to the symbol table.
+
 ### method and symbol resolution pt N
 
 I ended up tearing apart the old ClassTreeBuilder and SymbolTableBuilder classes

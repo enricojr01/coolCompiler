@@ -2,6 +2,7 @@ package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.CoolSelf;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.semantic.exceptions.SymbolTableException;
@@ -222,6 +223,9 @@ public class SymbolTableBuilder implements AstVisitor {
     @Override
     public void visitCoolProgram(CoolProgram cp) {
         SymbolTable current = cp.getSymbols();
+
+        // "Object" should exist in the symbol table.
+        current.addSymbolType(cp.getRoot().getName(), cp.getRoot());
 
         for (CoolClass cc : cp.getClasses()) {
             current.addSymbolType(cc.getName(), cc);

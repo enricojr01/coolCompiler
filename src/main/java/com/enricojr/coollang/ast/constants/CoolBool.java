@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.constants;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 public class CoolBool extends CoolLiteral {
     private boolean value;
 
@@ -21,5 +23,9 @@ public class CoolBool extends CoolLiteral {
 
     public String toString() {
         return String.format("<Boolean - %s>", this.value);
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolBool(this);
     }
 }
