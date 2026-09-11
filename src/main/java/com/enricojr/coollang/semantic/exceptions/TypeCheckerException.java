@@ -12,6 +12,6 @@ public class TypeCheckerException extends RuntimeException {
 
     public static TypeCheckerException factory(String message, CoolBaseNode cbn) {
         String realMessage = String.format("%s @ L%s:%s", message, cbn.getLine(), cbn.getCharPos());
-        return new TypeCheckerException(message);
+        return new TypeCheckerException(realMessage);
     }
 }

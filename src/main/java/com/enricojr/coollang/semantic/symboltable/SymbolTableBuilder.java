@@ -4,6 +4,7 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
+import com.enricojr.coollang.semantic.exceptions.SymbolTableException;
 
 public class SymbolTableBuilder implements AstVisitor {
     @Override
@@ -142,7 +143,7 @@ public class SymbolTableBuilder implements AstVisitor {
 
         CoolExpr elseExpr = cif.getAlternative();
         elseExpr.setSymbols(new SymbolTable(current));
-        thenExpr.accept(this);
+        elseExpr.accept(this);
 
     }
 
@@ -160,9 +161,16 @@ public class SymbolTableBuilder implements AstVisitor {
     public void visitCoolLet(CoolLet cl) {
         SymbolTable current = cl.getSymbols();
         for (CoolAttribute ca : cl.getAttributes()) {
-            System.out.println(ca);
             CoolIdentifier id = ca.getIdentifier();
             CoolClass type = current.getSymbolType(ca.getTypeName());
+            if (type == null) {
+                String msg = String.format(
+                        "Attribute %s references unknown type %s",
+                        ca.getIdentifier().getValueString(),
+                        ca.getTypeName().getValueString()
+                );
+                throw SymbolTableException.factory(msg, ca);
+            }
             current.addSymbolType(id, type);
         }
         CoolExpr expr = cl.getExpression();
