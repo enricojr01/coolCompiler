@@ -21,6 +21,11 @@ But as a result I'm seeing that I could use convenience methods to make creating
 things like the builtin classes and their methods a bit less cumbersome. So 
 that's what I'll be working on next.
 
+I also noticed that the visitor ended up needing methods that I opted to leave out 
+in the beginning. I guess if you're going to represent every single construct in
+a program with a Java class you should go all the way with the subsequent
+visitor as well.
+
 ### Type checking bullshit
 
 - "Object" should be added to the symbol table.
