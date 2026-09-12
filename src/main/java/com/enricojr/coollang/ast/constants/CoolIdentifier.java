@@ -1,5 +1,7 @@
 package com.enricojr.coollang.ast.constants;
 
+import com.enricojr.coollang.ast.AstVisitor;
+
 public class CoolIdentifier extends CoolLiteral {
     private String value;
 
@@ -21,6 +23,10 @@ public class CoolIdentifier extends CoolLiteral {
 
     public String toString() {
         return String.format("<Identifier - %s>", this.value);
+    }
+
+    public void accept(AstVisitor t) {
+        t.visitCoolIdentifier(this);
     }
 
     @Override

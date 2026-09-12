@@ -1,10 +1,7 @@
 package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.constants.CoolBool;
-import com.enricojr.coollang.ast.constants.CoolInteger;
-import com.enricojr.coollang.ast.constants.CoolSelf;
-import com.enricojr.coollang.ast.constants.CoolString;
+import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -145,6 +142,11 @@ public class SymbolTableLinker implements AstVisitor {
 
     @Override
     public void visitCoolSelf(CoolSelf cs) {
+
+    }
+
+    @Override
+    public void visitCoolIdentifier(CoolIdentifier ci) {
 
     }
 }

@@ -74,6 +74,14 @@ public class CoolMethod extends CoolBaseNode {
         t.visitCoolMethod(this);
     }
 
+    public static CoolMethod factory(CoolIdentifier name, CoolParamList params, CoolIdentifier returnType) {
+        CoolMethod cm = new CoolMethod();
+        cm.setName(name);
+        cm.setParameters(params);
+        cm.setReturnType(returnType);
+        return cm;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

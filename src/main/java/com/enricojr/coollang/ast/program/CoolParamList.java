@@ -26,6 +26,12 @@ public class CoolParamList extends CoolBaseNode {
         t.visitCoolParamList(this);
     }
 
+    public static CoolParamList factory(ArrayList<CoolFormal> parameters) {
+        CoolParamList cpl = new CoolParamList();
+        cpl.setParameters(parameters);
+        return cpl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

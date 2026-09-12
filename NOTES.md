@@ -5,9 +5,30 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### More type checking bullshit
+
+So now that I'm working on the TypeChecker I'm noticing that there are quite a
+few holes in my implementation. 
+
+On the one hand it was a good idea to have classes to reperesent each of a Cool
+program's constructs, but on the other I didn't go far enough in the beginning.
+
+I anticipated this would happen and designed stuff to be as "open" as possible,
+using getters/setters for everything as opposed to making assumptions about
+what should go into a constructor, because I really couldn't see too far ahead.
+
+But as a result I'm seeing that I could use convenience methods to make creating
+things like the builtin classes and their methods a bit less cumbersome. So 
+that's what I'll be working on next.
+
 ### Type checking bullshit
 
 - "Object" should be added to the symbol table.
+- `self` and `SELF_TYPE` need to be added to the symbol table, each pointing to
+their respective classes.
+- I have added empty CoolClasses to stand in for the built-in classes, but now I
+need to add the methods they provide so their implementations need to be fleshed
+out.
 
 ### method and symbol resolution pt N
 

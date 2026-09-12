@@ -141,6 +141,7 @@ public class TypeChecker implements AstVisitor {
                 cbo.setComputedType(computedType);
                 break;
             }
+            case EQ:
             case GT:
             case GTE:
             case LT:
@@ -541,5 +542,17 @@ public class TypeChecker implements AstVisitor {
     public void visitCoolSelf(CoolSelf cs) {
         SymbolTable current = cs.getSymbols();
         cs.setComputedType(current.getSymbolType(new CoolIdentifier("SELF_TYPE")));
+    }
+
+    @Override
+    public void visitCoolIdentifier(CoolIdentifier ci) {
+        SymbolTable current = ci.getSymbols();
+        CoolClass declaredType = current.getSymbolType(ci);
+        if (declaredType == null) {
+            String msg = String.format("Identifier %s not found in symbol table.", ci.getValueString());
+            throw TypeCheckerException.factory(msg, ci);
+        } else {
+            ci.setComputedType(declaredType);
+        }
     }
 }

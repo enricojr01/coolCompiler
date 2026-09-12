@@ -1,9 +1,6 @@
 package com.enricojr.coollang.ast;
 
-import com.enricojr.coollang.ast.constants.CoolBool;
-import com.enricojr.coollang.ast.constants.CoolInteger;
-import com.enricojr.coollang.ast.constants.CoolSelf;
-import com.enricojr.coollang.ast.constants.CoolString;
+import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -34,4 +31,5 @@ public interface AstVisitor {
     void visitCoolBool(CoolBool cb);
     void visitCoolInteger(CoolInteger ci);
     void visitCoolSelf(CoolSelf cs);
+    void visitCoolIdentifier(CoolIdentifier ci);
 }

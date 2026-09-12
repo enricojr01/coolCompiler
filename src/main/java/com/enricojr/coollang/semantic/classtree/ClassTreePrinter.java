@@ -160,4 +160,9 @@ public class ClassTreePrinter implements AstVisitor {
     public void visitCoolSelf(CoolSelf cs) {
 
     }
+
+    @Override
+    public void visitCoolIdentifier(CoolIdentifier ci) {
+
+    }
 }
