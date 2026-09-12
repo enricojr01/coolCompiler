@@ -26,6 +26,14 @@ in the beginning. I guess if you're going to represent every single construct in
 a program with a Java class you should go all the way with the subsequent
 visitor as well.
 
+As an example, I initially didn't write visitor methods for the constants, 
+i.e. CoolInteger, etc, because right up through the SymbolTable I didn't really
+do anything with them. But now that I'm writing the type checker I find that 
+_everything_ has to have a type attached or else you can't type check properly.
+
+Ultimately it's not too big a deal to add it this late in development, its just
+another thing to think about in the future if I ever do this again.
+
 ### Type checking bullshit
 
 - "Object" should be added to the symbol table.
