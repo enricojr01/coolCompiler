@@ -1,5 +1,9 @@
 package com.enricojr.coollang.ast;
 
+import com.enricojr.coollang.ast.constants.CoolBool;
+import com.enricojr.coollang.ast.constants.CoolInteger;
+import com.enricojr.coollang.ast.constants.CoolSelf;
+import com.enricojr.coollang.ast.constants.CoolString;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -198,5 +202,25 @@ public class AstPrinter implements AstVisitor {
         cw.getPredicate().accept(this);
         cw.getBody().accept(this);
         this.indent -= offset;
+    }
+
+    @Override
+    public void visitCoolString(CoolString cs) {
+
+    }
+
+    @Override
+    public void visitCoolBool(CoolBool cb) {
+
+    }
+
+    @Override
+    public void visitCoolInteger(CoolInteger ci) {
+
+    }
+
+    @Override
+    public void visitCoolSelf(CoolSelf cs) {
+
     }
 }

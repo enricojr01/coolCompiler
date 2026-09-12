@@ -1,8 +1,7 @@
 package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.constants.CoolSelf;
+import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.semantic.exceptions.SymbolTableException;
@@ -90,7 +89,11 @@ public class SymbolTableBuilder implements AstVisitor {
         current.addSymbolType(new CoolIdentifier("self"), cc);
 
         for (CoolAttribute ca : cc.getAttributes()) {
+            ca.setSymbols(new SymbolTable(current));
             CoolClass type = current.getSymbolType(ca.getTypeName());
+            // TODO: and here we see the weakness in my design
+            // I need to set the symbol table despite not actually doing anything with it
+            ca.setSymbols(new SymbolTable(current));
             current.addSymbolType(ca.getIdentifier(), type);
         }
 
@@ -162,6 +165,9 @@ public class SymbolTableBuilder implements AstVisitor {
     public void visitCoolLet(CoolLet cl) {
         SymbolTable current = cl.getSymbols();
         for (CoolAttribute ca : cl.getAttributes()) {
+            ca.setSymbols(new SymbolTable(current));
+            // need to recurse into it so that the symbol table is correctly propagated.
+            ca.accept(this);
             CoolIdentifier id = ca.getIdentifier();
             CoolClass type = current.getSymbolType(ca.getTypeName());
             if (type == null) {
@@ -185,6 +191,9 @@ public class SymbolTableBuilder implements AstVisitor {
 
         CoolClass returnType = current.getSymbolType(cm.getReturnType());
         SymbolTable params = new SymbolTable(current);
+        cm.getParameters().setSymbols(new SymbolTable(current));
+        cm.getParameters().accept(this);
+        // TODO: should I not recurse into CoolFormal? The parameters need to be visible at the method level
         for (CoolFormal cf : cm.getParameters().getParameters()) {
             CoolClass type = current.getSymbolType(cf.getType());
             params.addSymbolType(cf.getName(), type);
@@ -252,5 +261,25 @@ public class SymbolTableBuilder implements AstVisitor {
         CoolExpr body = cw.getBody();
         body.setSymbols(new SymbolTable(current));
         body.accept(this);
+    }
+
+    @Override
+    public void visitCoolString(CoolString cs) {
+
+    }
+
+    @Override
+    public void visitCoolBool(CoolBool cb) {
+
+    }
+
+    @Override
+    public void visitCoolInteger(CoolInteger ci) {
+
+    }
+
+    @Override
+    public void visitCoolSelf(CoolSelf cs) {
+
     }
 }

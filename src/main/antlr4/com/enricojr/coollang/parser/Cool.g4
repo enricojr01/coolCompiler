@@ -22,7 +22,7 @@ expr
     |   WHILE expr LOOP expr+ POOL                               # whileStatement
     |   LET attribute (',' attribute)* IN expr                   # letStatement
     |   CASE expr OF (formal DARROW expr (';'))+ ESAC            # caseStatement
-    |   NEW TYPE                                                 # instantiate
+    |   NEW  TYPE                                                # instantiate
     |   ISVOID expr                                              # isVoid
     |   '{' (expr ';')* '}'                                      # codeBlock
     |   '(' expr ')'                                             # parenthesisExpr

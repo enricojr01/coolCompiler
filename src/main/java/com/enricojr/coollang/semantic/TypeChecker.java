@@ -1,8 +1,7 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.constants.CoolString;
+import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
@@ -68,7 +67,6 @@ public class TypeChecker implements AstVisitor {
         CoolExpr value = ca.getInitExpression();
         if (value != null) {
             value.accept(this);
-
             CoolClass computedValueType = value.getComputedType();
 
             if (!(declaredType.equalOrSubrelation(computedValueType))) {
@@ -352,6 +350,7 @@ public class TypeChecker implements AstVisitor {
         }
     }
 
+    // NOTE: check newA2I
     @Override
     public void visitCoolInstantiate(CoolInstantiate ci) {
         SymbolTable current = ci.getSymbols();
@@ -524,5 +523,23 @@ public class TypeChecker implements AstVisitor {
     public void visitCoolString(CoolString cs) {
         SymbolTable current = cs.getSymbols();
         cs.setComputedType(current.getSymbolType(new CoolIdentifier("String")));
+    }
+
+    @Override
+    public void visitCoolBool(CoolBool cb) {
+        SymbolTable current = cb.getSymbols();
+        cb.setComputedType(current.getSymbolType(new CoolIdentifier("Bool")));
+    }
+
+    @Override
+    public void visitCoolInteger(CoolInteger ci) {
+        SymbolTable current = ci.getSymbols();
+        ci.setComputedType(current.getSymbolType(new CoolIdentifier("Int")));
+    }
+
+    @Override
+    public void visitCoolSelf(CoolSelf cs) {
+        SymbolTable current = cs.getSymbols();
+        cs.setComputedType(current.getSymbolType(new CoolIdentifier("SELF_TYPE")));
     }
 }

@@ -1,7 +1,7 @@
 package com.enricojr.coollang.semantic.symboltable;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -240,5 +240,25 @@ public class SymbolTablePrinter implements AstVisitor {
         cw.getPredicate().accept(this);
         cw.getBody().accept(this);
         this.indent -= offset;
+    }
+
+    @Override
+    public void visitCoolString(CoolString cs) {
+
+    }
+
+    @Override
+    public void visitCoolBool(CoolBool cb) {
+
+    }
+
+    @Override
+    public void visitCoolInteger(CoolInteger ci) {
+
+    }
+
+    @Override
+    public void visitCoolSelf(CoolSelf cs) {
+
     }
 }

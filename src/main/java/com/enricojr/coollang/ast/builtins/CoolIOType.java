@@ -47,7 +47,7 @@ public class CoolIOType extends CoolBuiltInType {
         inString.setBody(new ArrayList<>(List.of(new CoolString("temp"))));
         // holy god this is ugly need to fix
         inString.setParameters(params2);
-        inString.setReturnType(new CoolIdentifier("SELF_TYPE"));
+        inString.setReturnType(new CoolIdentifier("String"));
 
         this.setMethods(new ArrayList<>(List.of(outString, inString)));
     }

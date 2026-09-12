@@ -352,7 +352,9 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
     public CoolBaseNode visitInstantiate(InstantiateContext ctx) {
         CoolInstantiate cn = new CoolInstantiate();
 
-        cn.setIdentifier(new CoolIdentifier(ctx.getText()));
+        // NOTE: for text strings that are children of parse nodes like that, you need to specify the child and THEN
+        // call getText() otherwise getText() on the parse node will simply concat all the text together into a single blob
+        cn.setIdentifier(new CoolIdentifier(ctx.getChild(1).getText()));
         cn.setLine(ctx.getStart().getLine());
         cn.setCharPos(ctx.getStart().getCharPositionInLine());
 

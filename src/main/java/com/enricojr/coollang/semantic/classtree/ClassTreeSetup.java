@@ -2,6 +2,10 @@ package com.enricojr.coollang.semantic.classtree;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.builtins.*;
+import com.enricojr.coollang.ast.constants.CoolBool;
+import com.enricojr.coollang.ast.constants.CoolInteger;
+import com.enricojr.coollang.ast.constants.CoolSelf;
+import com.enricojr.coollang.ast.constants.CoolString;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
@@ -131,6 +135,26 @@ public class ClassTreeSetup implements AstVisitor {
 
     @Override
     public void visitCoolWhile(CoolWhile cw) {
+
+    }
+
+    @Override
+    public void visitCoolString(CoolString cs) {
+
+    }
+
+    @Override
+    public void visitCoolBool(CoolBool cb) {
+
+    }
+
+    @Override
+    public void visitCoolInteger(CoolInteger ci) {
+
+    }
+
+    @Override
+    public void visitCoolSelf(CoolSelf cs) {
 
     }
 }
