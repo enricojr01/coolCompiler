@@ -5,6 +5,11 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Even more type checking bullshit
+
+So CoolClass needs to return a computed type like everything else despite 
+actually being the type itself. This is some metaphysical bullshit right here.
+
 ### More type checking bullshit
 
 So now that I'm working on the TypeChecker I'm noticing that there are quite a

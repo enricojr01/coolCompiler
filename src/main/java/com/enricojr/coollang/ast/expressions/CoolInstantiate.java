@@ -12,6 +12,10 @@ public class CoolInstantiate extends CoolExpr {
         this.identifier = ci;
     }
 
+    public CoolInstantiate(String identifier) {
+        this.identifier = new CoolIdentifier(identifier);
+    }
+
     public CoolIdentifier getIdentifier() {
         return identifier;
     }

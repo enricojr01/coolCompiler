@@ -236,15 +236,16 @@ public class TypeChecker implements AstVisitor {
 
         if (className instanceof CoolIdentifier) {
             CoolIdentifier ci = (CoolIdentifier) className;
-            if (ci.getValue().equals("SELF_TYPE")) {
-                concreteClass = current.getSymbolType(ci);
-            }
+            concreteClass = current.getSymbolType(ci);
         } else {
             concreteClass = className.getComputedType();
         }
 
         if (concreteClass == null) {
-            String msg = String.format("Static dispatch expression evalutates to invalid type: %s", className.getComputedType());
+            String msg = String.format("" +
+                    "Static dot method dispatch expression evalutates to invalid type: %s",
+                    className.getComputedType()
+            );
             throw TypeCheckerException.factory(msg, cdmd);
         }
 

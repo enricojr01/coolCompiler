@@ -13,17 +13,22 @@ public class CoolClass extends CoolBaseNode {
     private ArrayList<CoolAttribute> attributes;
     private ArrayList<CoolMethod> methods;
     private final ArrayList<CoolClass> children = new ArrayList<>();
+    private CoolClass computedType;
 
-    public CoolClass() {}
+    public CoolClass() {
+        this.setComputedType(this);
+    }
 
     public CoolClass(CoolIdentifier ci) {
         this.name = ci;
+        this.setComputedType(this);
     }
 
     public static CoolClass factory(String identifier) {
         CoolIdentifier ci = new CoolIdentifier(identifier);
         CoolClass cc = new CoolClass();
         cc.setName(ci);
+        cc.setComputedType(cc);
         return cc;
     }
 
@@ -107,6 +112,15 @@ public class CoolClass extends CoolBaseNode {
         return this.children;
     }
 
+    public CoolClass getComputedType() {
+        return computedType;
+    }
+
+    private void setComputedType(CoolClass computedType) {
+        this.computedType = computedType;
+    }
+
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("(CoolClass - %s", this.name.getValue()));
@@ -178,6 +192,11 @@ public class CoolClass extends CoolBaseNode {
     }
 
     public static CoolClass leastCommonAncestor(CoolClass a, CoolClass b) {
+        // I guess its fine to handle this case here?
+        if (a.equals(b)) {
+            return a;
+        }
+
         CoolClass next1 = a.getParent();
         CoolClass next2 = b.getParent();
 

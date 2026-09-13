@@ -10,6 +10,16 @@ public class CoolFormal extends CoolBaseNode {
 
     public CoolFormal() {}
 
+    public CoolFormal(CoolIdentifier name, CoolIdentifier type) {
+        this.name = name;
+        this.type = type;
+    }
+
+    public CoolFormal(String name, String type) {
+        this.name = new CoolIdentifier(name);
+        this.type = new CoolIdentifier(type);
+    }
+
     public CoolIdentifier getName() {
         return name;
     }

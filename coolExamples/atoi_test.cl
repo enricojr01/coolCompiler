@@ -5,7 +5,10 @@ is then coverted from its string form to an integer and back
 again to a string.  The results of both conversions are printed
 on the screen.  Typing "stop" at the prompt exits the program.
 *)
-class A2I {};
+class A2I {
+    a2i(s: String) : Int {1};
+    i2a(i: Int) : String {""};
+};
 
 class Main inherits IO {
    newline() : Object {
