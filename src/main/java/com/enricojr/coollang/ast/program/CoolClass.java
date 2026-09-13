@@ -1,6 +1,7 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
@@ -195,31 +196,60 @@ public class CoolClass extends CoolBaseNode {
         return false;
     }
 
+    // TODO: I really need to find a better way to do this.
+    private static LinkedList<CoolClass> whichLonger(LinkedList<CoolClass> a, LinkedList<CoolClass> b) {
+        return a.size() > b.size() ? a : b;
+    }
+
+    private static LinkedList<CoolClass> whichShorter(LinkedList<CoolClass> a, LinkedList<CoolClass> b) {
+        return a.size() < b.size() ? a : b;
+    }
+
     public static CoolClass leastCommonAncestor(CoolClass a, CoolClass b) {
         // I guess its fine to handle this case here?
         if (a.equals(b)) {
             return a;
         }
 
-        // TODO: replace this with a proper LCA algorithm implementation instead,
-        // the while loop is built on a faulty assumption - that both a and b are at the same depth
-        // but that is not always the case.
-        // the proper solution to LCA is to record the depth of the nodes as they are added to the tree
-        // then with the lower node, move up the tree some number of steps equal to the difference in depth before
-        // traversing upwards until they have a common ancestor. works in O(n) time.
-        CoolClass next1 = a.getParent();
-        CoolClass next2 = b.getParent();
+        LinkedList<CoolClass> stack1 = new LinkedList<>();
+        LinkedList<CoolClass> stack2 = new LinkedList<>();
 
-        if (next1 != null && next2 != null) {
-            while(true) {
-                if (next1.equals(next2)) {
-                    // really it doesn't matter which one at this point
-                    return next1;
-                } else if (next1.getParent() == null || next2.getParent() == null){
-                    break;
-                } else {
-                    next1 = next1.getParent();
-                    next2 = next2.getParent();
+        CoolClass next1 = a;
+        CoolClass next2 = b;
+
+        stack1.push(a);
+        while (next1 != null) {
+            next1 = next1.getParent();
+            if (next1 != null) {
+                stack1.addLast(next1);
+            }
+        }
+
+        stack2.push(b);
+        while (next2 != null) {
+            next2 = next2.getParent();
+            if (next2 != null) {
+                stack2.addLast(next2);
+            }
+        }
+
+        LinkedList<CoolClass> longer = null;
+        LinkedList<CoolClass> shorter = null;
+        if (stack1.size() != stack2.size()) {
+            longer = CoolClass.whichLonger(stack1, stack2);
+            shorter = CoolClass.whichShorter(stack1, stack2);
+            while (longer.size() != shorter.size()) {
+                longer.removeFirst();
+            }
+        }
+
+        // NOTE: they should be equal in length at this point if they're not already
+        if (longer != null && shorter != null) {
+            while (!stack1.isEmpty() && !stack2.isEmpty()) {
+                CoolClass c1 = stack1.removeFirst();
+                CoolClass c2 = stack2.removeFirst();
+                if (c1.equals(c2)) {
+                    return c1;
                 }
             }
         }

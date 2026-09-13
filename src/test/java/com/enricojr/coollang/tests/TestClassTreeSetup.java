@@ -63,8 +63,6 @@ public class TestClassTreeSetup {
         stb.visitCoolProgram(cp);
 
         CoolClass root = cp.getRoot();
-        System.out.println(main.getComputedType());
-        System.out.println(boolClass);
         System.out.println(CoolClass.leastCommonAncestor(main.getComputedType(), boolClass));
     }
 }

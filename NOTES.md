@@ -5,6 +5,16 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Least Common Ancestor
+
+Need to write a proper implmentation of the least common ancestor algorithm, I'm
+going to use the simplest one I've found - it involves tracking the depth of
+each node, traversing the tree until you're comparing nodes at equal depth before
+traversing up the tree until you find a common ancestor.
+
+I'm also making an effort to write better commit messages because boy does it 
+suck forgetting why you did things.
+
 ### Debugging tree structures
 
 I'm having some difficulty debugging the TypeChecker when used on larger .cl
