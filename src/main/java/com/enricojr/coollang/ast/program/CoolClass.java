@@ -27,10 +27,14 @@ public class CoolClass extends CoolBaseNode {
     public static CoolClass factory(String identifier) {
         CoolIdentifier ci = new CoolIdentifier(identifier);
         CoolClass cc = new CoolClass();
+        cc.setAttributes(new ArrayList<>());
+        cc.setMethods(new ArrayList<>());
         cc.setName(ci);
         cc.setComputedType(cc);
         return cc;
     }
+
+
 
     public CoolMethod classMethodSearch(CoolIdentifier id) {
         for (CoolMethod cm : this.methods) {
@@ -197,6 +201,12 @@ public class CoolClass extends CoolBaseNode {
             return a;
         }
 
+        // TODO: replace this with a proper LCA algorithm implementation instead,
+        // the while loop is built on a faulty assumption - that both a and b are at the same depth
+        // but that is not always the case.
+        // the proper solution to LCA is to record the depth of the nodes as they are added to the tree
+        // then with the lower node, move up the tree some number of steps equal to the difference in depth before
+        // traversing upwards until they have a common ancestor. works in O(n) time.
         CoolClass next1 = a.getParent();
         CoolClass next2 = b.getParent();
 

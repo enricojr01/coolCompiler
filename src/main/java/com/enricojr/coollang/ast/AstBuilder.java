@@ -235,7 +235,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
             paramListContext = new ArrayList<>();
             paramListContext.add(expressions.get(1));
         } else if (expressions.size() > 2) {
-            paramListContext = expressions.subList(1, expressions.size() - 1);
+            paramListContext = expressions.subList(1, expressions.size());
         }
 
         ExprContext lhsContext = expressions.get(0);

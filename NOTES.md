@@ -5,6 +5,19 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Debugging tree structures
+
+I'm having some difficulty debugging the TypeChecker when used on larger .cl
+files. Turns out that passing the CoolBaseNode isn't enough when it's the Java
+runtime itself panicking - I won't get the line number or column number unless
+I catch the exceptions myself, and it's too late to wrap everything in 
+try/except.
+
+I will go back and copy the method I used in the printers and just print the
+tree structure as it's traversed. It's not the _easiest_ change, but the one
+that has the smallest impact on the existing code, which in some ways does make
+it the easiest.
+
 ### Even more type checking bullshit
 
 So CoolClass needs to return a computed type like everything else despite 

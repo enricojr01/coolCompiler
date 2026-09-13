@@ -18,9 +18,11 @@ public class SymbolTableBuilder implements AstVisitor {
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
         SymbolTable current = ca.getSymbols();
-        CoolExpr expr = ca.getInitExpression();
-        expr.setSymbols(new SymbolTable(current));
-        expr.accept(this);
+        if (ca.getInitExpression() != null) {
+            CoolExpr expr = ca.getInitExpression();
+            expr.setSymbols(new SymbolTable(current));
+            expr.accept(this);
+        }
     }
 
     @Override
@@ -37,6 +39,7 @@ public class SymbolTableBuilder implements AstVisitor {
         SymbolTable current = cbo.getSymbols();
         CoolExpr lhs = cbo.getLhs();
         lhs.setSymbols(new SymbolTable(current));
+        lhs.accept(this);
 
         CoolExpr rhs = cbo.getRhs();
         rhs.setSymbols(new SymbolTable(current));
@@ -197,6 +200,7 @@ public class SymbolTableBuilder implements AstVisitor {
         for (CoolFormal cf : cm.getParameters().getParameters()) {
             CoolClass type = current.getSymbolType(cf.getType());
             params.addSymbolType(cf.getName(), type);
+            current.addSymbolType(cf.getName(), type);
         }
         current.addMethod(cm.getName(), params, returnType, cm);
 

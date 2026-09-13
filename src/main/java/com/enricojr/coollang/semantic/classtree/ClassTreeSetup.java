@@ -114,8 +114,14 @@ public class ClassTreeSetup implements AstVisitor {
 
         ioType.setParent(objectType);
         objectType.addChild(ioType);
+
+        intType.setParent(objectType);
         objectType.addChild(intType);
+
+        boolType.setParent(objectType);
         objectType.addChild(boolType);
+
+        stringType.setParent(objectType);
         objectType.addChild(stringType);
 
         cp.getClasses().addAll(
