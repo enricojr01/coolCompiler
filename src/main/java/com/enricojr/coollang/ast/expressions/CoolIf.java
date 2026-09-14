@@ -34,9 +34,7 @@ public class CoolIf extends CoolExpr {
     }
 
     public String toString() {
-        return String.format(
-            "<CoolIfStatement %s THEN %s ELSE %s>", this.guard, this.consequent, this.alternative
-        );
+        return "<CoolIfStatement>";
     }
 
     public void accept(AstVisitor t) {

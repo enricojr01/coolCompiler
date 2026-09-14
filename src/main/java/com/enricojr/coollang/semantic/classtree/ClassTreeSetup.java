@@ -111,6 +111,7 @@ public class ClassTreeSetup implements AstVisitor {
         CoolClass intType = new CoolIntegerType();
         CoolClass boolType = new CoolBooleanType();
         CoolClass stringType = new CoolStringType();
+        CoolClass voidType = new CoolVoidType();
 
         ioType.setParent(objectType);
         objectType.addChild(ioType);
@@ -124,8 +125,11 @@ public class ClassTreeSetup implements AstVisitor {
         stringType.setParent(objectType);
         objectType.addChild(stringType);
 
+        voidType.setParent(objectType);
+        objectType.addChild(voidType);
+
         cp.getClasses().addAll(
-                List.of(ioType, intType, boolType, stringType, objectType)
+                List.of(ioType, intType, boolType, stringType, objectType, voidType)
         );
 
         cp.setRoot(objectType);

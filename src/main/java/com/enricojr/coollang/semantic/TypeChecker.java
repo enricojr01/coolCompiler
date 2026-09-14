@@ -228,11 +228,11 @@ public class TypeChecker implements AstVisitor {
             ccb.accept(this);
         }
 
-        LinkedList<CoolClass> stack = (
-                (LinkedList<CoolClass>) cca.getBranches()
-                        .stream()
-                        .map(x -> x.getComputedType())
-                        .toList()
+        LinkedList<CoolClass> stack = new LinkedList<>(
+                cca.getBranches()
+                    .stream()
+                    .map(x -> x.getComputedType())
+                    .toList()
         );
 
         while (stack.size() != 1) {
@@ -352,6 +352,9 @@ public class TypeChecker implements AstVisitor {
             }
         }
 
+        // NOTE: given `(new LambdaListRef).reset()` where reset returns SELF_TYPE,
+        // SELF_TYPE should be of type LambdaListRef, not of Main (the calling class)
+        // maybe consider rewriting SELF_TYPE at the time its type is computed?
         CoolClass computedType = current.getSymbolType(methodObj.getReturnType());
         cdmd.setComputedType(computedType);
     }
@@ -538,26 +541,6 @@ public class TypeChecker implements AstVisitor {
 
         // check that each arg matches the type of its corresponding parameter, i.e. args must match positionally
         // according to type.
-//        for (CoolExpr arg : args) {
-//            for (CoolFormal param : method.getParameters().getParameters()) {
-//                arg.accept(this);
-//                param.accept(this);
-//                CoolClass argType = arg.getComputedType();
-//                CoolClass paramType = arg.getComputedType();
-//                if (!(argType.equals(paramType))) {
-//                    String msg = String.format(
-//                            "Argument %s with type %s does not match parameter %s with type %s in call to method %s.%s",
-//                            arg,
-//                            argType.getNameString(),
-//                            param,
-//                            paramType.getNameString(),
-//                            targetClass.getNameString(),
-//                            methodName.getValueString()
-//                    );
-//                    throw TypeCheckerException.factory(msg, cmd);
-//                }
-//            }
-//        }
         CoolClass returnType = current.getSymbolType(method.getReturnType());
         cmd.setComputedType(returnType);
     }

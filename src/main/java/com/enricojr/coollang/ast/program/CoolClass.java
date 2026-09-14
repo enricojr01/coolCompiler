@@ -241,10 +241,7 @@ public class CoolClass extends CoolBaseNode {
             while (longer.size() != shorter.size()) {
                 longer.removeFirst();
             }
-        }
-
-        // NOTE: they should be equal in length at this point if they're not already
-        if (longer != null && shorter != null) {
+            // TODO: very tired rn, figure out a way to deduplicate this block later.
             while (!stack1.isEmpty() && !stack2.isEmpty()) {
                 CoolClass c1 = stack1.removeFirst();
                 CoolClass c2 = stack2.removeFirst();
@@ -252,7 +249,18 @@ public class CoolClass extends CoolBaseNode {
                     return c1;
                 }
             }
+        } else {
+            while (!stack1.isEmpty() && !stack2.isEmpty()) {
+                CoolClass c1 = stack1.removeFirst();
+                CoolClass c2 = stack2.removeFirst();
+                if (c1.equals(c2)) {
+                    return c1;
+                }
+            }
+
         }
+
+        // NOTE: they should be equal in length at this point if they're not already
 
         return null;
     }

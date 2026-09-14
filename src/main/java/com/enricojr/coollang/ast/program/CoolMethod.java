@@ -66,7 +66,13 @@ public class CoolMethod extends CoolBaseNode {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("(CoolMethod: %s -> %s)", this.name, this.returnType));
+        sb.append(
+                String.format(
+                        "(CoolMethod: %s() -> %s)",
+                        this.name.getValueString(),
+                        this.returnType.getValueString()
+                )
+        );
         return sb.toString();
     }
 

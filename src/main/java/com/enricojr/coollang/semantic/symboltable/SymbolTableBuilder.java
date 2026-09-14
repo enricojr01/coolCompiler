@@ -10,9 +10,21 @@ public class SymbolTableBuilder implements AstVisitor {
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
         SymbolTable current = camd.getSymbols();
+
         CoolExpr lhs = camd.getLhs();
         lhs.setSymbols(new SymbolTable(current));
         lhs.accept(this);
+
+        CoolIdentifier className = camd.getClassName();
+        className.setSymbols(new SymbolTable(current));
+
+        CoolIdentifier methodName = camd.getMethodName();
+        methodName.setSymbols(new SymbolTable(current));
+
+        for (CoolExpr ce : camd.getArguments()) {
+            ce.setSymbols(new SymbolTable(current));
+            ce.accept(this);
+        }
     }
 
     @Override
@@ -93,18 +105,19 @@ public class SymbolTableBuilder implements AstVisitor {
 
         for (CoolAttribute ca : cc.getAttributes()) {
             ca.setSymbols(new SymbolTable(current));
+            ca.accept(this);
             CoolClass type = current.getSymbolType(ca.getTypeName());
-            // TODO: and here we see the weakness in my design
-            // I need to set the symbol table despite not actually doing anything with it
-            ca.setSymbols(new SymbolTable(current));
             current.addSymbolType(ca.getIdentifier(), type);
         }
 
         for (CoolMethod cm : cc.getMethods()) {
             SymbolTable method = new SymbolTable(current);
             cm.setSymbols(method);
-
             cm.accept(this);
+
+            CoolIdentifier returnType = cm.getReturnType();
+            CoolClass concreteReturnType = current.getSymbolType(returnType);
+            current.addMethod(cm.getName(), cm.getSymbols(), concreteReturnType, cm);
         }
 
         for (CoolClass child : cc.getChildren()) {
@@ -160,7 +173,9 @@ public class SymbolTableBuilder implements AstVisitor {
 
     @Override
     public void visitCoolIsVoid(CoolIsVoid civ) {
+        SymbolTable current = civ.getSymbols();
         CoolExpr expr = civ.getExpression();
+        expr.setSymbols(new SymbolTable(current));
         expr.accept(this);
     }
 
