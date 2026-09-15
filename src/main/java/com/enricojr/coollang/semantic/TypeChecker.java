@@ -8,205 +8,186 @@ import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
 import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class TypeChecker implements AstVisitor {
     private int indent = 0;
-    private final String space = " ";
     private final int offset = 2;
+    private String space = " ";
 
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
-        System.out.println(this.space.repeat(this.indent) + camd);
-        SymbolTable current = camd.getSymbols();
+        // method dispatch needs to check a few things
+        // first, that the left and right hand sides of the @ both eval to the
+        // types that conform to one another (equal or subrelated)
+        // second, that the # of arguments matches the number of parameters,
+        // third, that the type of each argument matches its corresponding parameter's type.
+        CoolExpr lhs = camd.getLhs();
+        CoolIdentifier rhs = camd.getClassName();
+        CoolClass lhsType = lhs.getComputedType();
+        CoolClass rhsType = rhs.getComputedType();
 
-        this.indent += offset;
-        CoolExpr ce = camd.getLhs();
-        ce.accept(this);
-        this.indent -= offset;
-
-        CoolClass exprType = ce.getComputedType();
-        CoolClass targetClass = current.getSymbolType(camd.getClassName());
-
-        if (!(CoolClass.equalOrSubrelation(exprType, targetClass))) {
-            String msg = String.format("Both sides of @ must evaluate to equal or subrelated classes, (%s @ %s).", exprType, targetClass);
-            throw TypeCheckerException.factory(msg, camd);
-        }
-
-        CoolIdentifier methodName = camd.getMethodName();
-        CoolMethod methodObj = exprType.classMethodSearch(methodName);
-        if (methodObj == null) {
+        if (!(CoolClass.equalOrSubrelation(lhsType, rhsType))) {
             String msg = String.format(
-                    "Class %s does not have a method named %s.",
-                    exprType.getNameString(),
-                    methodName.getValueString()
+                    "In method dispatch %s, the type of left hand side expression %s " +
+                            "does not match the class specified on the right hand side %s",
+                    camd,
+                    lhsType,
+                    rhsType
             );
             throw TypeCheckerException.factory(msg, camd);
         }
 
+        CoolIdentifier methodName = camd.getMethodName();
+        CoolMethod methodObj = rhsType.classMethodSearch(methodName);
+
         ArrayList<CoolExpr> args = camd.getArguments();
         ArrayList<CoolFormal> params = methodObj.getParameters().getParameters();
-        for (CoolExpr arg : args) {
-            for (CoolFormal cf : params) {
-                arg.accept(this);
-                CoolClass providedType = arg.getComputedType();
-                CoolClass expectedType = current.getSymbolType(cf.getType());
-                if (!(providedType.equalOrSubrelation(expectedType))) {
-                    String msg = String.format(
-                            "In method call %s, argument %s of type %s does not match expected type %s",
-                            camd,
-                            ce,
-                            providedType,
-                            expectedType
-                    );
-                    throw TypeCheckerException.factory(msg, camd);
-                }
-            }
+
+        if (args.size() != params.size()) {
+            String msg = String.format(
+                    "In method dispatch %s, the number of arguments passed in %s " +
+                            "does not match the number of parameters in the signature %s",
+                    camd,
+                    args.size(),
+                    params.size()
+            );
+            throw TypeCheckerException.factory(msg, camd);
         }
 
-        CoolClass resultType = current.getSymbolType(methodObj.getReturnType());
-        camd.setComputedType(resultType);
+        for (int i = 0; i < args.size(); i++) {
+            CoolExpr arg = args.get(i);
+            CoolFormal param = params.get(i);
+
+            this.indent += offset;
+            arg.accept(this);
+            this.indent -= offset;
+
+            CoolClass argType = arg.getComputedType();
+            CoolClass paramType = param.getComputedType();
+
+            if (!CoolClass.equalOrSubrelation(argType, paramType)) {
+                String msg = String.format(
+                        "In method dispatch %s, the type of argument #%s (%s) does " +
+                                "not match the type of its corresponding parameter (%s)",
+                        camd,
+                        i,
+                        argType,
+                        paramType
+                );
+                throw TypeCheckerException.factory(msg, camd);
+            }
+        }
     }
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
+        // NOTE: verify that the attribute init expression is of the same
+        // type as in the declaration.
         System.out.println(this.space.repeat(this.indent) + ca);
-        SymbolTable current = ca.getSymbols();
-        CoolClass declaredType = current.getSymbolType(ca.getTypeName());
 
-        CoolExpr value = ca.getInitExpression();
-        if (value != null) {
-            this.indent += offset;
-            value.accept(this);
-            CoolClass computedValueType = value.getComputedType();
+        this.indent += offset;
+        CoolExpr init = ca.getInitExpression();
+        // its not that anything needs to be done here I just need to traverse all the way through the tree
+        // to type check everything
+        init.accept(this);
+        this.indent -= offset;
 
-            if (!(declaredType.equalOrSubrelation(computedValueType))) {
-                String msg = String.format(
-                        "Value assigned to attribute %s does not match declared type %s",
-                        computedValueType.getName(),
-                        declaredType.getName()
-                );
-                throw TypeCheckerException.factory(msg, ca);
-            }
+        CoolClass declaredType = ca.getComputedType();
+        CoolClass initType = init.getComputedType();
 
-            ca.setComputedType(computedValueType);
-            this.indent -= offset;
-        } else {
-            ca.setComputedType(declaredType);
+        if (!(CoolClass.equalOrSubrelation(initType, declaredType))) {
+            String msg = String.format(
+                    "Attribute %s initialization does not match its declared type (declared: %s, received: %s)",
+                    ca,
+                    declaredType,
+                    initType
+            );
+            throw TypeCheckerException.factory(msg, ca);
         }
     }
 
     @Override
     public void visitCoolAssign(CoolAssign cas) {
+        // NOTE: need to check that the assignment expression type matches the type of the variable
         System.out.println(this.space.repeat(this.indent) + cas);
-
         SymbolTable current = cas.getSymbols();
-        CoolIdentifier variable = cas.getName();
-        CoolClass declaredType = current.getSymbolType(variable);
 
-        CoolExpr assignment = cas.getExpression();
+        CoolIdentifier varName = cas.getName();
+        CoolClass varType = current.getSymbolType(varName);
+
+        CoolExpr assign = cas.getExpression();
 
         this.indent += offset;
-        assignment.accept(this);
+        assign.accept(this);
         this.indent -= offset;
 
-        CoolClass computedType = assignment.getComputedType();
+        CoolClass assignType = assign.getComputedType();
 
-        if (!(computedType.equalOrSubrelation(declaredType))) {
+        if (!(CoolClass.equalOrSubrelation(assignType, varType))) {
             String msg = String.format(
-                    "Value of expression in assignment to %s (%s) does not match type of %s (%s)",
-                    variable.getValueString(),
-                    computedType,
-                    variable.getValueString(),
-                    declaredType
+                    "Type of assignment expression %s does not match declared type of variable %s (%s)",
+                    assignType,
+                    varName.getValueString(),
+                    varType
             );
+
             throw TypeCheckerException.factory(msg, cas);
         }
-
-        cas.setComputedType(computedType);
     }
 
     @Override
     public void visitCoolBinaryOp(CoolBinaryOp cbo) {
         System.out.println(this.space.repeat(this.indent) + cbo);
-
         SymbolTable current = cbo.getSymbols();
-        CoolBinaryOp.OPERATOR op = cbo.getOp();
 
-        this.indent += 1;
         CoolExpr lhs = cbo.getLhs();
-        lhs.accept(this);
-
         CoolExpr rhs = cbo.getRhs();
-        rhs.accept(this);
-        this.indent -= 1;
 
-        // add, mul, div, sub all take ints only
-        // LT, LTE, GT, GTE all take only bool
-        switch (op) {
-            case ADD:
-            case SUB:
-            case MUL:
-            case DIV: {
+        CoolClass lhsType = lhs.getComputedType();
+        CoolClass rhsType = rhs.getComputedType();
+
+        this.indent += offset;
+        lhs.accept(this);
+        rhs.accept(this);
+        this.indent -= offset;
+
+        CoolBinaryOp.OPERATOR op = cbo.getOp();
+        switch(op) {
+            case ADD, MUL, DIV, SUB, GT, GTE, LT, LTE: {
                 CoolClass expected = current.getSymbolType(new CoolIdentifier("Int"));
 
-                if (!(rhs.getComputedType().equalOrSubrelation(expected)) ||
-                        !(lhs.getComputedType().equalOrSubrelation(expected))) {
+                if (!(lhsType.equals(expected)) || !(rhsType.equals(expected))) {
                     String msg = String.format(
-                            "Left hand side %s and/or right hand side %s expression does not match expected value %s",
-                            lhs.getComputedType(),
-                            rhs.getComputedType(),
-                            expected
+                            "In binary operation %s, both left (%s) and right hand side (%s) must be of type Int",
+                            cbo,
+                            lhsType,
+                            rhsType
                     );
                     throw TypeCheckerException.factory(msg, cbo);
                 }
-
-                CoolClass computedType = current.getSymbolType(new CoolIdentifier("Int"));
-                cbo.setComputedType(computedType);
                 break;
             }
             case EQ: {
-                if (!(CoolClass.equalOrSubrelation(lhs.getComputedType(), rhs.getComputedType()))) {
+                if (!(CoolClass.equalOrSubrelation(lhsType, rhsType))) {
                     String msg = String.format(
-                            "Left hand side %s and right hand side of %s operation must conform or be equal",
-                            lhs.getComputedType(),
-                            rhs.getComputedType(),
-                            op
+                            "In binary operation %s, left (%s) and right hand sides (%s) must be equal or subrelated",
+                            cbo,
+                            lhsType,
+                            rhsType
                     );
                     throw TypeCheckerException.factory(msg, cbo);
                 }
-                CoolClass computedType = current.getSymbolType(new CoolIdentifier("Bool"));
-                cbo.setComputedType(computedType);
                 break;
             }
-            case GT:
-            case GTE:
-            case LT:
-            case LTE: {
-                CoolClass expected = current.getSymbolType(new CoolIdentifier("Int"));
-
-                if (!(rhs.getComputedType().equalOrSubrelation(expected)) ||
-                        !(lhs.getComputedType().equalOrSubrelation(expected))) {
-                    String msg = String.format(
-                            "Left hand side %s and/or right hand side %s of %s operation does not match expected value %s",
-                            lhs.getComputedType(),
-                            rhs.getComputedType(),
-                            op,
-                            expected
-                    );
-                    throw TypeCheckerException.factory(msg, cbo);
-                }
-
-                CoolClass computedType = current.getSymbolType(new CoolIdentifier("Bool"));
-                cbo.setComputedType(computedType);
-                break;
+            default: {
+                String msg = String.format("Binary operation %s uses unknown operator %s. This shouldn't happen.");
+                throw TypeCheckerException.factory(msg, cbo);
             }
         }
     }
 
     @Override
     public void visitCoolBlock(CoolBlock cb) {
-        // the type of a block is the type of the last expression in that block
         System.out.println(this.space.repeat(this.indent) + cb);
 
         this.indent += offset;
@@ -214,35 +195,27 @@ public class TypeChecker implements AstVisitor {
             ce.accept(this);
         }
         this.indent -= offset;
-
-        CoolExpr last = cb.getExpressions().getLast();
-        cb.setComputedType(last.getComputedType());
     }
 
     @Override
     public void visitCoolCase(CoolCase cca) {
         System.out.println(this.space.repeat(this.indent) + cca);
 
-        SymbolTable current = cca.getSymbols();
-        for (CoolCaseBranch ccb : cca.getBranches()) {
+        CoolExpr expr0 = cca.getPredicate();
+        CoolClass expr0Type = expr0.getComputedType();
+
+        for (CoolCaseBranch ccb : cca.getBranches())  {
             ccb.accept(this);
         }
 
-        LinkedList<CoolClass> stack = new LinkedList<>(
-                cca.getBranches()
-                    .stream()
-                    .map(x -> x.getComputedType())
-                    .toList()
-        );
-
-        while (stack.size() != 1) {
-            CoolClass cc1 = stack.pop();
-            CoolClass cc2 = stack.pop();
-            CoolClass result = CoolClass.leastCommonAncestor(cc1, cc2);
-            stack.push(result);
+        if (CoolClass.equalOrSubrelation(expr0Type, cca.getComputedType())) {
+            String msg = String.format(
+                    "None of the branches in case expression %s are equal or subrelated to the type of expr0 (%s)",
+                    cca,
+                    expr0Type
+            );
+            throw TypeCheckerException.factory(msg, cca);
         }
-
-        cca.setComputedType(stack.getFirst());
     }
 
     @Override
@@ -250,12 +223,9 @@ public class TypeChecker implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + ccb);
 
         this.indent += offset;
-        CoolExpr expr = ccb.getExpression();
-        expr.accept(this);
+        CoolExpr ce = ccb.getExpression();
+        ce.accept(this);
         this.indent -= offset;
-
-        CoolClass result = expr.getComputedType();
-        ccb.setComputedType(result);
     }
 
     @Override
@@ -280,191 +250,111 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
         System.out.println(this.space.repeat(this.indent) + cdmd);
-        SymbolTable current = cdmd.getSymbols();
 
-        this.indent += offset;
-        CoolExpr className = cdmd.getClassName();
-        className.accept(this);
-        this.indent -= offset;
-
-        CoolClass concreteClass = null;
-
-        if (className instanceof CoolIdentifier) {
-            CoolIdentifier ci = (CoolIdentifier) className;
-            concreteClass = current.getSymbolType(ci);
-        } else {
-            concreteClass = className.getComputedType();
-        }
-
-        if (concreteClass == null) {
-            String msg = String.format("" +
-                    "Static dot method dispatch expression evalutates to invalid type: %s",
-                    className.getComputedType()
-            );
-            throw TypeCheckerException.factory(msg, cdmd);
-        }
-
-        // check for the correct method by name
+        CoolClass classObj = cdmd.getClassName().getComputedType();
         CoolIdentifier methodName = cdmd.getMethodName();
-        CoolMethod methodObj = concreteClass.classMethodSearch(methodName);
-        if (methodObj == null) {
-            String msg = String.format(
-                    "Class %s does not have method named method %s.",
-                    concreteClass.getNameString(),
-                    methodName.getValueString()
-            );
-            throw TypeCheckerException.factory(msg, concreteClass);
-        }
+        CoolMethod methodObj = classObj.classMethodSearch(methodName);
 
-        // check for the correct # of params/args
         ArrayList<CoolExpr> args = cdmd.getArguments();
         ArrayList<CoolFormal> params = methodObj.getParameters().getParameters();
+
         if (args.size() != params.size()) {
             String msg = String.format(
-                    "Method call %s has the incorrect # of arguments. Expected %s and but only %s were found.",
-                    methodObj.getName().getValueString(),
-                    params.size(),
-                    args.size()
+                    "In method dispatch %s, the number of arguments passed in (%s) " +
+                    "does not match the number of parameters in the method signature (%s)",
+                    cdmd,
+                    args.size(),
+                    params.size()
             );
             throw TypeCheckerException.factory(msg, cdmd);
         }
 
-        // check each arg to see if it matches the formal definition, both position and type must match
         for (int i = 0; i < args.size(); i++) {
-            CoolExpr ce = args.get(i);
-            CoolFormal cf = params.get(i);
+            CoolExpr arg = args.get(i);
+            CoolFormal param = params.get(i);
 
             this.indent += offset;
-            ce.accept(this);
+            arg.accept(this);
             this.indent -= offset;
 
-            CoolClass providedType = ce.getComputedType();
-            CoolClass expectedType = current.getSymbolType(cf.getType());
-            if (!(providedType.equalOrSubrelation(expectedType))) {
+            CoolClass argType = arg.getComputedType();
+            CoolClass paramType = param.getComputedType();
+
+            if (!(CoolClass.equalOrSubrelation(argType, paramType))) {
                 String msg = String.format(
-                        "In method call %s, argument %s of type %s does not match expected type %s",
+                        "In method dispatch %s, the type of argument #%s (%s) does " +
+                                "not match the type of its corresponding parameter (%s)",
                         cdmd,
-                        ce,
-                        providedType,
-                        expectedType
+                        i,
+                        argType,
+                        paramType
                 );
                 throw TypeCheckerException.factory(msg, cdmd);
             }
         }
-
-        // NOTE: given `(new LambdaListRef).reset()` where reset returns SELF_TYPE,
-        // SELF_TYPE should be of type LambdaListRef, not of Main (the calling class)
-        // maybe consider rewriting SELF_TYPE at the time its type is computed?
-        CoolClass computedType = current.getSymbolType(methodObj.getReturnType());
-        cdmd.setComputedType(computedType);
     }
 
     @Override
     public void visitCoolExpr(CoolExpr ce) {
-        ce.accept(this);
+        // nothing to do here
     }
 
     @Override
     public void visitCoolFormal(CoolFormal cf) {
-        // TODO: Should this not have been done while building the symbol table
-        System.out.println(this.space.repeat(this.indent) + cf);
-        SymbolTable current = cf.getSymbols();
-        CoolClass target = current.getSymbolType(cf.getType());
-        if (target == null) {
-            String msg = String.format(
-                    "Variable %s declares a type %s that does not exist!",
-                    cf.getName(),
-                    cf.getType()
-            );
-            throw TypeCheckerException.factory(msg, cf);
-        }
-
-        cf.setComputedType(target);
+        // nothing to do here
     }
 
     @Override
     public void visitCoolIf(CoolIf cif) {
         System.out.println(this.space.repeat(this.indent) + cif);
         SymbolTable current = cif.getSymbols();
-        CoolClass boolTarget = current.getSymbolType(new CoolIdentifier("Bool"));
 
-        this.indent += offset;
-        CoolExpr pred = cif.getGuard();
-        pred.accept(this);
+        CoolExpr guard = cif.getGuard();
+        guard.accept(this);
+        CoolClass expectedGuardType = current.getSymbolType(new CoolIdentifier("Bool"));
+        CoolClass actualGuardType=  guard.getComputedType();
 
-        if (!(pred.getComputedType().equals(boolTarget))) {
-            String msg = String.format("Predicate of an if statement must be a bool");
+        if (!(actualGuardType.equals(expectedGuardType))) {
+            String msg = String.format("In if-expression %s, guard clause must be of type Bool", cif);
             throw TypeCheckerException.factory(msg, cif);
-        }
-
-        CoolExpr thenExpr = cif.getConsequent();
-        thenExpr.accept(this);
-        CoolExpr elseExpr = cif.getAlternative();
-        elseExpr.accept(this);
-        this.indent -= offset;
-
-        // the type of an if statement is the least upper bound type between the consequent
-        // and alternative. throw an exception if they're not
-        CoolClass result = CoolClass.leastCommonAncestor(thenExpr.getComputedType(), elseExpr.getComputedType());
-        if (result == null) {
-            String msg = String.format(
-                    "Type mismatch between consequent and alternative, %s, %s.",
-                    thenExpr.getComputedType(),
-                    elseExpr.getComputedType()
-            );
-            throw TypeCheckerException.factory(msg, cif);
-
-        } else {
-            cif.setComputedType(result);
         }
     }
 
-    // NOTE: check newA2I
     @Override
     public void visitCoolInstantiate(CoolInstantiate ci) {
         System.out.println(this.space.repeat(this.indent) + ci);
         SymbolTable current = ci.getSymbols();
-        CoolClass cc = current.getSymbolType(ci.getIdentifier());
-        if (cc == null) {
-            String msg = String.format("Cannot instantiate non-existant type %s", ci.getIdentifier());
-            throw TypeCheckerException.factory(msg, ci);
-        } else {
-            ci.setComputedType(cc);
-        }
+
+        CoolIdentifier newName = ci.getIdentifier();
+        CoolClass newType = ci.getComputedType();
+        CoolClass newObj = current.getSymbolType(newName);
+
+        // TODO: circle back around to this - I need some way of determining, outside of these two constructs
+        // if the SELF_TYPE returned by SymbolType is the _correct_ SELF_TYPE, i.e. the classs that contains the
+        // instantiation. I'm certain that the symbol table lookup will give me the right one, but how do I verify that
+        // without something on the outside looking in?
     }
 
     @Override
     public void visitCoolIsVoid(CoolIsVoid civ) {
-        System.out.println(this.space.repeat(this.indent) + civ);
 
-        SymbolTable current = civ.getSymbols();
-        CoolClass boolType = current.getSymbolType(new CoolIdentifier("Bool"));
-        civ.setComputedType(boolType);
     }
 
     @Override
     public void visitCoolLet(CoolLet cl) {
-        System.out.println(this.space.repeat(this.indent) + cl);
 
-        // the type of any let expression is the type of the last expression in its body.
-        this.indent += offset;
-        for (CoolAttribute ca : cl.getAttributes()) {
-            ca.accept(this);
-        }
-        CoolExpr body = cl.getExpression();
-        body.accept(this);
-        this.indent -= offset;
-
-        cl.setComputedType(body.getComputedType());
     }
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
-        // goal: make sure that the method returns a value that matches its type
-        // the type of the method is the type of the final expression in its body
+        // NOTE: check to see that the last expression in the method body is the same as the
+        // return type declared in its signature.
+        // NOTE: also sanity check every expression in the program
         System.out.println(this.space.repeat(this.indent) + cm);
-        SymbolTable current = cm.getSymbols();
-        CoolClass returnType = current.getMethodType(cm.getName());
+        CoolClass declaredType = cm.getComputedType();
+
+        CoolExpr lastExpr = cm.getBody().getLast();
+        CoolClass lastExprType = lastExpr.getComputedType();
 
         this.indent += offset;
         for (CoolExpr ce : cm.getBody()) {
@@ -472,77 +362,21 @@ public class TypeChecker implements AstVisitor {
         }
         this.indent -= offset;
 
-        CoolExpr last = cm.getBody().getLast();
-        CoolClass lastType = last.getComputedType();
-        if (!(lastType.equalOrSubrelation(returnType))) {
+        if (!(CoolClass.equalOrSubrelation(lastExprType, declaredType))) {
             String msg = String.format(
-                    "Return value of method %s (%s) does not match its declared return type %s.",
-                    cm.getName(),
-                    lastType,
-                    returnType
+                    "Method %m final expression type does not match its declared return type. (declared: %s, received: %s)",
+                    cm,
+                    declaredType,
+                    lastExprType
             );
+
             throw TypeCheckerException.factory(msg, cm);
         }
-
-        cm.setComputedType(returnType);
     }
 
     @Override
     public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
-        System.out.println(this.space.repeat(this.indent) + cmd);
-        SymbolTable current = cmd.getSymbols();
-        CoolIdentifier methodName = cmd.getIdentifier();
-        CoolClass targetClass = current.getSymbolType(new CoolIdentifier("SELF_TYPE"));
 
-        // check to see if the method exists, this style of dispatch is shorthand for `self.ID(ARG1, ARG2, ..., ARGN)`
-        CoolMethod method = targetClass.classMethodSearch(methodName);
-        if (method == null) {
-            String msg = String.format("Method %s does not exist on class %s!", method.getNameString(), targetClass.getNameString());
-            throw TypeCheckerException.factory(msg, cmd);
-        }
-
-        // check to see if the # of arguments equals the # of parameters
-        ArrayList<CoolExpr> args = cmd.getArguments();
-        if (args.size() != method.getParameters().getParameters().size()) {
-            String msg = String.format(
-                    "Method call %s does not have the right number of arguments, received %s expected %s",
-                    cmd,
-                    args.size(),
-                    method.getParameters().getParameters().size()
-            );
-            throw TypeCheckerException.factory(msg, cmd);
-        }
-
-        for (int i = 0; i < args.size(); i++) {
-            CoolExpr arg = args.get(i);
-            CoolFormal param = method.getParameters().getParameters().get(i);
-
-            this.indent += offset;
-            arg.accept(this);
-            param.accept(this);
-            this.indent -= offset;
-
-            CoolClass argType = arg.getComputedType();
-            CoolClass paramType = param.getComputedType();
-
-            if (!(argType.equals(paramType))) {
-                String msg = String.format(
-                        "Argument %s with type %s does not match parameter %s with type %s in call to method %s.%s",
-                        arg,
-                        argType.getNameString(),
-                        param,
-                        paramType.getNameString(),
-                        targetClass.getNameString(),
-                        methodName.getValueString()
-                );
-                throw TypeCheckerException.factory(msg, cmd);
-            }
-        }
-
-        // check that each arg matches the type of its corresponding parameter, i.e. args must match positionally
-        // according to type.
-        CoolClass returnType = current.getSymbolType(method.getReturnType());
-        cmd.setComputedType(returnType);
     }
 
     @Override
@@ -552,15 +386,7 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolParenthesisExpr(CoolParenthesisExpr cpe) {
-        System.out.println(this.space.repeat(this.indent) + cpe);
-        CoolExpr expr = cpe.getExpression();
 
-        this.indent += offset;
-        expr.accept(this);
-        this.indent -= offset;
-
-        CoolClass result = expr.getComputedType();
-        cpe.setComputedType(result);
     }
 
     @Override
@@ -570,90 +396,36 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolUnaryOp(CoolUnaryOp cuo) {
-        System.out.println(this.space.repeat(this.indent) + cuo);
-        SymbolTable current = cuo.getSymbols();
-        CoolUnaryOp.OPERATOR op = cuo.getOp();
 
-        switch (op) {
-            case NOT: {
-                CoolClass result = current.getSymbolType(new CoolIdentifier("Bool"));
-                cuo.setComputedType(result);
-                break;
-            }
-            case COMPLEMENT: {
-                CoolClass result = current.getSymbolType(new CoolIdentifier("Int"));
-                cuo.setComputedType(result);
-                break;
-            }
-            default: {
-                String msg = String.format("Expression %s has invalid operator type %s", cuo, op);
-                throw TypeCheckerException.factory(msg, cuo);
-            }
-        }
     }
 
     @Override
     public void visitCoolWhile(CoolWhile cw) {
-        System.out.println(this.space.repeat(this.indent) + cw);
 
-        SymbolTable current = cw.getSymbols();
-        CoolExpr pred = cw.getPredicate();
-        CoolExpr body = cw.getBody();
-
-        this.indent += offset;
-        pred.accept(this);
-        CoolClass predType = pred.getComputedType();
-        CoolClass requiredType = current.getSymbolType(new CoolIdentifier("Bool"));
-        if (!(predType.equals(requiredType))) {
-            String msg = String.format("Predicate of a while loop must have static type Bool");
-            throw TypeCheckerException.factory(msg, cw);
-        }
-
-        body.accept(this);
-        CoolClass bodyType = body.getComputedType();
-        this.indent -= offset;
-
-        cw.setComputedType(bodyType);
     }
 
     @Override
     public void visitCoolString(CoolString cs) {
-        System.out.println(this.space.repeat(this.indent) + cs);
-        SymbolTable current = cs.getSymbols();
-        cs.setComputedType(current.getSymbolType(new CoolIdentifier("String")));
+
     }
 
     @Override
     public void visitCoolBool(CoolBool cb) {
-        System.out.println(this.space.repeat(this.indent) + cb);
-        SymbolTable current = cb.getSymbols();
-        cb.setComputedType(current.getSymbolType(new CoolIdentifier("Bool")));
+
     }
 
     @Override
     public void visitCoolInteger(CoolInteger ci) {
-        System.out.println(this.space.repeat(this.indent) + ci);
-        SymbolTable current = ci.getSymbols();
-        ci.setComputedType(current.getSymbolType(new CoolIdentifier("Int")));
+
     }
 
     @Override
     public void visitCoolSelf(CoolSelf cs) {
-        System.out.println(this.space.repeat(this.indent) + cs);
-        SymbolTable current = cs.getSymbols();
-        cs.setComputedType(current.getSymbolType(new CoolIdentifier("SELF_TYPE")));
+
     }
 
     @Override
     public void visitCoolIdentifier(CoolIdentifier ci) {
-        System.out.println(this.space.repeat(this.indent) + ci);
-        SymbolTable current = ci.getSymbols();
-        CoolClass declaredType = current.getSymbolType(ci);
-        if (declaredType == null) {
-            String msg = String.format("Identifier %s not found in symbol table.", ci.getValueString());
-            throw TypeCheckerException.factory(msg, ci);
-        } else {
-            ci.setComputedType(declaredType);
-        }
+
     }
 }

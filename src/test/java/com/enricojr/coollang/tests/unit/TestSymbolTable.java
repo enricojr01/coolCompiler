@@ -1,4 +1,4 @@
-package com.enricojr.coollang.tests;
+package com.enricojr.coollang.tests.unit;
 
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolBaseNode;

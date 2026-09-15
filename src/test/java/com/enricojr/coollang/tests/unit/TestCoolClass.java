@@ -1,4 +1,4 @@
-package com.enricojr.coollang.tests;
+package com.enricojr.coollang.tests.unit;
 
 import com.enricojr.coollang.ast.builtins.CoolObjectType;
 import com.enricojr.coollang.ast.program.CoolClass;

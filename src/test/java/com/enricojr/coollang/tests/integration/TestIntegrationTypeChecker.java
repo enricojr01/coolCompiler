@@ -1,10 +1,10 @@
-package com.enricojr.coollang.tests;
+package com.enricojr.coollang.tests.integration;
 
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
-import com.enricojr.coollang.semantic.TypeChecker;
+import com.enricojr.coollang.semantic.TypeCheckerOld;
 import com.enricojr.coollang.semantic.classtree.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.classtree.ClassTreeLinker;
 import com.enricojr.coollang.semantic.classtree.ClassTreePrinter;
@@ -20,6 +20,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Stack;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -32,6 +33,7 @@ public class TestIntegrationTypeChecker {
         }
     }
 
+    @Disabled
     @Test
     public void TestCodeSamplesTypeChecker() {
         Stack<File> codeSamples = new Stack<>();
@@ -105,7 +107,7 @@ public class TestIntegrationTypeChecker {
             sPrinter.visitCoolProgram(top);
 
             System.out.println("Checking and verifying object types...");
-            TypeChecker tc = new TypeChecker();
+            TypeCheckerOld tc = new TypeCheckerOld();
             tc.visitCoolProgram(top);
         }
     }

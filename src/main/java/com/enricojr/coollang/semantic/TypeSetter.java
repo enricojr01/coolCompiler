@@ -35,6 +35,16 @@ public class TypeSetter implements AstVisitor {
         CoolClass classObj = className.getComputedType();
         CoolMethod methodObj = classObj.classMethodSearch(methodName);
 
+        if (methodObj == null) {
+            String msg = String.format(
+                    "In @ method dispatch %s, no method named %s exists on class %s.",
+                    camd,
+                    methodName.getValueString(),
+                    classObj.getNameString()
+            );
+            throw TypeCheckerException.factory(msg, camd);
+        }
+
         for (CoolExpr ce : camd.getArguments()) {
             ce.accept(this);
         }
@@ -114,6 +124,9 @@ public class TypeSetter implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cca);
 
         this.indent += 1;
+        CoolExpr expr0 = cca.getPredicate();
+        expr0.accept(this);
+
         for (CoolCaseBranch ccb : cca.getBranches()) {
             ccb.accept(this);
         }
@@ -181,8 +194,14 @@ public class TypeSetter implements AstVisitor {
 
         CoolIdentifier methodName = cdmd.getMethodName();
         CoolMethod method = concreteClass.classMethodSearch(methodName);
+
         if (method == null) {
-            String msg = String.format("Class %s does not have method named %s.");
+            String msg = String.format(
+                    "In method dispatch %s, class %s does not have method named %s.",
+                    cdmd,
+                    concreteClass.getNameString(),
+                    methodName.getValueString()
+            );
             throw TypeCheckerException.factory(msg, cdmd);
         }
 
@@ -310,9 +329,21 @@ public class TypeSetter implements AstVisitor {
         }
         this.indent -= offset;
 
-        CoolIdentifier methodName = cmd.getIdentifier();
         CoolClass targetClass = current.getSymbolType(new CoolIdentifier("SELF_TYPE"));
+        CoolIdentifier methodName = cmd.getIdentifier();
         CoolMethod method = targetClass.classMethodSearch(methodName);
+
+        if (method == null) {
+            String msg = String.format(
+                    "In method dispatch %s, class %s does not have a method named %s",
+                    cmd,
+                    targetClass.getNameString(),
+                    methodName.getValueString()
+            );
+
+            throw TypeCheckerException.factory(msg, cmd);
+        }
+
         CoolIdentifier methodReturnType = method.getReturnType();
         CoolClass computedReturnType = current.getSymbolType(methodReturnType);
 

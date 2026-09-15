@@ -1,15 +1,9 @@
-package com.enricojr.coollang.tests;
+package com.enricojr.coollang.tests.integration;
 
-import com.enricojr.coollang.ast.AstBuilder;
-import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
-import com.enricojr.coollang.semantic.classtree.ClassTreeBuilder;
-import com.enricojr.coollang.semantic.classtree.ClassTreeLinker;
-import com.enricojr.coollang.semantic.classtree.ClassTreePrinter;
-import com.enricojr.coollang.semantic.classtree.ClassTreeSetup;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import com.enricojr.coollang.parser.CoolParser.ProgContext;
+import org.antlr.v4.runtime.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -17,10 +11,9 @@ import java.io.*;
 import java.util.List;
 import java.util.Stack;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TestIntegrationClassTree {
+public class TestIntegrationParser {
     private static class CoolFileFilter implements FilenameFilter {
         public boolean accept(File dir, String name) {
             String ext = FilenameUtils.getExtension(name);
@@ -28,11 +21,24 @@ public class TestIntegrationClassTree {
         }
     }
 
+    public static class TestCancelListener extends BaseErrorListener {
+        @Override
+        public void syntaxError(
+                Recognizer<?, ?> recognizer,
+                Object offendingSymbol,
+                int line, int charPositionInLine,
+                String msg, RecognitionException e
+        ) {
+            String errorMsg = String.format("Syntax error on %s:%s (line:charPosition)", line, charPositionInLine);
+            fail(errorMsg);
+        }
+    }
+
     @Test
-    public void TestCodeSamplesClassTree() {
+    public void TestCodeSamplesParse() {
         Stack<File> codeSamples = new Stack<>();
         File coolSamplesDir = new File("./coolExamples");
-        File[] files = coolSamplesDir.listFiles(new TestIntegrationClassTree.CoolFileFilter());
+        File[] files = coolSamplesDir.listFiles(new CoolFileFilter());
         if (files == null) {
             fail("No Cool files found in the ./coolExamples directory.");
         } else {
@@ -44,7 +50,7 @@ public class TestIntegrationClassTree {
             System.out.println("Testing parser/lexer on file: " + sample);
             FileInputStream fis = null;
             ANTLRInputStream ais = null;
-            TestIntegrationParser.TestCancelListener tcl = new TestIntegrationParser.TestCancelListener();
+            TestCancelListener tcl = new TestCancelListener();
 
             try {
                 fis = new FileInputStream(sample);
@@ -68,25 +74,8 @@ public class TestIntegrationClassTree {
             cpa.removeErrorListeners();
             cpa.addErrorListener(tcl);
 
-            CoolParser.ProgContext prog = cpa.prog();
-            AstBuilder ab = new AstBuilder();
-            CoolProgram top = (CoolProgram) ab.visit(prog);
-
-            System.out.println("Setting up class tree...");
-            ClassTreeSetup ctset = new ClassTreeSetup();
-            ctset.visitCoolProgram(top);
-
-            System.out.println("Linking classes...");
-            ClassTreeLinker ctl = new ClassTreeLinker();
-            ctl.visitCoolProgram(top);
-
-            System.out.println("Enforcing inheritance rules...");
-            ClassTreeBuilder ctb = new ClassTreeBuilder();
-            ctb.visitCoolProgram(top);
-
-            System.out.println("Printing class tree...");
-            ClassTreePrinter ctp = new ClassTreePrinter();
-            ctp.visitCoolProgram(top);
+            ProgContext prog = cpa.prog();
+            assertNotNull(prog);
         }
     }
 }

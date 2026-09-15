@@ -1,10 +1,9 @@
-package com.enricojr.coollang.tests;
+package com.enricojr.coollang.tests.integration;
 
 import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
-import com.enricojr.coollang.semantic.TypeSetter;
 import com.enricojr.coollang.semantic.classtree.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.classtree.ClassTreeLinker;
 import com.enricojr.coollang.semantic.classtree.ClassTreePrinter;
@@ -23,7 +22,7 @@ import java.util.Stack;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestIntegrationTypeSetter {
+public class TestIntegrationSymbolTable {
     private static class CoolFileFilter implements FilenameFilter {
         public boolean accept(File dir, String name) {
             String ext = FilenameUtils.getExtension(name);
@@ -35,7 +34,7 @@ public class TestIntegrationTypeSetter {
     public void TestCodeSamplesSymbolTable() {
         Stack<File> codeSamples = new Stack<>();
         File coolSamplesDir = new File("./coolExamples");
-        File[] files = coolSamplesDir.listFiles(new TestIntegrationTypeSetter.CoolFileFilter());
+        File[] files = coolSamplesDir.listFiles(new TestIntegrationSymbolTable.CoolFileFilter());
         if (files == null) {
             fail("No Cool files found in the ./coolExamples directory.");
         } else {
@@ -87,6 +86,10 @@ public class TestIntegrationTypeSetter {
             ClassTreeBuilder ctb = new ClassTreeBuilder();
             ctb.visitCoolProgram(top);
 
+            System.out.println("Printing class tree...");
+            ClassTreePrinter ctp = new ClassTreePrinter();
+            ctp.visitCoolProgram(top);
+
             System.out.println("Initializing/Linking class symbol tables...");
             SymbolTableLinker sLinker = new SymbolTableLinker();
             sLinker.visitCoolProgram(top);
@@ -95,9 +98,9 @@ public class TestIntegrationTypeSetter {
             SymbolTableBuilder sBuilder = new SymbolTableBuilder();
             sBuilder.visitCoolProgram(top);
 
-            System.out.println("Initializing type setter...");
-            TypeSetter ts = new TypeSetter();
-            ts.visitCoolProgram(top);
+            System.out.println("Printing symbol tables...");
+            SymbolTablePrinter sPrinter = new SymbolTablePrinter();
+            sPrinter.visitCoolProgram(top);
         }
     }
 }
