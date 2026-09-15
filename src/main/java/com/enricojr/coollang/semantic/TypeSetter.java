@@ -135,7 +135,7 @@ public class TypeSetter implements AstVisitor {
         LinkedList<CoolClass> stack = new LinkedList<>(
                 cca.getBranches()
                         .stream()
-                        .map(x -> x.getComputedType())
+                        .map(CoolExpr::getComputedType)
                         .toList()
         );
 
@@ -227,7 +227,7 @@ public class TypeSetter implements AstVisitor {
         CoolIdentifier type = cf.getType();
         CoolClass concreteType = current.getSymbolType(type);
 
-        cf.setComputedType(concreteType);;
+        cf.setComputedType(concreteType);
     }
 
     @Override
@@ -412,6 +412,7 @@ public class TypeSetter implements AstVisitor {
     @Override
     public void visitCoolWhile(CoolWhile cw) {
         System.out.println(this.space.repeat(this.indent) + cw);
+        SymbolTable current = cw.getSymbols();
 
         this.indent += offset;
         CoolExpr pred = cw.getPredicate();
@@ -421,7 +422,7 @@ public class TypeSetter implements AstVisitor {
         body.accept(this);
         this.indent -= offset;
 
-        CoolClass bodyType = cw.getComputedType();
+        CoolClass bodyType = current.getSymbolType(new CoolIdentifier("Object"));
         cw.setComputedType(bodyType);
     }
 

@@ -337,12 +337,39 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolIsVoid(CoolIsVoid civ) {
-
+        System.out.println(this.space.repeat(this.indent) + civ);
+        CoolExpr ce = civ.getExpression();
+        ce.accept(this);
     }
 
     @Override
     public void visitCoolLet(CoolLet cl) {
+        System.out.println(this.space.repeat(this.indent) + cl);
+        SymbolTable current = cl.getSymbols();
 
+        this.indent += offset;
+        ArrayList<CoolAttribute> attributes = cl.getAttributes();
+        for (CoolAttribute ca : attributes) {
+            if (ca.getInitExpression() != null) {
+                CoolExpr initExpr = ca.getInitExpression();
+                initExpr.accept(this);
+
+                CoolIdentifier declaredType = ca.getTypeName();
+                CoolClass concreteType = current.getSymbolType(declaredType);
+                CoolClass initType = initExpr.getComputedType();
+
+                if (!(CoolClass.equalOrSubrelation(concreteType, initType))) {
+                    String msg = String.format(
+                            "Initialization of variable %s evaluates to incorrect type. Expected: %s, actual: %s",
+                            ca.getIdentifier().getValueString(),
+                            ca.getTypeName().getValueString(),
+                            initType.getNameString()
+                    );
+                    throw TypeCheckerException.factory(msg, cl);
+                }
+            }
+        }
+        this.indent -= offset;
     }
 
     @Override
@@ -364,7 +391,7 @@ public class TypeChecker implements AstVisitor {
 
         if (!(CoolClass.equalOrSubrelation(lastExprType, declaredType))) {
             String msg = String.format(
-                    "Method %m final expression type does not match its declared return type. (declared: %s, received: %s)",
+                    "Method %s final expression type does not match its declared return type. (declared: %s, received: %s)",
                     cm,
                     declaredType,
                     lastExprType
@@ -376,17 +403,43 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
+        System.out.println(this.space.repeat(this.indent) + cmd);
+        SymbolTable current = cmd.getSymbols();
 
+        CoolIdentifier methodName = cmd.getIdentifier();
+        // method dispatch is basically a shorthand for SELF_TYPE.<method_name>(<args>) i.e. the class name
+        // is assumed to be SELF_TYPE
+        CoolClass classObj = current.getSymbolType(new CoolIdentifier("SELF_TYPE"));
+        CoolMethod methodObj = classObj.classMethodSearch(methodName);
+
+        ArrayList<CoolExpr> args = cmd.getArguments();
+        ArrayList<CoolFormal> params = methodObj.getParameters().getParameters();
+
+        if (args.size() != params.size()) {
+            String msg = String.format(
+                    "In method dispatch %s, number of arguments provided (%s) does not match the number of parameters in its declaration (%s).",
+                    cmd,
+                    args.size(),
+                    params.size()
+            );
+            throw TypeCheckerException.factory(msg, cmd);
+        }
     }
 
     @Override
     public void visitCoolParamList(CoolParamList cpl) {
-
+        // nothing to do here
     }
 
     @Override
     public void visitCoolParenthesisExpr(CoolParenthesisExpr cpe) {
+        System.out.println(this.space.repeat(this.indent) + cpe);
 
+        CoolExpr expr = cpe.getExpression();
+
+        this.indent += offset;
+        expr.accept(this);
+        this.indent -= offset;
     }
 
     @Override
@@ -396,12 +449,71 @@ public class TypeChecker implements AstVisitor {
 
     @Override
     public void visitCoolUnaryOp(CoolUnaryOp cuo) {
+        System.out.println(this.space.repeat(this.indent) + cuo);
+        SymbolTable current = cuo.getSymbols();
+        CoolExpr expr = cuo.getExpression();
+        CoolUnaryOp.OPERATOR op = cuo.getOp();
 
+        this.indent += offset;
+        expr.accept(this);
+        this.indent -= offset;
+
+        CoolClass exprType = expr.getComputedType();
+
+        switch(op) {
+            case NOT: {
+                CoolClass expectedType = current.getSymbolType(new CoolIdentifier("Bool"));
+                if (!(exprType.equals(expectedType))) {
+                    String msg = String.format(
+                            "In unary expression %s, expression must be of type Bool. (received: %s)",
+                            cuo,
+                            exprType
+                    );
+                    throw TypeCheckerException.factory(msg, cuo);
+                }
+                break;
+            }
+            case COMPLEMENT: {
+                CoolClass expectedType = current.getSymbolType(new CoolIdentifier("Int"));
+                if (!(exprType.equals(expectedType))) {
+                    String msg = String.format(
+                            "In unary expression %s, expression must be of type Int. (received %s)",
+                            cuo,
+                            exprType
+                    );
+                    throw TypeCheckerException.factory(msg, cuo);
+                }
+                break;
+            }
+            default: {
+                String msg = String.format("Unary expression %s uses unknown operator %s", cuo, op);
+                throw TypeCheckerException.factory(msg, cuo);
+            }
+        }
     }
 
     @Override
     public void visitCoolWhile(CoolWhile cw) {
+        System.out.println(this.space.repeat(this.indent) + cw);
+        SymbolTable current = cw.getSymbols();
 
+        CoolExpr guard = cw.getPredicate();
+        guard.accept(this);
+
+        CoolExpr body = cw.getBody();
+        body.accept(this);
+
+        CoolClass guardType = guard.getComputedType();
+        CoolClass expectedType = current.getSymbolType(new CoolIdentifier("Bool"));
+
+        if (!(guardType.equals(expectedType))) {
+            String msg = String.format(
+                    "In while statement %s, predicate must be of type Bool (received: %s).",
+                    cw,
+                    guardType
+            );
+            throw TypeCheckerException.factory(msg, cw);
+        }
     }
 
     @Override
