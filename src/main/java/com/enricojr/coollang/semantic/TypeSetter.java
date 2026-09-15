@@ -90,14 +90,42 @@ public class TypeSetter implements AstVisitor {
     @Override
     public void visitCoolBinaryOp(CoolBinaryOp cbo) {
         System.out.println(this.space.repeat(this.indent) + cbo);
+        SymbolTable current = cbo.getSymbols();
+
         CoolExpr lhs = cbo.getLhs();
         CoolExpr rhs = cbo.getRhs();
+        CoolBinaryOp.OPERATOR op = cbo.getOp();
 
         this.indent += offset;
         lhs.accept(this);
         rhs.accept(this);
         this.indent -= offset;
 
+        switch(op) {
+            case ADD, MUL, DIV, SUB: {
+                CoolClass targetType = current.getSymbolType(new CoolIdentifier("Int"));
+                cbo.setComputedType(targetType);
+                break;
+            }
+            case EQ: {
+                CoolClass targetType = current.getSymbolType(new CoolIdentifier("Bool"));
+                cbo.setComputedType(targetType);
+                break;
+            }
+            case GT, GTE, LT, LTE: {
+                CoolClass targetType = current.getSymbolType(new CoolIdentifier("Bool"));
+                cbo.setComputedType(targetType);
+                break;
+            }
+            default: {
+                String msg = String.format(
+                        "Binary operation %s uses unknown operator %s. This shouldn't happen.",
+                        cbo,
+                        op
+                );
+                throw TypeCheckerException.factory(msg, cbo);
+            }
+        }
     }
 
     @Override
@@ -194,6 +222,7 @@ public class TypeSetter implements AstVisitor {
 
         CoolIdentifier methodName = cdmd.getMethodName();
         CoolMethod method = concreteClass.classMethodSearch(methodName);
+        SymbolTable methodTable = concreteClass.getSymbols();
 
         if (method == null) {
             String msg = String.format(
@@ -211,7 +240,7 @@ public class TypeSetter implements AstVisitor {
         this.indent -= offset;
 
         CoolIdentifier methodReturnType = method.getReturnType();
-        CoolClass computedType = current.getSymbolType(methodReturnType);
+        CoolClass computedType = methodTable.getSymbolType(methodReturnType);
         cdmd.setComputedType(computedType);
     }
 
@@ -310,6 +339,9 @@ public class TypeSetter implements AstVisitor {
         CoolClass concreteReturnType = current.getSymbolType(returnType);
 
         this.indent += offset;
+        CoolParamList params = cm.getParameters();
+        params.accept(this);
+
         for (CoolExpr ce : cm.getBody()) {
             ce.accept(this);
         }
@@ -352,7 +384,13 @@ public class TypeSetter implements AstVisitor {
 
     @Override
     public void visitCoolParamList(CoolParamList cpl) {
-        // NOTE: doesn't really have a type
+        System.out.println(this.space.repeat(this.indent) + cpl);
+        SymbolTable current = cpl.getSymbols();
+        for (CoolFormal cf : cpl.getParameters()) {
+            CoolIdentifier formalType = cf.getType();
+            CoolClass concreteType = current.getSymbolType(formalType);
+            cf.setComputedType(concreteType);
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
 import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class TypeChecker implements AstVisitor {
     private int indent = 0;
@@ -86,24 +87,27 @@ public class TypeChecker implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + ca);
 
         this.indent += offset;
-        CoolExpr init = ca.getInitExpression();
+        if (ca.getInitExpression() != null) {
+            CoolExpr init = ca.getInitExpression();
+            init.accept(this);
+
+            CoolClass declaredType = ca.getComputedType();
+            CoolClass initType = init.getComputedType();
+
+            if (!(CoolClass.equalOrSubrelation(initType, declaredType))) {
+                String msg = String.format(
+                        "Attribute %s initialization does not match its declared type (declared: %s, received: %s)",
+                        ca,
+                        declaredType,
+                        initType
+                );
+                throw TypeCheckerException.factory(msg, ca);
+            }
+        }
         // its not that anything needs to be done here I just need to traverse all the way through the tree
         // to type check everything
-        init.accept(this);
         this.indent -= offset;
 
-        CoolClass declaredType = ca.getComputedType();
-        CoolClass initType = init.getComputedType();
-
-        if (!(CoolClass.equalOrSubrelation(initType, declaredType))) {
-            String msg = String.format(
-                    "Attribute %s initialization does not match its declared type (declared: %s, received: %s)",
-                    ca,
-                    declaredType,
-                    initType
-            );
-            throw TypeCheckerException.factory(msg, ca);
-        }
     }
 
     @Override
@@ -202,20 +206,27 @@ public class TypeChecker implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cca);
 
         CoolExpr expr0 = cca.getPredicate();
-        CoolClass expr0Type = expr0.getComputedType();
 
         for (CoolCaseBranch ccb : cca.getBranches())  {
             ccb.accept(this);
         }
 
-        if (CoolClass.equalOrSubrelation(expr0Type, cca.getComputedType())) {
-            String msg = String.format(
-                    "None of the branches in case expression %s are equal or subrelated to the type of expr0 (%s)",
-                    cca,
-                    expr0Type
-            );
-            throw TypeCheckerException.factory(msg, cca);
+        // the static type of the case expression is the LCA of all the branches
+        LinkedList<CoolClass> stack = new LinkedList<>(
+                cca.getBranches()
+                        .stream()
+                        .map(CoolExpr::getComputedType)
+                        .toList()
+        );
+
+        while (stack.size() != 1) {
+            CoolClass cc1 = stack.pop();
+            CoolClass cc2 = stack.pop();
+            CoolClass lca = CoolClass.leastCommonAncestor(cc1, cc2);
+            stack.push(lca);
         }
+
+        cca.setComputedType(stack.getFirst());
     }
 
     @Override

@@ -4,14 +4,13 @@ import com.enricojr.coollang.ast.AstBuilder;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
-import com.enricojr.coollang.semantic.TypeCheckerOld;
+import com.enricojr.coollang.semantic.TypeChecker;
+import com.enricojr.coollang.semantic.TypeSetter;
 import com.enricojr.coollang.semantic.classtree.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.classtree.ClassTreeLinker;
-import com.enricojr.coollang.semantic.classtree.ClassTreePrinter;
 import com.enricojr.coollang.semantic.classtree.ClassTreeSetup;
 import com.enricojr.coollang.semantic.symboltable.SymbolTableBuilder;
 import com.enricojr.coollang.semantic.symboltable.SymbolTableLinker;
-import com.enricojr.coollang.semantic.symboltable.SymbolTablePrinter;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.FilenameUtils;
@@ -20,7 +19,6 @@ import java.io.*;
 import java.util.List;
 import java.util.Stack;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -33,7 +31,6 @@ public class TestIntegrationTypeChecker {
         }
     }
 
-    @Disabled
     @Test
     public void TestCodeSamplesTypeChecker() {
         Stack<File> codeSamples = new Stack<>();
@@ -90,10 +87,6 @@ public class TestIntegrationTypeChecker {
             ClassTreeBuilder ctb = new ClassTreeBuilder();
             ctb.visitCoolProgram(top);
 
-            System.out.println("Printing class tree...");
-            ClassTreePrinter ctp = new ClassTreePrinter();
-            ctp.visitCoolProgram(top);
-
             System.out.println("Initializing/Linking class symbol tables...");
             SymbolTableLinker sLinker = new SymbolTableLinker();
             sLinker.visitCoolProgram(top);
@@ -102,12 +95,12 @@ public class TestIntegrationTypeChecker {
             SymbolTableBuilder sBuilder = new SymbolTableBuilder();
             sBuilder.visitCoolProgram(top);
 
-            System.out.println("Printing symbol tables...");
-            SymbolTablePrinter sPrinter = new SymbolTablePrinter();
-            sPrinter.visitCoolProgram(top);
+            System.out.println("Inferring types...");
+            TypeSetter ts = new TypeSetter();
+            ts.visitCoolProgram(top);
 
-            System.out.println("Checking and verifying object types...");
-            TypeCheckerOld tc = new TypeCheckerOld();
+            System.out.println("Verifying types...");
+            TypeChecker tc = new TypeChecker();
             tc.visitCoolProgram(top);
         }
     }
