@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolClass extends CoolBaseNode {
@@ -180,6 +181,22 @@ public class CoolClass extends CoolBaseNode {
             return true;
         }
 
+        // NOTE: a <= CoolSelfType is _always false_
+        if (b instanceof CoolSelfType) {
+            return false;
+        }
+
+        // NOTE: (SELF_TYPE(a) <= b) == true if and only if a <= b
+        if (a instanceof CoolSelfType) {
+            CoolClass typeOf = ((CoolSelfType) a).getTypeOf();
+            if (CoolClass.equalOrSubrelation(typeOf, b)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
         if (a.getParent() != null) {
             CoolClass next = a.getParent();
             while (true) {
@@ -206,9 +223,23 @@ public class CoolClass extends CoolBaseNode {
     }
 
     public static CoolClass leastCommonAncestor(CoolClass a, CoolClass b) {
-        // I guess its fine to handle this case here?
         if (a.equals(b)) {
             return a;
+        }
+        // NOTE: method overloading not appropriate here because the calling code will never upcast anything to
+        // CoolSelfType i.e. it'll always be CoolClass
+        if (a instanceof CoolSelfType && b instanceof CoolSelfType) {
+            CoolClass concreteA = ((CoolSelfType) a).getTypeOf();
+            CoolClass concreteB = ((CoolSelfType) b).getTypeOf();
+            return CoolClass.leastCommonAncestor(concreteA, concreteB);
+        }
+        if (a instanceof CoolSelfType && b != null) {
+            CoolClass concreteA = ((CoolSelfType) a).getTypeOf();
+            return CoolClass.leastCommonAncestor(concreteA, b);
+        }
+        if (b instanceof CoolSelfType) {
+            CoolClass concreteB = ((CoolSelfType) b).getTypeOf();
+            return CoolClass.leastCommonAncestor(a, concreteB);
         }
 
         LinkedList<CoolClass> stack1 = new LinkedList<>();

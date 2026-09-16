@@ -1,6 +1,7 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
@@ -220,6 +221,11 @@ public class TypeSetter implements AstVisitor {
 
         CoolClass concreteClass = className.getComputedType();
 
+        // need to unpack the CoolSelfType
+        if (concreteClass instanceof CoolSelfType) {
+            concreteClass = ((CoolSelfType) concreteClass).getTypeOf();
+        }
+
         CoolIdentifier methodName = cdmd.getMethodName();
         CoolMethod method = concreteClass.classMethodSearch(methodName);
         SymbolTable methodTable = concreteClass.getSymbols();
@@ -347,7 +353,11 @@ public class TypeSetter implements AstVisitor {
         }
         this.indent -= offset;
 
-        cm.setComputedType(concreteReturnType);
+        if (returnType.getValueString().equals("SELF_TYPE")) {
+            cm.setComputedType(new CoolSelfType(concreteReturnType));
+        } else {
+            cm.setComputedType(concreteReturnType);
+        }
     }
 
     @Override
@@ -493,7 +503,8 @@ public class TypeSetter implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cs);
         SymbolTable current = cs.getSymbols();
         CoolClass targetType = current.getSymbolType(new CoolIdentifier("SELF_TYPE"));
-        cs.setComputedType(targetType);
+        // TODO: Is this really how I want to handle this?
+        cs.setComputedType(new CoolSelfType(targetType));
     }
 
     @Override
@@ -501,14 +512,10 @@ public class TypeSetter implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + ci);
         SymbolTable current = ci.getSymbols();
         CoolClass symbolType = current.getSymbolType(ci);
-        CoolClass methodType = current.getMethodType(ci);
-        if (symbolType == null && methodType == null) {
-            String msg = String.format("Identifier %s not found in symbol table.", ci.getValueString());
-            throw TypeCheckerException.factory(msg, ci);
-        } else if (symbolType != null && methodType == null){
-            ci.setComputedType(symbolType);
+        if (ci.getValueString().equals("SELF_TYPE")) {
+            ci.setComputedType(new CoolSelfType(symbolType));
         } else {
-            ci.setComputedType(methodType);
+            ci.setComputedType(symbolType);
         }
     }
 }

@@ -177,6 +177,8 @@ public class ClassTreeBuilder implements AstVisitor {
         for (CoolClass cc : cp.getClasses()) {
             if (!(cc instanceof CoolBuiltInType) && bannedClasses.contains(cc.getName())) {
                 String err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getNameString());
+
+                // TODO: Create new subclass of RuntimeException and swap these out
                 throw new RuntimeException(err);
             }
 
@@ -194,6 +196,11 @@ public class ClassTreeBuilder implements AstVisitor {
                 String err = String.format(
                         "Class %s is not allowed to inherit from itself.", cc.getNameString()
                 );
+                throw new RuntimeException(err);
+            }
+
+            if (cc.getParentName() != null && cc.getParentName().equals(new CoolIdentifier("SELF_TYPE"))) {
+                String err = String.format("Class %s is not allowed to inherit from SELF_TYPE", cc.getNameString());
                 throw new RuntimeException(err);
             }
 

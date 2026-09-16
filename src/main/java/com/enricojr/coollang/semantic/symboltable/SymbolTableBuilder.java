@@ -16,6 +16,13 @@ public class SymbolTableBuilder implements AstVisitor {
         lhs.accept(this);
 
         CoolIdentifier className = camd.getClassName();
+        if (className.equals(new CoolIdentifier("SELF_TYPE"))) {
+            String msg = String.format(
+                    "Type name in a static dispatch (%s) cannot be SELF_TYPE.",
+                    camd
+            );
+            throw new RuntimeException(msg);
+        }
         className.setSymbols(new SymbolTable(current));
 
         CoolIdentifier methodName = camd.getMethodName();
@@ -238,6 +245,12 @@ public class SymbolTableBuilder implements AstVisitor {
 
     @Override
     public void visitCoolParamList(CoolParamList cpl) {
+        for (CoolFormal cf : cpl.getParameters()) {
+            if (cf.getType().equals(new CoolIdentifier("SELF_TYPE"))) {
+                String msg = String.format("SELF_TYPE cannot be used as the type of a formal paramter (%s). ", cf);
+                throw new RuntimeException(msg);
+            }
+        }
     }
 
     @Override

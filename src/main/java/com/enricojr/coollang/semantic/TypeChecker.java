@@ -1,6 +1,7 @@
 package com.enricojr.coollang.semantic;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
@@ -147,8 +148,16 @@ public class TypeChecker implements AstVisitor {
         CoolExpr lhs = cbo.getLhs();
         CoolExpr rhs = cbo.getRhs();
 
+        // TODO: One current issue is that any CoolIdentifier bearing SELF_TYPE will return CoolSelfType() as its
+        // computedType, requiring an additional call to get the actual class. Find a fix.
         CoolClass lhsType = lhs.getComputedType();
+        if (lhsType instanceof CoolSelfType) {
+            lhsType = ((CoolSelfType) lhsType).getTypeOf();
+        }
         CoolClass rhsType = rhs.getComputedType();
+        if (rhsType instanceof CoolSelfType) {
+            rhsType = ((CoolSelfType) rhsType).getTypeOf();
+        }
 
         this.indent += offset;
         lhs.accept(this);
@@ -263,6 +272,9 @@ public class TypeChecker implements AstVisitor {
         System.out.println(this.space.repeat(this.indent) + cdmd);
 
         CoolClass classObj = cdmd.getClassName().getComputedType();
+        if (classObj instanceof CoolSelfType) {
+            classObj = ((CoolSelfType) classObj).getTypeOf();
+        }
         CoolIdentifier methodName = cdmd.getMethodName();
         CoolMethod methodObj = classObj.classMethodSearch(methodName);
 
@@ -390,6 +402,10 @@ public class TypeChecker implements AstVisitor {
         // NOTE: also sanity check every expression in the program
         System.out.println(this.space.repeat(this.indent) + cm);
         CoolClass declaredType = cm.getComputedType();
+
+        if (declaredType instanceof CoolSelfType) {
+            declaredType = ((CoolSelfType) declaredType).getTypeOf();
+        }
 
         CoolExpr lastExpr = cm.getBody().getLast();
         CoolClass lastExprType = lastExpr.getComputedType();
