@@ -84,7 +84,7 @@ public class TestIntegrationTypeChecker {
             ctl.visitCoolProgram(top);
 
             System.out.println("Enforcing inheritance rules...");
-            ClassTreeBuilder ctb = new ClassTreeBuilder();
+            ClassTreeBuilder ctb = new ClassTreeBuilder(sample.getName());
             ctb.visitCoolProgram(top);
 
             System.out.println("Initializing/Linking class symbol tables...");
@@ -100,7 +100,7 @@ public class TestIntegrationTypeChecker {
             ts.visitCoolProgram(top);
 
             System.out.println("Verifying types...");
-            TypeChecker tc = new TypeChecker();
+            TypeChecker tc = new TypeChecker(sample.getName());
             tc.visitCoolProgram(top);
         }
     }

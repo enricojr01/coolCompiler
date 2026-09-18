@@ -82,7 +82,7 @@ public class TestIntegrationTypeSetter {
             ctl.visitCoolProgram(top);
 
             System.out.println("Enforcing inheritance rules...");
-            ClassTreeBuilder ctb = new ClassTreeBuilder();
+            ClassTreeBuilder ctb = new ClassTreeBuilder(sample.getName());
             ctb.visitCoolProgram(top);
 
             System.out.println("Initializing/Linking class symbol tables...");

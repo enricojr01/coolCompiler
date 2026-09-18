@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class TestClassTreeBuilder {
     @Test
     public void testClassTreeSimple() {
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         // build a simple "program"
         CoolProgram cp = new CoolProgram();
@@ -30,7 +30,7 @@ public class TestClassTreeBuilder {
 
     @Test
     public void testClassTreeClassInheritsItself() {
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");
@@ -43,7 +43,7 @@ public class TestClassTreeBuilder {
 
     @Test
     public void testClassTreeInheritanceCycle() {
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");
@@ -62,7 +62,7 @@ public class TestClassTreeBuilder {
 
     @Test
     public void testClassInheritFromInt() {
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("Int");
@@ -74,7 +74,7 @@ public class TestClassTreeBuilder {
 
     @Test
     public void testClassInheritFromString() {
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("String");
@@ -87,7 +87,7 @@ public class TestClassTreeBuilder {
 
     @Test
     public void testClassInheritFromBool() {
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("Bool");
@@ -101,7 +101,7 @@ public class TestClassTreeBuilder {
     @Test
     public void testClassOverrideIO() {
         // NOTE: As a reminder, you can INHERIT from IO, but not override it.
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("IO");
@@ -114,7 +114,7 @@ public class TestClassTreeBuilder {
 
     @Test
     public void testClassInheritsBadClass() {
-        ClassTreeBuilder cta = new ClassTreeBuilder();
+        ClassTreeBuilder cta = new ClassTreeBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         CoolClass cc1 = CoolClass.factory("test1");

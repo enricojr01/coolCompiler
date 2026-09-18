@@ -5,18 +5,22 @@ import com.enricojr.coollang.ast.builtins.*;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
+import com.enricojr.coollang.semantic.exceptions.StackTraceException;
 
 import java.util.*;
 
 public class ClassTreeBuilder implements AstVisitor {
     private final HashMap<CoolIdentifier, CoolClass> classList = new HashMap<>();
+    private LinkedList<CoolBaseNode> stack = new LinkedList<>();
+    private String fileName;
 
-    public ClassTreeBuilder() {
+    public ClassTreeBuilder(String fileName) {
         CoolClass object = new CoolObjectType();
         CoolClass io = new CoolIOType();
 
         this.classList.put(object.getName(), object);
         this.classList.put(io.getName(), io);
+        this.fileName = fileName;
     }
 
     @Override
@@ -56,6 +60,7 @@ public class ClassTreeBuilder implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
+        String location = "ClassTreeBuilder - Cycle Detector";
         LinkedList<CoolClass> stack = new LinkedList<>();
 
         // Cycle detection is done with a stack - starting with the
@@ -86,14 +91,11 @@ public class ClassTreeBuilder implements AstVisitor {
                             cc.getName().getValue(),
                             cc.getParentName().getValue()
                     );
-                    System.out.println(stack);
-                    throw new RuntimeException(err);
+                    throw new StackTraceException(err, this.fileName, location, this.stack);
                 }
                 // otherwise push it onto the stack
                 stack.push(next);
             }
-
-            // if execution reaches here, and no error has occurred, then everything should be fine.
         }
     }
 
@@ -154,7 +156,7 @@ public class ClassTreeBuilder implements AstVisitor {
 
     @Override
     public void visitCoolProgram(CoolProgram cp) {
-        /* TODO: Find a way to throw specific exceptions from here and not RuntimeException */
+        String location = "ClassTreeBuilder - Class Checker";
         HashSet<CoolIdentifier> bannedClasses = new HashSet<>(
                 List.of(
                         new CoolIdentifier("String"),
@@ -175,33 +177,39 @@ public class ClassTreeBuilder implements AstVisitor {
         // classes can't inherit from themselves
         // at the end of the second loop, the parent field is set.
         for (CoolClass cc : cp.getClasses()) {
+            this.stack.push(cc);
             if (!(cc instanceof CoolBuiltInType) && bannedClasses.contains(cc.getName())) {
                 String err = String.format("Class %s is not allowed to override Int, Bool, or String.", cc.getNameString());
 
                 // TODO: Create new subclass of RuntimeException and swap these out
-                throw new RuntimeException(err);
+                throw new StackTraceException(err, this.fileName, location, this.stack);
             }
 
             if (!(cc instanceof CoolBuiltInType) && cc.getName().getValue().equals("IO")) {
                String err = String.format("Class %s is not allowed to override IO.", cc.getNameString());
-               throw new RuntimeException(err);
+               throw new StackTraceException(err, this.fileName, location, this.stack);
             }
 
             if (!(cc instanceof CoolBuiltInType) && bannedClasses.contains(cc.getParentName())) {
                 String err = String.format("Class %s is not allowed to inherit from Int, Bool, or String", cc.getNameString());
-                throw new RuntimeException(err);
+                throw new StackTraceException(err, this.fileName, location, this.stack);
             }
 
             if (cc.getParentName() != null && cc.getParentName().equals(cc.getName()))  {
                 String err = String.format(
                         "Class %s is not allowed to inherit from itself.", cc.getNameString()
                 );
-                throw new RuntimeException(err);
+                throw new StackTraceException(err, this.fileName, location, this.stack);
+            }
+
+            if (cc.getNameString().equals("SELF_TYPE")) {
+                String err = String.format("Class %s is not allowed to be named SELF_TYPE.", cc.getNameString());
+                throw new StackTraceException(err, this.fileName, location, this.stack);
             }
 
             if (cc.getParentName() != null && cc.getParentName().equals(new CoolIdentifier("SELF_TYPE"))) {
                 String err = String.format("Class %s is not allowed to inherit from SELF_TYPE", cc.getNameString());
-                throw new RuntimeException(err);
+                throw new StackTraceException(err, this.fileName, location, this.stack);
             }
 
             if (cc.getParentName() != null && this.classList.get(cc.getParentName()) == null) {
@@ -211,12 +219,16 @@ public class ClassTreeBuilder implements AstVisitor {
                         cc.getParentNameString()
                 );
 
-                throw new RuntimeException(err);
+                throw new StackTraceException(err, this.fileName, location, this.stack);
             }
         }
 
+        // empty it out before doing cycle detection;
+        this.stack.clear();
+
         // we do the cycle detection in here instead
         for (CoolClass cc : cp.getClasses()) {
+            this.stack.push(cc);
             cc.accept(this);
         }
     }

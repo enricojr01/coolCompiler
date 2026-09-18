@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVisitor<CoolBaseNode> {

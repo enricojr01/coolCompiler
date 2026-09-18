@@ -7,6 +7,7 @@ import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ClassTreeLinker implements AstVisitor {

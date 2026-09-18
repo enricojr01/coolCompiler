@@ -288,11 +288,9 @@ public class CoolClass extends CoolBaseNode {
                     return c1;
                 }
             }
-
         }
 
         // NOTE: they should be equal in length at this point if they're not already
-
         return null;
     }
 

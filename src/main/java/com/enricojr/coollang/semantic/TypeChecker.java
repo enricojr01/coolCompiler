@@ -5,6 +5,7 @@ import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
+import com.enricojr.coollang.semantic.exceptions.StackTraceException;
 import com.enricojr.coollang.semantic.exceptions.TypeCheckerException;
 import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
@@ -16,6 +17,14 @@ public class TypeChecker implements AstVisitor {
     private final int offset = 2;
     private String space = " ";
 
+    private LinkedList<CoolBaseNode> stack = new LinkedList<>();
+    private String filename;
+    private String location = "TypeChecker";
+
+    public TypeChecker(String filename) {
+        this.filename = filename;
+    }
+
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
         // method dispatch needs to check a few things
@@ -23,6 +32,9 @@ public class TypeChecker implements AstVisitor {
         // types that conform to one another (equal or subrelated)
         // second, that the # of arguments matches the number of parameters,
         // third, that the type of each argument matches its corresponding parameter's type.
+        System.out.println(this.space.repeat(this.indent) + camd);
+        this.stack.push(camd);
+
         CoolExpr lhs = camd.getLhs();
         CoolIdentifier rhs = camd.getClassName();
         CoolClass lhsType = lhs.getComputedType();
@@ -76,7 +88,7 @@ public class TypeChecker implements AstVisitor {
                         argType,
                         paramType
                 );
-                throw TypeCheckerException.factory(msg, camd);
+                throw new StackTraceException(msg, this.filename, this.location, this.stack);
             }
         }
     }
@@ -86,6 +98,7 @@ public class TypeChecker implements AstVisitor {
         // NOTE: verify that the attribute init expression is of the same
         // type as in the declaration.
         System.out.println(this.space.repeat(this.indent) + ca);
+        this.stack.push(ca);
 
         this.indent += offset;
         if (ca.getInitExpression() != null) {
@@ -102,7 +115,7 @@ public class TypeChecker implements AstVisitor {
                         declaredType,
                         initType
                 );
-                throw TypeCheckerException.factory(msg, ca);
+                throw new StackTraceException(msg, this.filename, this.location, this.stack);
             }
         }
         // its not that anything needs to be done here I just need to traverse all the way through the tree
@@ -115,6 +128,8 @@ public class TypeChecker implements AstVisitor {
     public void visitCoolAssign(CoolAssign cas) {
         // NOTE: need to check that the assignment expression type matches the type of the variable
         System.out.println(this.space.repeat(this.indent) + cas);
+        this.stack.push(cas);
+
         SymbolTable current = cas.getSymbols();
 
         CoolIdentifier varName = cas.getName();
@@ -136,13 +151,15 @@ public class TypeChecker implements AstVisitor {
                     varType
             );
 
-            throw TypeCheckerException.factory(msg, cas);
+            throw new StackTraceException(msg, this.filename, this.location, this.stack);
         }
     }
 
     @Override
     public void visitCoolBinaryOp(CoolBinaryOp cbo) {
         System.out.println(this.space.repeat(this.indent) + cbo);
+        this.stack.push(cbo);
+
         SymbolTable current = cbo.getSymbols();
 
         CoolExpr lhs = cbo.getLhs();
@@ -194,7 +211,7 @@ public class TypeChecker implements AstVisitor {
             }
             default: {
                 String msg = String.format("Binary operation %s uses unknown operator %s. This shouldn't happen.");
-                throw TypeCheckerException.factory(msg, cbo);
+                throw new StackTraceException(msg, this.filename, this.location, this.stack);
             }
         }
     }
@@ -202,6 +219,7 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolBlock(CoolBlock cb) {
         System.out.println(this.space.repeat(this.indent) + cb);
+        this.stack.push(cb);
 
         this.indent += offset;
         for (CoolExpr ce : cb.getExpressions()) {
@@ -213,6 +231,7 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolCase(CoolCase cca) {
         System.out.println(this.space.repeat(this.indent) + cca);
+        this.stack.push(cca);
 
         CoolExpr expr0 = cca.getPredicate();
 
@@ -241,6 +260,7 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolCaseBranch(CoolCaseBranch ccb) {
         System.out.println(this.space.repeat(this.indent) + ccb);
+        this.stack.push(ccb);
 
         this.indent += offset;
         CoolExpr ce = ccb.getExpression();
@@ -251,6 +271,7 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolClass(CoolClass cc) {
         System.out.println(this.space.repeat(this.indent) + cc);
+        this.stack.push(cc);
 
         this.indent += offset;
         for (CoolAttribute ca : cc.getAttributes()) {
@@ -270,6 +291,7 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
         System.out.println(this.space.repeat(this.indent) + cdmd);
+        this.stack.push(cdmd);
 
         CoolClass classObj = cdmd.getClassName().getComputedType();
         if (classObj instanceof CoolSelfType) {
@@ -289,7 +311,7 @@ public class TypeChecker implements AstVisitor {
                     args.size(),
                     params.size()
             );
-            throw TypeCheckerException.factory(msg, cdmd);
+            throw new StackTraceException(msg, this.filename, this.location, this.stack);
         }
 
         for (int i = 0; i < args.size(); i++) {
@@ -312,7 +334,7 @@ public class TypeChecker implements AstVisitor {
                         argType,
                         paramType
                 );
-                throw TypeCheckerException.factory(msg, cdmd);
+                throw new StackTraceException(msg, this.filename, this.location, this.stack);
             }
         }
     }
@@ -330,6 +352,8 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolIf(CoolIf cif) {
         System.out.println(this.space.repeat(this.indent) + cif);
+        this.stack.push(cif);
+
         SymbolTable current = cif.getSymbols();
 
         CoolExpr guard = cif.getGuard();
@@ -339,13 +363,15 @@ public class TypeChecker implements AstVisitor {
 
         if (!(actualGuardType.equals(expectedGuardType))) {
             String msg = String.format("In if-expression %s, guard clause must be of type Bool", cif);
-            throw TypeCheckerException.factory(msg, cif);
+            throw new StackTraceException(msg, this.filename, this.location, this.stack);
         }
     }
 
     @Override
     public void visitCoolInstantiate(CoolInstantiate ci) {
         System.out.println(this.space.repeat(this.indent) + ci);
+        this.stack.push(ci);
+
         SymbolTable current = ci.getSymbols();
 
         CoolIdentifier newName = ci.getIdentifier();
@@ -361,6 +387,8 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolIsVoid(CoolIsVoid civ) {
         System.out.println(this.space.repeat(this.indent) + civ);
+        this.stack.push(civ);
+
         CoolExpr ce = civ.getExpression();
         ce.accept(this);
     }
@@ -368,6 +396,8 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolLet(CoolLet cl) {
         System.out.println(this.space.repeat(this.indent) + cl);
+        this.stack.push(cl);
+
         SymbolTable current = cl.getSymbols();
 
         this.indent += offset;
@@ -388,7 +418,7 @@ public class TypeChecker implements AstVisitor {
                             ca.getTypeName().getValueString(),
                             initType.getNameString()
                     );
-                    throw TypeCheckerException.factory(msg, cl);
+                    throw new StackTraceException(msg, this.filename, this.location, this.stack);
                 }
             }
         }
@@ -401,6 +431,8 @@ public class TypeChecker implements AstVisitor {
         // return type declared in its signature.
         // NOTE: also sanity check every expression in the program
         System.out.println(this.space.repeat(this.indent) + cm);
+        this.stack.push(cm);
+
         CoolClass declaredType = cm.getComputedType();
 
         if (declaredType instanceof CoolSelfType) {
@@ -424,13 +456,15 @@ public class TypeChecker implements AstVisitor {
                     lastExprType
             );
 
-            throw TypeCheckerException.factory(msg, cm);
+            throw new StackTraceException(msg, this.filename, this.location, this.stack);
         }
     }
 
     @Override
     public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
         System.out.println(this.space.repeat(this.indent) + cmd);
+        this.stack.push(cmd);
+
         SymbolTable current = cmd.getSymbols();
 
         CoolIdentifier methodName = cmd.getIdentifier();
@@ -449,7 +483,7 @@ public class TypeChecker implements AstVisitor {
                     args.size(),
                     params.size()
             );
-            throw TypeCheckerException.factory(msg, cmd);
+            throw new StackTraceException(msg, this.filename, this.location, this.stack);
         }
     }
 
@@ -461,6 +495,7 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolParenthesisExpr(CoolParenthesisExpr cpe) {
         System.out.println(this.space.repeat(this.indent) + cpe);
+        this.stack.push(cpe);
 
         CoolExpr expr = cpe.getExpression();
 
@@ -477,6 +512,8 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolUnaryOp(CoolUnaryOp cuo) {
         System.out.println(this.space.repeat(this.indent) + cuo);
+        this.stack.push(cuo);
+
         SymbolTable current = cuo.getSymbols();
         CoolExpr expr = cuo.getExpression();
         CoolUnaryOp.OPERATOR op = cuo.getOp();
@@ -496,7 +533,7 @@ public class TypeChecker implements AstVisitor {
                             cuo,
                             exprType
                     );
-                    throw TypeCheckerException.factory(msg, cuo);
+                    throw new StackTraceException(msg, this.filename, this.location, this.stack);
                 }
                 break;
             }
@@ -508,13 +545,13 @@ public class TypeChecker implements AstVisitor {
                             cuo,
                             exprType
                     );
-                    throw TypeCheckerException.factory(msg, cuo);
+                    throw new StackTraceException(msg, this.filename, this.location, this.stack);
                 }
                 break;
             }
             default: {
                 String msg = String.format("Unary expression %s uses unknown operator %s", cuo, op);
-                throw TypeCheckerException.factory(msg, cuo);
+                throw new StackTraceException(msg, this.filename, this.location, this.stack);
             }
         }
     }
@@ -522,6 +559,8 @@ public class TypeChecker implements AstVisitor {
     @Override
     public void visitCoolWhile(CoolWhile cw) {
         System.out.println(this.space.repeat(this.indent) + cw);
+        this.stack.push(cw);
+
         SymbolTable current = cw.getSymbols();
 
         CoolExpr guard = cw.getPredicate();
@@ -539,7 +578,7 @@ public class TypeChecker implements AstVisitor {
                     cw,
                     guardType
             );
-            throw TypeCheckerException.factory(msg, cw);
+            throw new StackTraceException(msg, this.filename, this.location, this.stack);
         }
     }
 

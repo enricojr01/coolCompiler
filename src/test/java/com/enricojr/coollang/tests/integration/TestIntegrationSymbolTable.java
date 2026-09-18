@@ -83,7 +83,7 @@ public class TestIntegrationSymbolTable {
             ctl.visitCoolProgram(top);
 
             System.out.println("Enforcing inheritance rules...");
-            ClassTreeBuilder ctb = new ClassTreeBuilder();
+            ClassTreeBuilder ctb = new ClassTreeBuilder(sample.getName());
             ctb.visitCoolProgram(top);
 
             System.out.println("Printing class tree...");

@@ -6,7 +6,10 @@ import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.semantic.exceptions.SymbolTableException;
 
+import java.util.LinkedList;
+
 public class SymbolTableBuilder implements AstVisitor {
+
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
         SymbolTable current = camd.getSymbols();
