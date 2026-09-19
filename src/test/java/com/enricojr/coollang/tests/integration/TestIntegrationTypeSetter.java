@@ -90,7 +90,7 @@ public class TestIntegrationTypeSetter {
             sLinker.visitCoolProgram(top);
 
             System.out.println("Populating class symbol tables...");
-            SymbolTableBuilder sBuilder = new SymbolTableBuilder();
+            SymbolTableBuilder sBuilder = new SymbolTableBuilder(sample.getName());
             sBuilder.visitCoolProgram(top);
 
             System.out.println("Initializing type setter...");

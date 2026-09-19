@@ -4,11 +4,19 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
+import com.enricojr.coollang.semantic.exceptions.StackTraceException;
 import com.enricojr.coollang.semantic.exceptions.SymbolTableException;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class SymbolTableBuilder implements AstVisitor {
+    private String filename;
+    private LinkedList<CoolBaseNode> stack = new LinkedList<>();
+
+    public SymbolTableBuilder(String filename) {
+        this.filename = filename;
+    }
 
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
@@ -109,6 +117,7 @@ public class SymbolTableBuilder implements AstVisitor {
     @Override
     public void visitCoolClass(CoolClass cc) {
         SymbolTable current = cc.getSymbols();
+        String location = "SymbolTableBuilder-visitCoolClass";
 
         current.addSymbolType(new CoolIdentifier("SELF_TYPE"), cc);
         current.addSymbolType(new CoolIdentifier("self"), cc);
@@ -124,6 +133,42 @@ public class SymbolTableBuilder implements AstVisitor {
             SymbolTable method = new SymbolTable(current);
             cm.setSymbols(method);
             cm.accept(this);
+
+            // TODO: maybe I should move this to another class? it seems out of place here.
+            // check if it overrides anything.
+            CoolClass parent = cc.getParent();
+            CoolMethod parentMethod = parent.classMethodSearch(cm.getName());
+            if (parentMethod != null) {
+                // name, # of parameters, type of parameters;
+                ArrayList<CoolFormal> methodParams = cm.getParameters().getParameters();
+                ArrayList<CoolFormal> parentParams = parentMethod.getParameters().getParameters();
+                if (methodParams.size() != parentParams.size()) {
+                    String msg = String.format(
+                            "Method %s.%s must have the same signature as the parent method it's overriding. (too few arguments)",
+                            cc.getNameString(),
+                            cm.getNameString()
+                    );
+                    throw new StackTraceException(msg, this.filename, location, this.stack);
+                } else {
+                    for (int i = 0; i < methodParams.size(); i++) {
+                        CoolFormal methodFormal = methodParams.get(i);
+                        CoolFormal parentFormal = parentParams.get(i);
+                        if (!(methodFormal.getType().equals(parentFormal.getType()))) {
+                            String msg = String.format(
+                                    "Method %s.%s must have the same signature as the parent method it's overriding. " +
+                                            "(%s: %s, does not match parent formal %s %s)",
+                                    cc.getNameString(),
+                                    cm.getNameString(),
+                                    methodFormal.getNameString(),
+                                    methodFormal.getTypeString(),
+                                    parentFormal.getNameString(),
+                                    parentFormal.getTypeString()
+                            );
+                            throw new StackTraceException(msg, this.filename, location, this.stack);
+                        }
+                    }
+                }
+            }
 
             CoolIdentifier returnType = cm.getReturnType();
             CoolClass concreteReturnType = current.getSymbolType(returnType);

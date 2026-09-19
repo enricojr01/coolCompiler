@@ -21,7 +21,7 @@ public class TestClassTreeSetup {
         ClassTreeLinker ctl = new ClassTreeLinker();
         ClassTreeBuilder ctb = new ClassTreeBuilder("none");
         SymbolTableLinker stl = new SymbolTableLinker();
-        SymbolTableBuilder stb = new SymbolTableBuilder();
+        SymbolTableBuilder stb = new SymbolTableBuilder("none");
 
         CoolProgram cp = new CoolProgram();
         cp.setClasses(new ArrayList<>());
