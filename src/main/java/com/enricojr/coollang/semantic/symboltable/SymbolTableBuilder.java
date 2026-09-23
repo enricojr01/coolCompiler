@@ -134,42 +134,6 @@ public class SymbolTableBuilder implements AstVisitor {
             cm.setSymbols(method);
             cm.accept(this);
 
-            // TODO: maybe I should move this to another class? it seems out of place here.
-            // check if it overrides anything.
-            CoolClass parent = cc.getParent();
-            CoolMethod parentMethod = parent.classMethodSearch(cm.getName());
-            if (parentMethod != null) {
-                // name, # of parameters, type of parameters;
-                ArrayList<CoolFormal> methodParams = cm.getParameters().getParameters();
-                ArrayList<CoolFormal> parentParams = parentMethod.getParameters().getParameters();
-                if (methodParams.size() != parentParams.size()) {
-                    String msg = String.format(
-                            "Method %s.%s must have the same signature as the parent method it's overriding. (too few arguments)",
-                            cc.getNameString(),
-                            cm.getNameString()
-                    );
-                    throw new StackTraceException(msg, this.filename, location, this.stack);
-                } else {
-                    for (int i = 0; i < methodParams.size(); i++) {
-                        CoolFormal methodFormal = methodParams.get(i);
-                        CoolFormal parentFormal = parentParams.get(i);
-                        if (!(methodFormal.getType().equals(parentFormal.getType()))) {
-                            String msg = String.format(
-                                    "Method %s.%s must have the same signature as the parent method it's overriding. " +
-                                            "(%s: %s, does not match parent formal %s %s)",
-                                    cc.getNameString(),
-                                    cm.getNameString(),
-                                    methodFormal.getNameString(),
-                                    methodFormal.getTypeString(),
-                                    parentFormal.getNameString(),
-                                    parentFormal.getTypeString()
-                            );
-                            throw new StackTraceException(msg, this.filename, location, this.stack);
-                        }
-                    }
-                }
-            }
-
             CoolIdentifier returnType = cm.getReturnType();
             CoolClass concreteReturnType = current.getSymbolType(returnType);
             current.addMethod(cm.getName(), cm.getSymbols(), concreteReturnType, cm);

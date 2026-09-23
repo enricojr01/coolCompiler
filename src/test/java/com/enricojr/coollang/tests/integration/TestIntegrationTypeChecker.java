@@ -34,7 +34,7 @@ public class TestIntegrationTypeChecker {
     @Test
     public void TestCodeSamplesTypeChecker() {
         Stack<File> codeSamples = new Stack<>();
-        File coolSamplesDir = new File("./coolExamples");
+        File coolSamplesDir = new File("./coolExamples/compiled");
         File[] files = coolSamplesDir.listFiles(new TestIntegrationTypeChecker.CoolFileFilter());
         if (files == null) {
             fail("No Cool files found in the ./coolExamples directory.");

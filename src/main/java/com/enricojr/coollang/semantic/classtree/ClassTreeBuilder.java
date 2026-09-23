@@ -97,6 +97,45 @@ public class ClassTreeBuilder implements AstVisitor {
                 stack.push(next);
             }
         }
+
+        // check if methods override anything
+        for (CoolMethod cm : cc.getMethods()) {
+            if (cc.getParent() != null) {
+                CoolClass parent = cc.getParent();
+                CoolMethod parentMethod = parent.classMethodSearch(cm.getName());
+                if (parentMethod != null) {
+                    // name, # of parameters, type of parameters;
+                    ArrayList<CoolFormal> methodParams = cm.getParameters().getParameters();
+                    ArrayList<CoolFormal> parentParams = parentMethod.getParameters().getParameters();
+                    if (methodParams.size() != parentParams.size()) {
+                        String msg = String.format(
+                                "Method %s.%s must have the same signature as the parent method it's overriding. (too few arguments)",
+                                cc.getNameString(),
+                                cm.getNameString()
+                        );
+                        throw new StackTraceException(msg, "", location, this.stack);
+                    } else {
+                        for (int i = 0; i < methodParams.size(); i++) {
+                            CoolFormal methodFormal = methodParams.get(i);
+                            CoolFormal parentFormal = parentParams.get(i);
+                            if (!(methodFormal.getType().equals(parentFormal.getType()))) {
+                                String msg = String.format(
+                                        "Method %s.%s must have the same signature as the parent method it's overriding. " +
+                                                "(%s: %s, does not match parent formal %s %s)",
+                                        cc.getNameString(),
+                                        cm.getNameString(),
+                                        methodFormal.getNameString(),
+                                        methodFormal.getTypeString(),
+                                        parentFormal.getNameString(),
+                                        parentFormal.getTypeString()
+                                );
+                                throw new StackTraceException(msg, "", location, this.stack);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
