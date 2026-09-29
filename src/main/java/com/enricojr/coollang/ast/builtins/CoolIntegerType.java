@@ -4,6 +4,10 @@ import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 
 public class CoolIntegerType extends CoolBuiltInType {
+    public static int getMipsTag() {
+        return 3;
+    }
+
     public CoolIntegerType() {
         this.setName(new CoolIdentifier("Int"));
         this.setParentName(new CoolIdentifier("Object"));

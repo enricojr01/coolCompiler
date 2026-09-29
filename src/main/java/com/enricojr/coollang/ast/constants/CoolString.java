@@ -5,9 +5,11 @@ import com.enricojr.coollang.ast.builtins.CoolStringType;
 
 public class CoolString extends CoolLiteral {
     private String value;
+    private static int counter = 0;
 
     public CoolString() {
         this.setComputedType(new CoolStringType());
+        counter += 1;
     }
 
     public CoolString(String v) {
@@ -26,7 +28,17 @@ public class CoolString extends CoolLiteral {
         return String.format("'%s'", value);
     }
 
+    public int length() {
+        return this.value.length();
+    }
+
     public void accept(AstVisitor t) {
         t.visitCoolString(this);
+    }
+
+    public String codeGenerate() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("str_const").append(this.counter).append(":\n");
+        return sb.toString();
     }
 }

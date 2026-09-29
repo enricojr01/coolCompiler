@@ -17,6 +17,14 @@ public class CoolClass extends CoolBaseNode {
     private final ArrayList<CoolClass> children = new ArrayList<>();
     private CoolClass computedType;
 
+    private int mipsId;
+
+    // two words for the MIPS header fields then
+    // we need one word per attribute, starting with the parent classes' attributes
+    // one word for the dispatch table,
+    // one or more words for the footer
+    private int mipsWordLength;
+
     public CoolClass() {
         this.setComputedType(this);
     }
@@ -126,6 +134,13 @@ public class CoolClass extends CoolBaseNode {
         this.computedType = computedType;
     }
 
+    public int getMipsId() {
+        return mipsId;
+    }
+
+    public void setMipsId(int mipsId) {
+        this.mipsId = mipsId;
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -148,29 +163,6 @@ public class CoolClass extends CoolBaseNode {
                 && Objects.equals(getParentName(), coolClass.getParentName())
                 && Objects.equals(getAttributes(), coolClass.getAttributes())
                 && Objects.equals(getMethods(), coolClass.getMethods());
-    }
-
-    // TODO: will this even work? Now that I look at it again I'm not sure it will
-    // TODO: no, I'm sure it will work
-    public boolean equalOrSubrelation(CoolClass b) {
-        if (this.equals(b)) {
-            return true;
-        }
-
-        if (this.parent != null) {
-            CoolClass next = this.parent;
-            while (true) {
-                if (b.equals(next)) {
-                    return true;
-                } else if (next.getParent() != null) {
-                    next = next.getParent();
-                } else {
-                    break;
-                }
-            }
-        }
-
-        return false;
     }
 
     // TODO: need to actually start using this I think its a lot clearer than the old one
@@ -301,5 +293,86 @@ public class CoolClass extends CoolBaseNode {
 
     public void accept(AstVisitor t) {
         t.visitCoolClass(this);
+    }
+
+    private int getMipsWordSize() {
+        int size = 0;
+
+        while (true) {
+            CoolClass current = this;
+
+            for (CoolAttribute _ : current.getAttributes()) {
+                size += 1;
+            }
+
+            if (current.getParent() != null) {
+                current = current.getParent();
+            } else {
+                break;
+            }
+        }
+
+        return size;
+    }
+
+    // NOTE: subclasses like CoolInt, CoolStr, and CoolBool will need to override these to generate their respective
+    // MIPS ASM.
+    public String codeGenHeader() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getNameString()).append("_protObj:\n");
+        sb.append(".word ").append(this.getMipsId()).append("\n");
+        sb.append(".word ").append(this.getMipsWordSize()).append("\n");
+
+        return sb.toString();
+    }
+
+    public String codeGenBody() {
+        return "";
+    }
+
+    public String codeGenFooter() {
+        StringBuilder sb = new StringBuilder();
+        // NOTE: required for garbage collector.
+        sb.append(".word -1");
+        return sb.toString();
+    }
+
+    public String codeGenLocalDispatchTable() {
+        StringBuilder sb = new StringBuilder();
+        for (CoolMethod cm : this.getMethods()) {
+            String name = String.format("%s.%s", this.getNameString(), cm.getNameString());
+            sb.append(".word ").append(name).append("\n");
+        }
+        return sb.toString();
+    }
+
+    public String codeGenDispatchTable() {
+        StringBuilder sb = new StringBuilder();
+        String tableName = String.format("%s_dispTab:\n", this.getNameString());
+        sb.append(tableName);
+
+        LinkedList<String> tables = new LinkedList<>();
+        CoolClass current = this;
+
+        while (true) {
+            if (current != null) {
+                tables.push(current.codeGenLocalDispatchTable());
+            }
+            if (current != null && current.getParentName() != null) {
+                current = current.getParent();
+            } else {
+                break;
+            }
+        }
+
+        while (!tables.isEmpty()) {
+            sb.append(tables.pop());
+        }
+
+        return sb.toString();
+    }
+
+    public String codeGenerate() {
+        return this.codeGenHeader() + this.codeGenBody() + this.codeGenFooter();
     }
 }

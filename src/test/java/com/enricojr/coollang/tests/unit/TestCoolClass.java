@@ -21,7 +21,7 @@ public class TestCoolClass {
         cc2.setParentName(cc1.getName());
         cc2.setParent(cc1);
 
-        assertTrue(cc3.equalOrSubrelation(cc2));
+        assertTrue(CoolClass.equalOrSubrelation(cc3, cc2));
     }
 
     @Test
@@ -38,7 +38,7 @@ public class TestCoolClass {
         cc2.setParentName(cc1.getName());
         cc2.setParent(cc1);
 
-        assertTrue(cc3.equalOrSubrelation(cc1));
+        assertTrue(CoolClass.equalOrSubrelation(cc2, cc1));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class TestCoolClass {
         cc3.setParentName(cc2.getName());
         cc3.setParent(cc2);
 
-        assertFalse(cc3.equalOrSubrelation(cc1));
+        assertFalse(CoolClass.equalOrSubrelation(cc2, cc1));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TestCoolClass {
 
         CoolClass result = CoolClass.leastCommonAncestor(cc1, cc2);
 
-        assertTrue(result.equals(cc3));
+        assertEquals(result, cc3);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TestCoolClass {
         cc2.setParentName(root.getName());
 
         CoolClass result = CoolClass.leastCommonAncestor(cc1, cc2);
-        assertTrue(result.equals(root));
+        assertEquals(result, root);
     }
 
 }

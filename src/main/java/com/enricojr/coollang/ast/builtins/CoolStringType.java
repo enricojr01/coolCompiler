@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CoolStringType extends CoolBuiltInType {
+    public static int getMipsTag() {
+        return 4;
+    }
+
     public CoolStringType() {
         this.setName(new CoolIdentifier("String"));
         this.setParentName(new CoolIdentifier("Object"));

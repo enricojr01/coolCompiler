@@ -3,7 +3,7 @@ package com.enricojr.coollang.ast.constants;
 import com.enricojr.coollang.ast.AstVisitor;
 
 public class CoolInteger extends CoolLiteral {
-    private int value; 
+    private int value;
 
     public CoolInteger() {}
 

@@ -4,6 +4,9 @@ import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 
 public class CoolBooleanType extends CoolBuiltInType {
+    public static int getMipsTag() {
+        return 2;
+    }
 
     public CoolBooleanType() {
         this.setName(new CoolIdentifier("Bool"));

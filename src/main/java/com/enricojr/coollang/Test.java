@@ -4,13 +4,12 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
 
-import com.enricojr.coollang.ast.AstPrinter;
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
-import com.enricojr.coollang.semantic.TypeChecker;
-import com.enricojr.coollang.semantic.TypeSetter;
+import com.enricojr.coollang.semantic.typechecker.TypeChecker;
+import com.enricojr.coollang.semantic.typechecker.TypeSetter;
 import com.enricojr.coollang.semantic.classtree.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.classtree.ClassTreeLinker;
 import com.enricojr.coollang.semantic.classtree.ClassTreeSetup;

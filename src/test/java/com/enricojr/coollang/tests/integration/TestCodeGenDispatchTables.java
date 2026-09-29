@@ -1,17 +1,18 @@
 package com.enricojr.coollang.tests.integration;
 
 import com.enricojr.coollang.ast.AstBuilder;
+import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolProgram;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
-import com.enricojr.coollang.semantic.typechecker.TypeSetter;
 import com.enricojr.coollang.semantic.classtree.ClassTreeBuilder;
 import com.enricojr.coollang.semantic.classtree.ClassTreeLinker;
 import com.enricojr.coollang.semantic.classtree.ClassTreeSetup;
 import com.enricojr.coollang.semantic.symboltable.SymbolTableBuilder;
 import com.enricojr.coollang.semantic.symboltable.SymbolTableLinker;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import com.enricojr.coollang.semantic.typechecker.TypeChecker;
+import com.enricojr.coollang.semantic.typechecker.TypeSetter;
+import org.antlr.v4.runtime.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -19,9 +20,11 @@ import java.io.*;
 import java.util.List;
 import java.util.Stack;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestIntegrationTypeSetter {
+public class TestCodeGenDispatchTables {
+    // TODO: Lots of duplicated code in these test files.
     private static class CoolFileFilter implements FilenameFilter {
         public boolean accept(File dir, String name) {
             String ext = FilenameUtils.getExtension(name);
@@ -29,11 +32,24 @@ public class TestIntegrationTypeSetter {
         }
     }
 
+    public static class TestCancelListener extends BaseErrorListener {
+        @Override
+        public void syntaxError(
+                Recognizer<?, ?> recognizer,
+                Object offendingSymbol,
+                int line, int charPositionInLine,
+                String msg, RecognitionException e
+        ) {
+            String errorMsg = String.format("Syntax error on %s:%s (line:charPosition)", line, charPositionInLine);
+            fail(errorMsg);
+        }
+    }
+
     @Test
-    public void TestCodeSamplesSymbolTable() {
+    public void TestCodeSamplesParse() {
         Stack<File> codeSamples = new Stack<>();
         File coolSamplesDir = new File("./coolExamples/compiled");
-        File[] files = coolSamplesDir.listFiles(new TestIntegrationTypeSetter.CoolFileFilter());
+        File[] files = coolSamplesDir.listFiles(new TestCodeGenDispatchTables.CoolFileFilter());
         if (files == null) {
             fail("No Cool files found in the ./coolExamples directory.");
         } else {
@@ -93,9 +109,18 @@ public class TestIntegrationTypeSetter {
             SymbolTableBuilder sBuilder = new SymbolTableBuilder(sample.getName());
             sBuilder.visitCoolProgram(top);
 
-            System.out.println("Initializing type setter...");
+            System.out.println("Inferring types...");
             TypeSetter ts = new TypeSetter();
             ts.visitCoolProgram(top);
+
+            System.out.println("Verifying types...");
+            TypeChecker tc = new TypeChecker(sample.getName());
+            tc.visitCoolProgram(top);
+
+            System.out.println("Generating dispatch tables...");
+            for (CoolClass cc : top.getClasses()) {
+                System.out.println(cc.codeGenDispatchTable());
+            }
         }
     }
 }

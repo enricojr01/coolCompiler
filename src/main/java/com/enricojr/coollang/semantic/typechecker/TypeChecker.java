@@ -1,4 +1,4 @@
-package com.enricojr.coollang.semantic;
+package com.enricojr.coollang.semantic.typechecker;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
