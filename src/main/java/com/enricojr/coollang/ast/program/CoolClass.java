@@ -9,6 +9,9 @@ import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 
 public class CoolClass extends CoolBaseNode {
+    // NOTE: starts at 5 because 2, 3, and 4 are reserved for Int, Bool, and String.
+    private static int tag = 5;
+
     private CoolIdentifier name;
     private CoolIdentifier parentName;
     private CoolClass parent;
@@ -27,11 +30,13 @@ public class CoolClass extends CoolBaseNode {
 
     public CoolClass() {
         this.setComputedType(this);
+        tag += 1;
     }
 
     public CoolClass(CoolIdentifier ci) {
         this.name = ci;
         this.setComputedType(this);
+        tag += 1;
     }
 
     public static CoolClass factory(String identifier) {
@@ -296,7 +301,8 @@ public class CoolClass extends CoolBaseNode {
     }
 
     private int getMipsWordSize() {
-        int size = 0;
+        // start at 3 to account for the class tag, the size word itself, and the dispatch pointer
+        int size = 3;
 
         while (true) {
             CoolClass current = this;
@@ -317,11 +323,23 @@ public class CoolClass extends CoolBaseNode {
 
     // NOTE: subclasses like CoolInt, CoolStr, and CoolBool will need to override these to generate their respective
     // MIPS ASM.
+    public String codeGenAttributes() {
+        StringBuilder sb = new StringBuilder();
+        // need to create a String/Int/Bool constant somewhere in the file, and then pass its label
+        // here. default value should be str_empty, int_zero, bool_const0, or just 0 for any other type.
+        return "";
+    }
+
     public String codeGenHeader() {
         StringBuilder sb = new StringBuilder();
+        // TODO: lift this to a field.
+        String tableName = String.format("%s_dispTab:\n", this.getNameString());
+
+        sb.append(".word -1\n");
         sb.append(this.getNameString()).append("_protObj:\n");
-        sb.append(".word ").append(this.getMipsId()).append("\n");
+        sb.append(".word ").append(tag).append("\n");
         sb.append(".word ").append(this.getMipsWordSize()).append("\n");
+        sb.append(".word ").append(tableName).append("\n");
 
         return sb.toString();
     }
@@ -331,10 +349,7 @@ public class CoolClass extends CoolBaseNode {
     }
 
     public String codeGenFooter() {
-        StringBuilder sb = new StringBuilder();
-        // NOTE: required for garbage collector.
-        sb.append(".word -1");
-        return sb.toString();
+        return "";
     }
 
     public String codeGenLocalDispatchTable() {

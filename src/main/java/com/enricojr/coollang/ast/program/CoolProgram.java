@@ -63,19 +63,49 @@ public class CoolProgram extends CoolBaseNode {
         sb.append(".word ").append(CoolBooleanType.getMipsTag()).append("\n");
         sb.append("_string_tag:\n");
         sb.append(".word ").append(CoolStringType.getMipsTag()).append("\n");
+
         sb.append(".globl _MemMgr_INITIALIZER\n");
         sb.append("_MemMgr_INITIALIZER:\n");
         sb.append(".word _NoGC_Init\n");
+
         sb.append(".globl _MemMgr_COLLECTOR\n");
         sb.append("._MemMgr_COLLECTOR:\n");
         sb.append(".word _NoGC_Collect\n");
+
         sb.append(".globl _MemMgr_TEST\n");
         sb.append("_MemMgr_TEST:\n");
         sb.append(".word 0\n");
-        sb.append(".word -1\n");
 
-        // every string constant + one for what I'm presuming is an empty string
-        // every integer constant
+        sb.append(".word -1\n");
+        sb.append("int_zero:\n");
+        sb.append(".word ").append(CoolIntegerType.getMipsTag()).append("\n");
+        sb.append(".word 4\n");
+        sb.append(".word Int_dispTab\n");
+        sb.append(".word 0\n");
+
+        sb.append(".word -1\n");
+        sb.append("str_empty:\n");
+        sb.append(".word ").append(CoolStringType.getMipsTag()).append("\n");
+        sb.append(".word 5\n");
+        sb.append(".word int_zero\n");
+        sb.append(".byte 0\n");
+        sb.append(".align 2\n");
+
+        // Bool - true
+        sb.append(".word -1\n");
+        sb.append("bool_const0:\n");
+        sb.append(".word ").append(CoolBooleanType.getMipsTag()).append("\n");
+        sb.append(".word 4\n");
+        sb.append(".word Bool_dispTab\n");
+        sb.append(".word 0");
+
+        // Bool - false;
+        sb.append(".word -1\n");
+        sb.append("bool_const1:\n");
+        sb.append(".word ").append(CoolBooleanType.getMipsTag()).append("\n");
+        sb.append(".word 4\n");
+        sb.append(".word Bool_dispTab\n");
+        sb.append(".word 1");
 
         return sb.toString();
     }
