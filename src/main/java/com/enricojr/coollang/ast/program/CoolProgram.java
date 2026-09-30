@@ -88,6 +88,7 @@ public class CoolProgram extends CoolBaseNode {
         sb.append(".word ").append(CoolStringType.getMipsTag()).append("\n");
         sb.append(".word 5\n");
         sb.append(".word int_zero\n");
+        sb.append(".ascii \"\"");
         sb.append(".byte 0\n");
         sb.append(".align 2\n");
 

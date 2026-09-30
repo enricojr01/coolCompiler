@@ -5,8 +5,11 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolIntegerType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.constants.CoolInteger;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolClass extends CoolBaseNode {
     // NOTE: starts at 5 because 2, 3, and 4 are reserved for Int, Bool, and String.
@@ -325,21 +328,39 @@ public class CoolClass extends CoolBaseNode {
     // MIPS ASM.
     public String codeGenAttributes() {
         StringBuilder sb = new StringBuilder();
+        SymbolTable current = this.getSymbols();
+        CoolClass intType = current.getSymbolType(new CoolIdentifier("Int"));
+
         // need to create a String/Int/Bool constant somewhere in the file, and then pass its label
         // here. default value should be str_empty, int_zero, bool_const0, or just 0 for any other type.
-        return "";
+        for (CoolAttribute ca : this.getAttributes()) {
+            if (ca.getTypeName().equals(new CoolIdentifier("Int"))) {
+                if (ca.getInitExpression() != null && ca.getInitExpression() instanceof CoolInteger) {
+//                    int rawValue = ((CoolInteger) ca.getInitExpression()).getValue();
+
+                }
+                sb.append(".word int_zero");
+            } else if (ca.getTypeName().equals(new CoolIdentifier("Bool"))) {
+                sb.append(".word bool_const0");
+            } else {
+                sb.append(".word 0");
+            }
+        }
+
+        return sb.toString();
     }
 
     public String codeGenHeader() {
         StringBuilder sb = new StringBuilder();
         // TODO: lift this to a field.
-        String tableName = String.format("%s_dispTab:\n", this.getNameString());
+        String tableName = String.format("%s_dispTab\n", this.getNameString());
+        String protoName = String.format("%s_protObj:\n", this.getNameString());
 
         sb.append(".word -1\n");
-        sb.append(this.getNameString()).append("_protObj:\n");
+        sb.append(protoName);
         sb.append(".word ").append(tag).append("\n");
         sb.append(".word ").append(this.getMipsWordSize()).append("\n");
-        sb.append(".word ").append(tableName).append("\n");
+        sb.append(".word ").append(tableName);
 
         return sb.toString();
     }
