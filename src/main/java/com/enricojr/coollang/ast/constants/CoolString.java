@@ -26,7 +26,7 @@ public class CoolString extends CoolLiteral {
     }
 
     public String toString() {
-        return String.format("'%s'", value);
+        return String.format("<CoolString: '%s'>", value);
     }
 
     public int length() {
