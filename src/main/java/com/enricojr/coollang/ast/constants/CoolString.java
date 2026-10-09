@@ -37,32 +37,7 @@ public class CoolString extends CoolLiteral {
         t.visitCoolString(this);
     }
 
-    public String codeGenerate() {
-        StringBuilder sb = new StringBuilder();
-        String label = String.format("str_const%s:\n", counter);
-        String labelSize = String.format("str_const%s_size:\n", counter);
-        String contents = String.format("\"%s\"", this.value);
-        int valueWordSize = Math.max((this.value.getBytes().length / 4), 1);
-        int objSize = 4 + valueWordSize;
-
-        // NOTE: this section represents the integer value of the string length
-        sb.append(".word -1\n");
-        sb.append(labelSize);
-        sb.append(".word ").append(CoolIntegerType.getMipsTag()).append("\n");
-        sb.append(".word 4\n"); // maybe I can get away with just hard-coding 4 because they're Ints?
-        sb.append(".word Int_dispTab\n");
-        sb.append(".word ").append(this.value.length()).append("\n");
-        sb.append(".word -1\n");
-
-        // NOTE: the 2nd field here is the size of the object in words, not of string length
-        sb.append(label);
-        sb.append(".word ").append(CoolStringType.getMipsTag()).append("\n");
-        sb.append(".word ").append(objSize).append("\n");
-        sb.append(".word String_dispTab\n");
-        sb.append(".word ").append(labelSize).append("\n");
-        sb.append(".ascii ").append(contents).append("\n");
-        sb.append(".byte 0\n");
-
-        return sb.toString();
+    public String toMipsLayout() {
+        return ".word str_empty";
     }
 }

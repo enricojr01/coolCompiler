@@ -7,24 +7,18 @@ import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.codegen.models.MipsBaseConst;
 import com.enricojr.coollang.codegen.models.MipsIntConst;
 import com.enricojr.coollang.codegen.models.MipsStrConst;
+import com.enricojr.coollang.codegen.models.MipsSymbolTable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MipsDefaultConstGenerator implements AstVisitor {
-    private HashMap<String, MipsBaseConst> builtins = new HashMap<>();
+    private MipsSymbolTable symbolTable;
     private HashMap<String, Integer> tagTable;
 
-    public MipsDefaultConstGenerator(HashMap<String, Integer> tags) {
+    public MipsDefaultConstGenerator(HashMap<String, Integer> tags, MipsSymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
         this.tagTable = tags;
-    }
-
-    public String getBuiltins() {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, MipsBaseConst> e : builtins.entrySet()) {
-            sb.append(e.getValue().toCode());
-        }
-        return sb.toString();
     }
 
     @Override
@@ -124,13 +118,16 @@ public class MipsDefaultConstGenerator implements AstVisitor {
 
     @Override
     public void visitCoolProgram(CoolProgram cp) {
-        MipsIntConst boolFalse = new MipsIntConst("bool_const0", this.tagTable.get("Bool"), 0);
-        MipsIntConst boolTrue = new MipsIntConst("bool_const1", this.tagTable.get("Bool"), 1);
+        MipsIntConst boolFalse = new MipsIntConst("bool_false", this.tagTable.get("Bool"), 0);
+        MipsIntConst boolTrue = new MipsIntConst("bool_true", this.tagTable.get("Bool"), 1);
         MipsIntConst emptyStrSize = new MipsIntConst("str_empty_size", this.tagTable.get("Int"), 0);
         MipsStrConst emptyString = new MipsStrConst("str_empty", this.tagTable.get("String"), emptyStrSize, null);
-        this.builtins.put("boolFalse", boolFalse);
-        this.builtins.put("boolTrue", boolTrue);
-        this.builtins.put("str_empty", emptyString);
+        MipsIntConst intZero = new MipsIntConst("int_zero", this.tagTable.get("Int"), 0);
+
+        this.symbolTable.putSymbol("bool_false", boolFalse);
+        this.symbolTable.putSymbol("bool_true", boolTrue);
+        this.symbolTable.putSymbol("str_empty", emptyString);
+        this.symbolTable.putSymbol("int_zero", intZero);
     }
 
     @Override

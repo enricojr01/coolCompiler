@@ -6,19 +6,17 @@ import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.codegen.models.MipsIntConst;
 import com.enricojr.coollang.codegen.models.MipsStrConst;
+import com.enricojr.coollang.codegen.models.MipsSymbolTable;
 
 import java.util.HashMap;
 
 public class MipsClassNameConstGenerator implements AstVisitor {
-    private HashMap<String, MipsStrConst> classNameConstTable = new HashMap<>();
+    private MipsSymbolTable symbolTable;
     private HashMap<String, Integer> classTagTable;
 
-    public MipsClassNameConstGenerator(HashMap<String, Integer> classTags) {
+    public MipsClassNameConstGenerator(HashMap<String, Integer> classTags, MipsSymbolTable symbolTable) {
         this.classTagTable = classTags;
-    }
-
-    public HashMap<String, MipsStrConst> getClassNameTable() {
-        return this.classNameConstTable;
+        this.symbolTable = symbolTable;
     }
 
     @Override
@@ -58,16 +56,16 @@ public class MipsClassNameConstGenerator implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        String label = cc.getNameString();
+        String label = cc.getNameString() + "_name";
         String sizeLabel = label + "_size";
 
         int intTag = this.classTagTable.get("Int");
         int classTag = this.classTagTable.get(cc.getNameString());
 
         MipsIntConst sizeConst = new MipsIntConst(sizeLabel, intTag, label.length());
-        MipsStrConst classNameConst = new MipsStrConst(label + "_name", classTag, sizeConst, label);
+        MipsStrConst classNameConst = new MipsStrConst(label, classTag, sizeConst, label);
 
-        this.classNameConstTable.put(label, classNameConst);
+        this.symbolTable.putSymbol(label, classNameConst);
 
         for (CoolClass child : cc.getChildren()) {
             child.accept(this);

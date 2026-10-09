@@ -31,16 +31,7 @@ public class CoolInteger extends CoolLiteral {
         t.visitCoolInteger(this);
     }
 
-    public String codeGenerate() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(".word -1\n");
-        String label = String.format("int_const%s:\n", counter);
-        sb.append(label);
-        sb.append(".word ").append(CoolIntegerType.getMipsTag()).append("\n");
-        sb.append(".word 4\n");
-        sb.append(".word Int_dispTab\n");
-        sb.append(".word ").append(value).append("\n");
-
-        return sb.toString();
+    public String toMipsLayout() {
+        return ".word int_zero";
     }
 }

@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
@@ -11,10 +12,7 @@ import com.enricojr.coollang.codegen.MipsClassNameConstGenerator;
 import com.enricojr.coollang.codegen.MipsClassNameTableGenerator;
 import com.enricojr.coollang.codegen.MipsClassTagGenerator;
 import com.enricojr.coollang.codegen.MipsDefaultConstGenerator;
-import com.enricojr.coollang.codegen.models.MipsAlignedTable;
-import com.enricojr.coollang.codegen.models.MipsBaseConst;
-import com.enricojr.coollang.codegen.models.MipsIntConst;
-import com.enricojr.coollang.codegen.models.MipsStrConst;
+import com.enricojr.coollang.codegen.models.*;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
@@ -97,27 +95,42 @@ public class Test {
             MipsClassTagGenerator mctg = new MipsClassTagGenerator();
             mctg.visitCoolProgram(top);
             HashMap<String, Integer> tagTable = mctg.getTagTable();
-            System.out.println(tagTable);
+            MipsSymbolTable symbolTable = new MipsSymbolTable();
 
             System.out.println("Generating class name strConsts and their corresponding intConst sizes...");
-            MipsClassNameConstGenerator mcncg = new MipsClassNameConstGenerator(tagTable);
+            MipsClassNameConstGenerator mcncg = new MipsClassNameConstGenerator(tagTable, symbolTable);
             mcncg.visitCoolProgram(top);
-            HashMap<String, MipsStrConst> classNameConstTable = mcncg.getClassNameTable();
-            System.out.println(classNameConstTable);
+            System.out.println(symbolTable);
 
-            System.out.println("Generating default consts (Bool, String)...");
-            MipsDefaultConstGenerator mdcg = new MipsDefaultConstGenerator(tagTable);
+            System.out.println("Generating default consts (Bool, String, etc)...");
+            MipsDefaultConstGenerator mdcg = new MipsDefaultConstGenerator(tagTable, symbolTable);
             mdcg.visitCoolProgram(top);
-            String builtins = mdcg.getBuiltins();
-            System.out.println(builtins);
+            System.out.println(symbolTable);
 
             System.out.println("Generating class_nameTab...");
-            MipsClassNameTableGenerator mcntg = new MipsClassNameTableGenerator(classNameConstTable);
-            String classNameTab = mcntg.getList();
-            String classObjs = mcntg.getConsts();
-            System.out.println(classNameTab);
-            System.out.println();
-            System.out.println(classObjs);
+            String[] classNameTab = new String[tagTable.size()];
+            for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+                String label = e.getValue().getLabel();
+                if (label.endsWith("_name")) {
+                    int tag = e.getValue().getTag();
+                    // I'm not sure if I can just do (tag * 4), so I'm going to leave it as is.
+                    int pos = (tag * 4) / 4;
+//                    System.out.println(String.format("Inserting %s (tag: %s) at pos %s", label, tag, pos));
+                    classNameTab[pos] = label;
+                }
+
+            }
+            for (String entry : classNameTab) {
+                System.out.println(entry);
+            }
+
+//            MipsClassNameTableGenerator mcntg = new MipsClassNameTableGenerator(classNameConstTable);
+//            String classNameTab = mcntg.getList();
+//            String classObjs = mcntg.getConsts();
+//
+//            System.out.println(builtins);
+//            System.out.println(classObjs);
+//            System.out.println(classNameTab);
 
         } catch (StackTraceException e) {
             LinkedList<CoolBaseNode> errorStack = e.getCustomStackTrace();

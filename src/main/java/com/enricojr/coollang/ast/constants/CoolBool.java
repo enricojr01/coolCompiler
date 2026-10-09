@@ -28,4 +28,8 @@ public class CoolBool extends CoolLiteral {
     public void accept(AstVisitor t) {
         t.visitCoolBool(this);
     }
+
+    public String toMipsLayout() {
+        return ".word bool_false";
+    }
 }

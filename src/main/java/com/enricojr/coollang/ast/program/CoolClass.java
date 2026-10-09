@@ -5,11 +5,8 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.builtins.CoolIntegerType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.constants.CoolInteger;
-import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolClass extends CoolBaseNode {
     // NOTE: starts at 5 because 2, 3, and 4 are reserved for Int, Bool, and String.
@@ -303,86 +300,19 @@ public class CoolClass extends CoolBaseNode {
         t.visitCoolClass(this);
     }
 
-    private int getMipsWordSize() {
-        // start at 3 to account for the class tag, the size word itself, and the dispatch pointer
-        int size = 3;
-
-        while (true) {
-            CoolClass current = this;
-
-            for (CoolAttribute _ : current.getAttributes()) {
-                size += 1;
-            }
-
-            if (current.getParent() != null) {
-                current = current.getParent();
-            } else {
-                break;
-            }
-        }
-
-        return size;
-    }
-
-    // NOTE: subclasses like CoolInt, CoolStr, and CoolBool will need to override these to generate their respective
-    // MIPS ASM.
-    public String codeGenAttributes() {
+    public String toMipsLocalDispTab() {
         StringBuilder sb = new StringBuilder();
-        SymbolTable current = this.getSymbols();
-        CoolClass intType = current.getSymbolType(new CoolIdentifier("Int"));
+        sb.append(".word ").append(String.format("%s_%s", this.getNameString(), "init"));
 
-        // need to create a String/Int/Bool constant somewhere in the file, and then pass its label
-        // here. default value should be str_empty, int_zero, bool_const0, or just 0 for any other type.
-        for (CoolAttribute ca : this.getAttributes()) {
-            if (ca.getTypeName().equals(new CoolIdentifier("Int"))) {
-                if (ca.getInitExpression() != null && ca.getInitExpression() instanceof CoolInteger) {
-//                    int rawValue = ((CoolInteger) ca.getInitExpression()).getValue();
-
-                }
-                sb.append(".word int_zero");
-            } else if (ca.getTypeName().equals(new CoolIdentifier("Bool"))) {
-                sb.append(".word bool_const0");
-            } else {
-                sb.append(".word 0");
-            }
-        }
-
-        return sb.toString();
-    }
-
-    public String codeGenHeader() {
-        StringBuilder sb = new StringBuilder();
-        // TODO: lift this to a field.
-        String tableName = String.format("%s_dispTab\n", this.getNameString());
-        String protoName = String.format("%s_protObj:\n", this.getNameString());
-
-        sb.append(".word -1\n");
-        sb.append(protoName);
-        sb.append(".word ").append(tag).append("\n");
-        sb.append(".word ").append(this.getMipsWordSize()).append("\n");
-        sb.append(".word ").append(tableName);
-
-        return sb.toString();
-    }
-
-    public String codeGenBody() {
-        return "";
-    }
-
-    public String codeGenFooter() {
-        return "";
-    }
-
-    public String codeGenLocalDispatchTable() {
-        StringBuilder sb = new StringBuilder();
         for (CoolMethod cm : this.getMethods()) {
             String name = String.format("%s.%s", this.getNameString(), cm.getNameString());
             sb.append(".word ").append(name).append("\n");
         }
+
         return sb.toString();
     }
 
-    public String codeGenDispatchTable() {
+    public String toMipsDispTab() {
         StringBuilder sb = new StringBuilder();
         String tableName = String.format("%s_dispTab:\n", this.getNameString());
         sb.append(tableName);
@@ -392,7 +322,7 @@ public class CoolClass extends CoolBaseNode {
 
         while (true) {
             if (current != null) {
-                tables.push(current.codeGenLocalDispatchTable());
+                tables.push(current.toMipsLocalDispTab());
             }
             if (current != null && current.getParentName() != null) {
                 current = current.getParent();
@@ -406,9 +336,5 @@ public class CoolClass extends CoolBaseNode {
         }
 
         return sb.toString();
-    }
-
-    public String codeGenerate() {
-        return this.codeGenHeader() + this.codeGenBody() + this.codeGenFooter();
     }
 }

@@ -22,7 +22,6 @@ public class MipsAlignedTable {
         for (MipsBaseConst mbc : this.internal) {
             sb.append(String.format(".word %s\n", mbc.getLabel()));
         }
-        sb.append("\n");
 
         return sb.toString();
     }
