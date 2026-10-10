@@ -18,4 +18,8 @@ public class CoolBooleanType extends CoolBuiltInType {
         this.setName(new CoolIdentifier("Bool"));
         this.setParentName(new CoolIdentifier("Object"));
     }
+
+    public String defaultInit() {
+        return "bool_false";
+    }
 }

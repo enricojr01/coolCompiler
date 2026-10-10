@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CoolStringType extends CoolBuiltInType {
-    public static int getMipsTag() {
-        return 4;
-    }
 
     public CoolStringType() {
         this.setName(new CoolIdentifier("String"));
@@ -57,5 +54,9 @@ public class CoolStringType extends CoolBuiltInType {
 
         ArrayList<CoolMethod> methods = new ArrayList<>(List.of(length, concat, substr));
         this.setMethods(methods);
+    }
+
+    public String defaultInit() {
+        return "str_empty";
     }
 }

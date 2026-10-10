@@ -17,4 +17,9 @@ public class CoolBuiltInType extends CoolClass {
     public CoolBuiltInType(CoolClass parent) {
         this.setParent(parent);
     }
+
+    // honestly this is probably better as an Interface or something
+    public String defaultInit() {
+        return null;
+    }
 }

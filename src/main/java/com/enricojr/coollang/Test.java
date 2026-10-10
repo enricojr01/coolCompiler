@@ -8,10 +8,7 @@ import java.util.Map;
 
 import com.enricojr.coollang.ast.program.CoolBaseNode;
 import com.enricojr.coollang.ast.program.CoolClass;
-import com.enricojr.coollang.codegen.MipsClassNameConstGenerator;
-import com.enricojr.coollang.codegen.MipsClassNameTableGenerator;
-import com.enricojr.coollang.codegen.MipsClassTagGenerator;
-import com.enricojr.coollang.codegen.MipsDefaultConstGenerator;
+import com.enricojr.coollang.codegen.*;
 import com.enricojr.coollang.codegen.models.*;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
@@ -123,6 +120,36 @@ public class Test {
             for (String entry : classNameTab) {
                 System.out.println(entry);
             }
+
+            System.out.println("Generating protObjs...");
+            MipsClassProtObjGenerator mcpog = new MipsClassProtObjGenerator(symbolTable, tagTable);
+            mcpog.visitCoolProgram(top);
+            System.out.println(symbolTable);
+
+            for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+                if (e.getKey().endsWith("_protObj")) {
+                    MipsProtObj mpo = (MipsProtObj) e.getValue();
+                    System.out.println(mpo.toCode());
+                }
+            }
+
+            for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+                if (e.getKey().endsWith("_protObj")) {
+                    MipsProtObj mpo = (MipsProtObj) e.getValue();
+                    MipsDispTab mdt = mpo.getDispTab();
+                    System.out.println(mdt.toCode());
+                }
+            }
+//            System.out.println("Generating class_objTab...");
+//            String[] classObjTab = new String[tagTable.size() * 2];
+//            for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+//                String label = e.getValue().getLabel();
+//                if (label.endsWith("_name")) {
+//                    int tag = e.getValue().getTag();
+//                    int pos = (tag * 8) / 8;
+//                    classNameTab[pos] =
+//                }
+//            }
 
 //            MipsClassNameTableGenerator mcntg = new MipsClassNameTableGenerator(classNameConstTable);
 //            String classNameTab = mcntg.getList();

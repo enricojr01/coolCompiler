@@ -18,4 +18,8 @@ public class CoolIntegerType extends CoolBuiltInType {
         this.setName(new CoolIdentifier("Int"));
         this.setParentName(new CoolIdentifier("Object"));
     }
+
+    public String defaultInit() {
+        return "int_zero";
+    }
 }

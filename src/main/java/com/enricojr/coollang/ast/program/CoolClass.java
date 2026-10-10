@@ -1,12 +1,17 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Objects;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.codegen.models.MipsDispTab;
+import com.enricojr.coollang.codegen.models.MipsProtObj;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolClass extends CoolBaseNode {
     // NOTE: starts at 5 because 2, 3, and 4 are reserved for Int, Bool, and String.
@@ -223,6 +228,7 @@ public class CoolClass extends CoolBaseNode {
         if (a.equals(b)) {
             return a;
         }
+
         // NOTE: method overloading not appropriate here because the calling code will never upcast anything to
         // CoolSelfType i.e. it'll always be CoolClass
         if (a instanceof CoolSelfType && b instanceof CoolSelfType) {
@@ -266,9 +272,11 @@ public class CoolClass extends CoolBaseNode {
         if (stack1.size() != stack2.size()) {
             longer = CoolClass.whichLonger(stack1, stack2);
             shorter = CoolClass.whichShorter(stack1, stack2);
+
             while (longer.size() != shorter.size()) {
                 longer.removeFirst();
             }
+
             // TODO: very tired rn, figure out a way to deduplicate this block later.
             while (!stack1.isEmpty() && !stack2.isEmpty()) {
                 CoolClass c1 = stack1.removeFirst();
@@ -300,29 +308,29 @@ public class CoolClass extends CoolBaseNode {
         t.visitCoolClass(this);
     }
 
-    public String toMipsLocalDispTab() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(".word ").append(String.format("%s_%s", this.getNameString(), "init"));
+    private ArrayList<String> toMipsLocalDispTab() {
+        ArrayList<String> methods = new ArrayList<>();
 
         for (CoolMethod cm : this.getMethods()) {
             String name = String.format("%s.%s", this.getNameString(), cm.getNameString());
-            sb.append(".word ").append(name).append("\n");
+            methods.add(name);
         }
 
-        return sb.toString();
+        // The individual method list needs to be top -> bottom
+        Collections.reverse(methods);
+
+        return methods;
     }
 
-    public String toMipsDispTab() {
-        StringBuilder sb = new StringBuilder();
-        String tableName = String.format("%s_dispTab:\n", this.getNameString());
-        sb.append(tableName);
+    private MipsDispTab toMipsDispTab() {
+        MipsDispTab dispatchTable = new MipsDispTab(this.getNameString());
 
-        LinkedList<String> tables = new LinkedList<>();
+        ArrayList<String> fqMethodNames = new ArrayList<>();
         CoolClass current = this;
 
         while (true) {
             if (current != null) {
-                tables.push(current.toMipsLocalDispTab());
+                fqMethodNames.addAll(current.toMipsLocalDispTab());
             }
             if (current != null && current.getParentName() != null) {
                 current = current.getParent();
@@ -331,10 +339,65 @@ public class CoolClass extends CoolBaseNode {
             }
         }
 
-        while (!tables.isEmpty()) {
-            sb.append(tables.pop());
+        Collections.reverse(fqMethodNames);
+
+        dispatchTable.addMethodNames(fqMethodNames);
+        return dispatchTable;
+    }
+
+    private ArrayList<String> getLocalDefaultInits() {
+        SymbolTable current = this.getSymbols();
+        ArrayList<String> defaults = new ArrayList<>();
+        for (CoolAttribute ca : this.getAttributes()) {
+            CoolClass theType = current.getSymbolType(ca.getTypeName());
+            // NOTE: The builtin types need to be initialized to the proper default values as follows:
+            // Int - int_zero
+            // Str - str_empty
+            // Bool - bool_false
+            // everything else gets 32-bit value 0 (i.e. void).
+            if (theType instanceof CoolBuiltInType) {
+                CoolBuiltInType cbit = (CoolBuiltInType) theType;
+                defaults.add(cbit.defaultInit());
+            } else {
+                defaults.add("0");
+            }
         }
 
-        return sb.toString();
+        // The attributes need to be listed top -> bottom.
+        Collections.reverse(defaults);
+
+        return defaults;
+    }
+
+    private ArrayList<String> getDefaultInits() {
+        ArrayList<String> defaults = new ArrayList<>();
+
+        CoolClass current = this;
+        while (true) {
+            if (current != null) {
+                defaults.addAll(current.getLocalDefaultInits());
+            }
+            if (current != null && current.getParentName() != null) {
+                current = current.getParent();
+            } else {
+                break;
+            }
+        }
+
+        // flip it around so grandparent attrs are first
+        Collections.reverse(defaults);
+
+        return defaults;
+    }
+
+    public MipsProtObj toMipsProtObj(int tag) {
+        MipsProtObj protObj = new MipsProtObj(
+                this.getNameString(),
+                tag,
+                this.toMipsDispTab(),
+                this.getDefaultInits()
+        );
+
+        return protObj;
     }
 }
