@@ -63,12 +63,15 @@ public class MipsClassNameConstGenerator implements AstVisitor {
         int classTag = this.classTagTable.get(cc.getNameString());
 
         MipsIntConst sizeConst = new MipsIntConst(sizeLabel, intTag, label.length());
-        MipsStrConst classNameConst = new MipsStrConst(label, classTag, sizeConst, label);
+        MipsStrConst classNameConst = new MipsStrConst(label, classTag, sizeConst, cc.getNameString());
 
         this.symbolTable.putSymbol(label, classNameConst);
 
         for (CoolClass child : cc.getChildren()) {
-            child.accept(this);
+            if (!child.getNameString().equals("void")) {
+                child.accept(this);
+
+            }
         }
     }
 

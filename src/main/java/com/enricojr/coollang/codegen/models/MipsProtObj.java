@@ -3,7 +3,6 @@ package com.enricojr.coollang.codegen.models;
 import java.util.ArrayList;
 
 public class MipsProtObj extends MipsBaseConst {
-    private int size;
     private MipsDispTab dispTab;
     private ArrayList<String> attribs = new ArrayList<>();
 
@@ -36,7 +35,7 @@ public class MipsProtObj extends MipsBaseConst {
         sb.append(".word -1\n");
 
         // label
-        sb.append(this.getLabel()).append("_protObj\n");
+        sb.append(this.getLabel()).append("_protObj:\n");
 
         // object tag
         sb.append(".word ").append(this.getTag()).append("\n");

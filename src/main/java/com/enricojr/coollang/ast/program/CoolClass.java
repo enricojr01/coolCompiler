@@ -369,7 +369,7 @@ public class CoolClass extends CoolBaseNode {
         return defaults;
     }
 
-    private ArrayList<String> getDefaultInits() {
+    protected ArrayList<String> getDefaultInits() {
         ArrayList<String> defaults = new ArrayList<>();
 
         CoolClass current = this;

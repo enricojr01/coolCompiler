@@ -56,6 +56,15 @@ public class CoolStringType extends CoolBuiltInType {
         this.setMethods(methods);
     }
 
+    @Override
+    protected ArrayList<String> getDefaultInits() {
+        ArrayList<String> defaults = new ArrayList<>();
+        defaults.add("int_zero");
+        defaults.add("0");
+
+        return defaults;
+    }
+
     public String defaultInit() {
         return "str_empty";
     }

@@ -3,6 +3,7 @@ package com.enricojr.coollang.ast.builtins;
 import com.enricojr.coollang.ast.program.CoolAttribute;
 import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.ast.program.CoolMethod;
+import com.enricojr.coollang.codegen.models.MipsProtObj;
 
 import java.util.ArrayList;
 

@@ -56,7 +56,10 @@ public class MipsClassTagGenerator implements AstVisitor {
         this.tag += 1;
 
         for (CoolClass child : cc.getChildren()) {
-            child.accept(this);
+            if (!child.getNameString().equals("void")) {
+                child.accept(this);
+
+            }
         }
     }
 

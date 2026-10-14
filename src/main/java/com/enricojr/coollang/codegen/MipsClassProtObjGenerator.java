@@ -8,6 +8,8 @@ import com.enricojr.coollang.codegen.models.MipsProtObj;
 import com.enricojr.coollang.codegen.models.MipsSymbolTable;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 public class MipsClassProtObjGenerator implements AstVisitor {
     private MipsSymbolTable symbolTable;
@@ -60,7 +62,9 @@ public class MipsClassProtObjGenerator implements AstVisitor {
         this.symbolTable.putSymbol(mpo.getLabel() + "_protObj", mpo);
 
         for (CoolClass child : cc.getChildren()) {
-            child.accept(this);
+            if (!child.getNameString().equals("void")) {
+                child.accept(this);
+            }
         }
     }
 

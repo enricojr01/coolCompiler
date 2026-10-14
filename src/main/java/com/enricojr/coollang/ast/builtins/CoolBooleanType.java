@@ -3,6 +3,8 @@ package com.enricojr.coollang.ast.builtins;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.ast.program.CoolClass;
 
+import java.util.ArrayList;
+
 public class CoolBooleanType extends CoolBuiltInType {
     public static int getMipsTag() {
         return 2;
@@ -17,6 +19,12 @@ public class CoolBooleanType extends CoolBuiltInType {
         super(parent);
         this.setName(new CoolIdentifier("Bool"));
         this.setParentName(new CoolIdentifier("Object"));
+    }
+
+    protected ArrayList<String> getDefaultInits() {
+        ArrayList<String> defaults = new ArrayList<>();
+        defaults.add("0");
+        return defaults;
     }
 
     public String defaultInit() {
