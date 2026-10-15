@@ -28,6 +28,6 @@ public class CoolBooleanType extends CoolBuiltInType {
     }
 
     public String defaultInit() {
-        return "bool_false";
+        return "bool_const0";
     }
 }
