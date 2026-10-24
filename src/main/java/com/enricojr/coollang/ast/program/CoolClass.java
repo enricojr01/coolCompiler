@@ -10,6 +10,7 @@ import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.codegen.models.MipsDispTab;
+import com.enricojr.coollang.codegen.models.MipsFunctionObj;
 import com.enricojr.coollang.codegen.models.MipsProtObj;
 import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
@@ -399,5 +400,50 @@ public class CoolClass extends CoolBaseNode {
         );
 
         return protObj;
+    }
+
+    public MipsFunctionObj toMipsClassInit() {
+        String mipsLabel = this.getNameString() + "_init";
+        MipsFunctionObj classInit = new MipsFunctionObj(mipsLabel);
+
+        // in keeping with MIPS procedure call convention we set up the stack
+        classInit.addCommand("addiu $sp $sp -12");
+        classInit.addCommand("sw $fp 12($sp)");
+        classInit.addCommand("sw $s0 8($sp)");
+        classInit.addCommand("sw $ra 4($sp)");
+        classInit.addCommand("addiu $fp $sp 4");
+
+        // save self
+        classInit.addCommand("move $s0 $a0");
+
+        // call parent init
+        String parentInit = this.getParentNameString() + "_init";
+        classInit.addCommand("jal " + parentInit);
+
+        // restore self
+        classInit.addCommand("move $a0 $s0");
+
+        // now that I think about it maybe its better to put this whole thing OUTSIDE the class because
+        // it will get weird if I have to generate consts and then keep track of them to later put them
+        // in a symbol table. I may as well do that in the visitor
+        for (CoolAttribute ca : this.getAttributes()) {
+            if (ca.getInitExpression() != null) {
+
+            }
+        }
+        // TODO: if there are init expressions on any of the attributes then this part possibly gets
+        //  deferred to a branch.
+        // restore registers
+        classInit.addCommand("lw $fp 12($sp)");
+        classInit.addCommand("lw $s0 8($sp)");
+        classInit.addCommand("lw $ra 4($sp)");
+
+        // pop stack
+        classInit.addCommand("addiu $sp $sp 12");
+
+        // return to caller
+        classInit.addCommand("jr $ra");
+
+        return classInit;
     }
 }

@@ -3,15 +3,10 @@ package com.enricojr.coollang.codegen.models;
 import java.util.ArrayList;
 
 public class MipsFunctionObj extends MipsBaseConst {
-    private String functionName;
     private ArrayList<String> commands = new ArrayList<>();
 
     public MipsFunctionObj(String name) {
-        this.functionName = name;
-    }
-
-    public String getFunctionName() {
-        return this.functionName;
+        super(name, -1);
     }
 
     public void addCommand(String command) {
@@ -21,7 +16,7 @@ public class MipsFunctionObj extends MipsBaseConst {
     public String toCode() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(this.functionName).append(":\n");
+        sb.append(this.getLabel()).append(":\n");
 
         return sb.toString();
     }

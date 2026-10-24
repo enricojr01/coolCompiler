@@ -83,7 +83,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         classInit.addCommand("jr $ra");
 
         // generate the code for the individual methods
-        this.symbolTable.putSymbol(classInit.getFunctionName(), classInit);
+        this.symbolTable.putSymbol(classInit.getLabel(), classInit);
 
         for (CoolMethod cm : cc.getMethods()) {
             cm.accept(this);
