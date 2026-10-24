@@ -232,6 +232,7 @@ public class Test {
                 MipsProtObj obj = (MipsProtObj) e.getValue();
             }
         }
+
         // class prototype objects
         for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
             if (e.getValue() instanceof MipsProtObj) {
