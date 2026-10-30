@@ -138,6 +138,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitCodeBlock(CodeBlockContext ctx) {
+        // anything between { and }
         CoolBlock cb = new CoolBlock();
         List<ExprContext> contexts = ctx.expr();
         ArrayList<CoolExpr> expressions = new ArrayList<>();
@@ -157,6 +158,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitComplement(ComplementContext ctx) {
+        // the ~ operator
         CoolUnaryOp cuo = new CoolUnaryOp();
         CoolExpr expression = this.visitExpression(ctx.expr());
 
@@ -209,6 +211,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitDivide(DivideContext ctx) {
+        // the / operator
         CoolBinaryOp cbo = new CoolBinaryOp();
         List<ExprContext> expressions = ctx.expr();
         CoolExpr lhs = this.visitExpression(expressions.get(0));
@@ -226,6 +229,7 @@ public class AstBuilder extends CoolBaseVisitor<CoolBaseNode> implements CoolVis
 
     @Override
     public CoolBaseNode visitDotMethodDispatch(DotMethodDispatchContext ctx) {
+        // dispatch of the form `a.b(...)`
         List<ExprContext> expressions = ctx.expr();
         List<ExprContext> paramListContext = null;
 

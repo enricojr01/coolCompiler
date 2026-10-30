@@ -175,7 +175,6 @@ public class Test {
         sb.append(".globl _bool_tag\n");
         sb.append(".globl _string_tag\n");
         sb.append(".globl bool_const0\n");
-        sb.append(".globl class_nameTab\n");
         sb.append(".globl class_objTab\n");
 
         // int, str, and bool tags:

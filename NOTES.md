@@ -5,6 +5,213 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### "Templates"
+Annotated example of `Main.main` from `hello_world.s`
+
+```
+
+	.word	-1
+Main_protObj:
+    # offset 0 (class tag)
+	.word	2              
+	
+	# offset 4 (object size, in words)
+	.word	3               
+	
+	# offset 8 (pointer to dispatch table)
+	.word	Main_dispTab
+
+Main_dispTab:
+    # offset 0
+	.word	Object.abort
+	
+	# offset 4
+	.word	Object.type_name
+	
+	# offset 8
+	.word	Object.copy
+	
+	# offset 12
+	.word	IO.out_string
+	
+	# offset ....
+	.word	IO.out_int
+	
+	.word	IO.in_string
+	.word	IO.in_int
+	.word	Main.main
+
+Main.main:
+    # add empty space for a new frame on the stack
+    # remember that the stack grows _downwards_
+	addiu	$sp $sp -12
+	
+	# store current frame pointer a the top of the new frame
+	sw	$fp 12($sp)
+	
+	# store the current value of `self` after the frame pointer
+	sw	$s0 8($sp)
+	
+	# store the return address (set by `jal`) after `self`
+	sw	$ra 4($sp)
+	
+	# set $fp to point to the $ra on the stack, marking the beginning of a new frame
+	addiu	$fp $sp 4
+	
+	# move current value of self (set by caller in $a0) into $s0, presumably to
+	# set it aside because we're going to use $a0 for stack shit
+	move	$s0 $a0
+	
+	# since main consists of a single function call to out_string we dispatch here
+	# first load the (last?) argument into $a0
+	la	$a0 str_const0
+	
+	# then push it onto the stack
+	sw	$a0 0($sp)
+	
+	# increment stack pointer 
+	addiu	$sp $sp -4
+	
+	# move `self` back into $a0
+	move	$a0 $s0
+
+    # presumably this is where the dispatch begins?
+    # check to see if $a0 is void (32-bit int 0), if its not it jumps to label0
+	bne	$a0 $zero label0
+	
+	# if $a0 is void, we load the filename into $a0
+	la	$a0 str_const1
+	
+	# not sure exactly what this is for
+	li	$t1 1
+	
+	# _dispatch_abort halts the program and displays a runtime error message
+	jal	_dispatch_abort
+	
+label0:
+    # remember that $a0 is `self` in this case
+    # this loads the dispatch table for self (Main)
+	lw	$t1 8($a0)
+	
+	# this loads the address of the function to be called (IO.out_string)
+	lw	$t1 12($t1)
+	
+	# this jumps to the function, i.e. calling it and setting $ra
+	# remember that the arguments have already been pushed to the stack.
+	# also remember that arguments should be pushed onto the stack last-first
+	jalr		$t1
+	
+	# restores the old $fp
+	lw	$fp 12($sp)
+	
+	# restores the old `self`
+	lw	$s0 8($sp)
+	
+	# restores return address
+	lw	$ra 4($sp)
+	
+	# pops the frame off the stack
+	addiu	$sp $sp 12
+	
+	# returns to caller
+	jr	$ra	
+	
+```
+
+So if I'm to, as Peter put it, create templates for everything and fill them in 
+where exactly should the template for dispatch begin? Looking at everything maybe
+it should begin where the initial `move $s0 $a0` call occurs, saving the current
+value of self into `$s0` so we can use `$a0` for other things.
+
+Should the `move` call be a part of the method dispatch itself or remain as part
+of the function body?
+
+### Translating Cool operations to MIPS Assembly
+Code generation has been kicking my ass the past few weeks but I think I'm making
+progress. I need to figure out how to do the following in MIPS assembly:
+
+- object instantiation (i.e. `new Foo`)
+- variable assignment (i.e. `let bar <- in {...}`)
+- method lookup and dispatch (i.e. `Foo.bar()` translates to what exactly in 
+  MIPS?)
+
+I get the theory just fine, and I think I've managed to get the data section of
+the MIPS output correct, it's the rest of the process that I haven't quite
+figured out yet.
+
+I'm going to focus on a single file and its compiled output and try and work
+backwards from there. I'm sorta confident in my understanding of the runtime so
+I'm focusing on this one file to help cut down on the noise. 
+
+#### Some random notes:
+In the current setup $a0 is the accumulator and holds the result of a 
+computation as well as any 'self' passed in as an argument
+
+$s0 on the other hand holds the _current_ value of self, i.e. the self that is 
+being operated on.
+
+Method dispatch isn't as straightforward as calling the label specified in mips,
+it works like so: 
+
+This line from book_list.cl...
+```
+(new Book).initBook("Compilers, Principles, Techniques, and Tools",
+                    "Aho, Sethi, and Ullman")
+```
+
+...will become this in MIPS assembly
+```
+# load "Compilers, ...." into $a0 and push onto the stack
+la	$a0 str_const7
+sw	$a0 0($sp)
+addiu	$sp $sp -4
+
+# Load "Aho, Sethi, ..." into $a0 and push onto the stack
+la	$a0 str_const8
+sw	$a0 0($sp)
+addiu	$sp $sp -4
+
+# Load address of Book_protObj into $a0 and call Object.copy
+# i.e. Object.copy(Book_protObj)
+la	$a0 Book_protObj
+jal	Object.copy
+
+# Object.copy leaves the empty Book object in $a0, which we then pass
+# into Book_init
+jal	Book_init
+# if $a0 is 0 (void/null) we abort but that code is omitted for brevity
+bne	$a0 $zero label0
+...
+label0:
+    # this gets you the address of Book_dispTab 
+	lw	$t1 8($a0)
+	# this gets you Book.initbook
+	lw	$t1 28($t1)
+	# this jumps into Book.initBook
+	jalr		$t1
+```
+
+A couple problems I see off the top of my head - the code generator needs to
+be aware of the size of the object in words (which mine sort of is) and then
+arguments need to be pushed in the correct order onto the stack such that the
+last argument is at the top
+
+Then the callee code needs to be aware that the arguments are at a certain 
+offset from the frame pointer $fp (which is sort of the case already because 
+functions know how many arguments to expect).
+
+Then I just have to make sure that the frame pointer points at the right place,
+the notes say it should always be pointing at the return address on the stack,
+which in this setup is 4 bytes BEFORE the current value of $sp which is the
+next empty byte. Lots to remember!
+
+After every call to Object.copy there's always a `bne` that either aborts the
+program or continues execution under a different label.
+
+Maybe I should start with `hello_world.s` instead? Fewer moving parts to get 
+right. Then move up to something slightly harder (assuming I can find something
+slightly harder).
+
 ### Least Common Ancestor
 
 Need to write a proper implmentation of the least common ancestor algorithm, I'm

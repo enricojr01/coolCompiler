@@ -9,6 +9,7 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
+import com.enricojr.coollang.ast.expressions.CoolExpr;
 import com.enricojr.coollang.codegen.models.MipsDispTab;
 import com.enricojr.coollang.codegen.models.MipsFunctionObj;
 import com.enricojr.coollang.codegen.models.MipsProtObj;
@@ -428,6 +429,8 @@ public class CoolClass extends CoolBaseNode {
         // in a symbol table. I may as well do that in the visitor
         for (CoolAttribute ca : this.getAttributes()) {
             if (ca.getInitExpression() != null) {
+                CoolExpr ce = ca.getInitExpression();
+//                MipsFunctionObj attrInit = ce.getMips();
 
             }
         }

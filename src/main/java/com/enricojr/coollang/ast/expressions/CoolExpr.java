@@ -27,4 +27,8 @@ public class CoolExpr extends CoolBaseNode {
 
     public void accept(AstVisitor t) {
     }
+
+    public String getMips() {
+        return null;
+    }
 }
