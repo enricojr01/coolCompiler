@@ -43,7 +43,31 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolBinaryOp(CoolBinaryOp cbo) {
+        StringBuilder sb = new StringBuilder();
+        CoolExpr lh = cbo.getLhs();
+        lh.accept(this);
+        sb.append(this.stack.pop());
+        sb.append("sw $a0 0($sp)\n");
+        sb.append("addiu $sp $sp -4\n");
 
+        CoolExpr rh = cbo.getRhs();
+        rh.accept(this);
+        sb.append("lw $t1 4($sp)\n");
+
+        CoolBinaryOp.OPERATOR op = cbo.getOp();
+        switch(op) {
+            case CoolBinaryOp.OPERATOR.ADD -> {
+            }
+            case CoolBinaryOp.OPERATOR.SUB -> {
+            }
+            case CoolBinaryOp.OPERATOR.MUL -> {
+            }
+            case CoolBinaryOp.OPERATOR.DIV -> {
+            }
+        }
+        sb.append("addiu $sp $sp 4\n");
+
+        this.stack.push(sb.toString());
     }
 
     @Override
@@ -250,12 +274,31 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolBool(CoolBool cb) {
+        boolean value = cb.getValue();
+        String inst = "";
 
+        // This may be incorrect - I'm not sure.
+        if (value) {
+            inst = "la $a0 bool_const1\n";
+        } else {
+            inst = "la $a0 bool_const0\n";
+        }
+
+        this.stack.push(inst);
     }
 
     @Override
     public void visitCoolInteger(CoolInteger ci) {
+        int contents = ci.getValue();
+        String label = "int_const" + this.counter;
+        MipsIntConst intConst = new MipsIntConst(label, this.tagTable.get("Int"), contents);
 
+        this.symbolTable.putSymbol(label, intConst);;
+
+        String inst = "la $a0 " + label + "\n";
+
+        this.stack.push(inst);
+        this.counter += 1;
     }
 
     @Override

@@ -5,6 +5,23 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### The object model!
+Can't believe I didn't realize this at first - the lectures showed code generation
+samples for straight 32-bit values, but there's a whole Object model employed
+by the runtime that needs to be taken into account!
+
+Adding two numbers (likewise subtracting, multiplying, dividing) operates on Int 
+_objects_ that need to be loaded, copied, and referenced when performing 
+operations! That clears up a bunch of issues I was having trouble understanding.
+
+I also can't believe I didn't realize that since I had the official `coolc` reference
+compiler via the course appliance I could just compile little snippets of Cool
+code to verify how the generated assembly is supposed to look! The code samples
+that I was originally relying on were all bigger, more complex programs with lots
+to unpack and that was just getting in the way of me figuring things out.
+
+By doing this I can break the bigger problems down into smaller problems.
+
 ### "Templates"
 Annotated example of `Main.main` from `hello_world.s`
 

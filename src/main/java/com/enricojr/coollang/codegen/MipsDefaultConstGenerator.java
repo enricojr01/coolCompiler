@@ -119,6 +119,7 @@ public class MipsDefaultConstGenerator implements AstVisitor {
     @Override
     public void visitCoolProgram(CoolProgram cp) {
         MipsIntConst boolFalse = new MipsIntConst("bool_const0", this.tagTable.get("Bool"), 0);
+        MipsIntConst boolTrue = new MipsIntConst("bool_const1", this.tagTable.get("Bool"), 1);
 //        MipsIntConst boolTrue = new MipsIntConst("bool_true", this.tagTable.get("Bool"), 1);
         MipsIntConst emptyStrSize = new MipsIntConst("str_empty_size", this.tagTable.get("Int"), 0);
         MipsStrConst emptyString = new MipsStrConst("str_empty", this.tagTable.get("String"), emptyStrSize, null);
