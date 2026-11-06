@@ -1,18 +1,14 @@
 package com.enricojr.coollang.ast.program;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.util.*;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.ast.expressions.CoolExpr;
-import com.enricojr.coollang.codegen.models.MipsDispTab;
-import com.enricojr.coollang.codegen.models.MipsFunctionObj;
-import com.enricojr.coollang.codegen.models.MipsProtObj;
+import com.enricojr.coollang.codegen.ast.MipsDefaultInitEntry;
+import com.enricojr.coollang.codegen.ast.MipsDispTab;
+import com.enricojr.coollang.codegen.ast.MipsProtObj;
 import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolClass extends CoolBaseNode {
@@ -28,12 +24,6 @@ public class CoolClass extends CoolBaseNode {
     private CoolClass computedType;
 
     private int mipsId;
-
-    // two words for the MIPS header fields then
-    // we need one word per attribute, starting with the parent classes' attributes
-    // one word for the dispatch table,
-    // one or more words for the footer
-    private int mipsWordLength;
 
     public CoolClass() {
         this.setComputedType(this);
@@ -55,8 +45,6 @@ public class CoolClass extends CoolBaseNode {
         cc.setComputedType(cc);
         return cc;
     }
-
-
 
     public CoolMethod classMethodSearch(CoolIdentifier id) {
         for (CoolMethod cm : this.methods) {
@@ -177,7 +165,6 @@ public class CoolClass extends CoolBaseNode {
                 && Objects.equals(getMethods(), coolClass.getMethods());
     }
 
-    // TODO: need to actually start using this I think its a lot clearer than the old one
     public static boolean equalOrSubrelation(CoolClass a, CoolClass b) {
         // NOTE: returns whether a <= b for conformance purposes
         // i.e. a <= b if they are the same type, or share a common ancestor.
@@ -350,6 +337,7 @@ public class CoolClass extends CoolBaseNode {
     private ArrayList<String> getLocalDefaultInits() {
         SymbolTable current = this.getSymbols();
         ArrayList<String> defaults = new ArrayList<>();
+        // need to map the NAMES to their positions
         for (CoolAttribute ca : this.getAttributes()) {
             CoolClass theType = current.getSymbolType(ca.getTypeName());
             // NOTE: The builtin types need to be initialized to the proper default values as follows:
@@ -392,61 +380,41 @@ public class CoolClass extends CoolBaseNode {
         return defaults;
     }
 
-    public MipsProtObj toMipsProtObj(int tag) {
-        MipsProtObj protObj = new MipsProtObj(
-                this.getNameString(),
-                tag,
-                this.toMipsDispTab(),
-                this.getDefaultInits()
-        );
+    protected LinkedList<CoolClass> generateClassChain() {
+        LinkedList<CoolClass> chain = new LinkedList<>();
+        CoolClass current = this;
 
-        return protObj;
-    }
-
-    public MipsFunctionObj toMipsClassInit() {
-        String mipsLabel = this.getNameString() + "_init";
-        MipsFunctionObj classInit = new MipsFunctionObj(mipsLabel);
-
-        // in keeping with MIPS procedure call convention we set up the stack
-        classInit.addCommand("addiu $sp $sp -12");
-        classInit.addCommand("sw $fp 12($sp)");
-        classInit.addCommand("sw $s0 8($sp)");
-        classInit.addCommand("sw $ra 4($sp)");
-        classInit.addCommand("addiu $fp $sp 4");
-
-        // save self
-        classInit.addCommand("move $s0 $a0");
-
-        // call parent init
-        String parentInit = this.getParentNameString() + "_init";
-        classInit.addCommand("jal " + parentInit);
-
-        // restore self
-        classInit.addCommand("move $a0 $s0");
-
-        // now that I think about it maybe its better to put this whole thing OUTSIDE the class because
-        // it will get weird if I have to generate consts and then keep track of them to later put them
-        // in a symbol table. I may as well do that in the visitor
-        for (CoolAttribute ca : this.getAttributes()) {
-            if (ca.getInitExpression() != null) {
-                CoolExpr ce = ca.getInitExpression();
-//                MipsFunctionObj attrInit = ce.getMips();
-
+        while (true) {
+            chain.push(current);
+            if (current != null && current.getParent() != null) {
+                current = current.getParent();
+            } else {
+                break;
             }
         }
-        // TODO: if there are init expressions on any of the attributes then this part possibly gets
-        //  deferred to a branch.
-        // restore registers
-        classInit.addCommand("lw $fp 12($sp)");
-        classInit.addCommand("lw $s0 8($sp)");
-        classInit.addCommand("lw $ra 4($sp)");
+        return chain;
+    }
 
-        // pop stack
-        classInit.addCommand("addiu $sp $sp 12");
+    public ArrayList<CoolMethod> getOrderedMethodList() {
+        LinkedList<CoolClass> chain = this.generateClassChain();
+        ArrayList<CoolMethod> methods = new ArrayList<>();
+        // putting this here because we need parent class name AND method name
+        HashMap<String, Integer> methodMap = new HashMap<>();
 
-        // return to caller
-        classInit.addCommand("jr $ra");
 
-        return classInit;
+        return methods;
+    }
+
+    public ArrayList<CoolAttribute> getOrderedAttributeChain() {
+        // needs to return a list of all attributes starting from grandparent class
+        // to bottom-most child class, in source order.
+        LinkedList<CoolClass> chain = this.generateClassChain();
+        ArrayList<CoolAttribute> attribs = new ArrayList<>();
+
+        for (CoolClass cc : chain) {
+            attribs.addAll(cc.getAttributes());
+        }
+
+        return attribs;
     }
 }

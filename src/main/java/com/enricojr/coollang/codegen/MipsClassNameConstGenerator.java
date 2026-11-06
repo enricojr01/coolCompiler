@@ -4,9 +4,9 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
-import com.enricojr.coollang.codegen.models.MipsIntConst;
-import com.enricojr.coollang.codegen.models.MipsStrConst;
-import com.enricojr.coollang.codegen.models.MipsSymbolTable;
+import com.enricojr.coollang.codegen.ast.consts.MipsIntConst;
+import com.enricojr.coollang.codegen.ast.consts.MipsStrConst;
+import com.enricojr.coollang.codegen.ast.MipsSymbolTable;
 
 import java.util.HashMap;
 

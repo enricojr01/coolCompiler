@@ -24,7 +24,7 @@ public class CoolInteger extends CoolLiteral {
     }
 
     public String toString() {
-        return String.format("<Integer - %s>", this.value);
+        return String.format("<IntegerLiteral - %s>", this.value);
     }
 
     public void accept(AstVisitor t) {

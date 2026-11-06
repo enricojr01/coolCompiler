@@ -1,4 +1,4 @@
-package com.enricojr.coollang.codegen.models;
+package com.enricojr.coollang.codegen.ast.consts;
 
 public class MipsIntConst extends MipsBaseConst {
     private int size = 4;

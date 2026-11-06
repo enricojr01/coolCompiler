@@ -1,7 +1,7 @@
 package com.enricojr.coollang.tests.unit;
 
-import com.enricojr.coollang.codegen.models.MipsIntConst;
-import com.enricojr.coollang.codegen.models.MipsStrConst;
+import com.enricojr.coollang.codegen.ast.consts.MipsIntConst;
+import com.enricojr.coollang.codegen.ast.consts.MipsStrConst;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

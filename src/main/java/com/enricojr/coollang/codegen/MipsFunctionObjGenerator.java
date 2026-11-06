@@ -4,17 +4,17 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
-import com.enricojr.coollang.codegen.models.MipsFunctionObj;
-import com.enricojr.coollang.codegen.models.MipsIntConst;
-import com.enricojr.coollang.codegen.models.MipsStrConst;
-import com.enricojr.coollang.codegen.models.MipsSymbolTable;
+import com.enricojr.coollang.codegen.ast.MipsFunctionObj;
+import com.enricojr.coollang.codegen.ast.consts.MipsIntConst;
+import com.enricojr.coollang.codegen.ast.consts.MipsStrConst;
+import com.enricojr.coollang.codegen.ast.MipsSymbolTable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 public class MipsFunctionObjGenerator implements AstVisitor {
-    private String currentClass = "";
+    private CoolClass currentClass;
+    private CoolMethod currentMethod;
     private MipsSymbolTable symbolTable;
     private HashMap<String, Integer> tagTable;
     private LinkedList<String> stack = new LinkedList<>();
@@ -33,7 +33,10 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
-
+        // at this point this will only be called if the initExpression != null
+        // so no need to check here.
+        CoolExpr ce = ca.getInitExpression();
+        ce.accept(this);
     }
 
     @Override
@@ -44,35 +47,48 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     @Override
     public void visitCoolBinaryOp(CoolBinaryOp cbo) {
         StringBuilder sb = new StringBuilder();
+        sb.append("# Binary Operation: ").append(cbo);
         CoolExpr lh = cbo.getLhs();
         lh.accept(this);
         sb.append(this.stack.pop());
-        sb.append("sw $a0 0($sp)\n");
-        sb.append("addiu $sp $sp -4\n");
+        // note that it's always 12($a0) because $a0 is an Int _object_
+        // and the actual value we need to add is in the third slot
+        sb.append("lw $t1 12($a0)\n");
 
         CoolExpr rh = cbo.getRhs();
         rh.accept(this);
-        sb.append("lw $t1 4($sp)\n");
+        sb.append(this.stack.pop());
+        sb.append("lw $t2 12($a0)\n");
+
+        // creates an Int for the result and stores pointer to it in $a0
+        sb.append("jal Object.copy\n");
 
         CoolBinaryOp.OPERATOR op = cbo.getOp();
         switch(op) {
             case CoolBinaryOp.OPERATOR.ADD -> {
+                sb.append("add $t1 $t1 $t2\n");
             }
             case CoolBinaryOp.OPERATOR.SUB -> {
+                sb.append("sub $t1 $t1 $t2\n");
             }
             case CoolBinaryOp.OPERATOR.MUL -> {
+                sb.append("mul $t1 $t1 $t2\n");
             }
+            // NOTE: keep an eye on this one
             case CoolBinaryOp.OPERATOR.DIV -> {
+                sb.append("div $t1 $t1 $t2\n");
             }
         }
-        sb.append("addiu $sp $sp 4\n");
 
+        sb.append("sw $t1 12($a0)\n");
         this.stack.push(sb.toString());
     }
 
     @Override
     public void visitCoolBlock(CoolBlock cb) {
-
+        for (CoolExpr ce : cb.getExpressions()) {
+            ce.accept(this);
+        }
     }
 
     @Override
@@ -87,6 +103,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
+        this.currentClass = cc;
         MipsFunctionObj classInit = new MipsFunctionObj(cc.getNameString() + "_init");
         // generate _init function passing in each attribute
         // if it has an init expression.
@@ -102,14 +119,16 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         classInit.addCommand("jal " + parentInit);
         classInit.addCommand("move $a0 $s0");
 
-        // TODO: need to figure out some way to get the mips code out
-//        for (CoolAttribute ca : cc.getAttributes()) {
-//            if (ca.getInitExpression() != null) {
-//                ca.accept(this);
-//            }
-//        }
+        for (CoolAttribute ca : cc.getAttributes()) {
+            if (ca.getInitExpression() != null) {
+                ca.accept(this);
+                classInit.addCommand(this.stack.pop());
+            }
+        }
 
-        // TODO: if there's a case expression in the attributes then this goes in one of the labels / branches.
+        // NOTE: it appears that my earlier assumption may have been false, the way the ASM is
+        // structured kinda misled me into thinking that this would be moved into a branch or something
+        // when in fact it can be pasted at the end of a function / class and would work fine.
         classInit.addCommand("lw $fp 12($sp)");
         classInit.addCommand("lw $s0 8($sp)");
         classInit.addCommand("lw $ra 4($sp)");
@@ -120,13 +139,11 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         this.symbolTable.putSymbol(classInit.getLabel(), classInit);
 
         for (CoolMethod cm : cc.getMethods()) {
-            this.currentClass = cc.getNameString();
             cm.accept(this);
         }
 
         for (CoolClass child : cc.getChildren()) {
             child.accept(this);
-            // TODO
         }
     }
 
@@ -167,6 +184,9 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
+        // note that this is the method _definition_ and not the dispatch
+        this.currentMethod = cm;
+
         MipsFunctionObj func = new MipsFunctionObj(this.currentClass + "." + cm.getNameString());
 
         func.addCommand("addiu $sp $sp -12");
@@ -180,47 +200,12 @@ public class MipsFunctionObjGenerator implements AstVisitor {
             func.addCommand(this.stack.pop());
             func.addCommand("addiu $sp $sp -4");
         }
+
+
     }
 
     @Override
     public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
-        StringBuilder sb = new StringBuilder();
-        // remember that regular method dispatch is shorthand for dot method dispatch where
-        // the calling class is "self".
-
-        // put self into $s0 to set it aside so we can do stuff with the stack
-        sb.append("move $s0 $a0\n");
-
-        CoolIdentifier methodName = cmd.getIdentifier();
-
-        // remember that last argument gets pushed first
-        ArrayList<CoolExpr> args = cmd.getArguments();
-        args = (ArrayList<CoolExpr>) args.reversed();
-
-        // we need a reference to the size so we can pop the frame correctly later
-        int argsLength = args.size();
-
-        for (CoolExpr arg : args) {
-            // generate the code for the argument
-            arg.accept(this);
-
-            // push argument onto the stack
-            sb.append(this.stack.pop());
-
-            sb.append("sw $a0 0($sp)\n");
-            sb.append("addiu $sp $sp -4\n");
-        }
-
-        String branchLabel = "label" + this.labelCounter;
-        sb.append("move $a0 $s0\n");
-        sb.append("bne $a0 $zero ").append(branchLabel).append("\n");
-        this.labelCounter += 1;
-
-        sb.append(branchLabel).append(":\n");
-        // load dispatch table
-        // resolve correct method slot
-        // jalr to method slot
-        // cleanup
     }
 
     @Override
@@ -230,7 +215,8 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolParenthesisExpr(CoolParenthesisExpr cpe) {
-
+        CoolExpr ce = cpe.getExpression();
+        ce.accept(this);
     }
 
     @Override
@@ -251,7 +237,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolString(CoolString cs) {
-        // setup
+        StringBuilder sb = new StringBuilder();
         String contents = cs.getValue();
         String label = "str_const" + this.counter;
         MipsIntConst strSize = new MipsIntConst(label + "_size", this.tagTable.get("Int"), contents.length());
@@ -263,10 +249,11 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         this.symbolTable.putSymbol(label, strConst);
 
         // create instruction to add its label to $a0
-        String inst = "la $a0 " + label + "\n";
+        sb.append("# string literal: ").append(cs).append("\n");
+        sb.append("la $a0 ").append(label).append("\n");
 
         // push that instruction onto the stack so the rest of the visitor can access it.
-        this.stack.push(inst);
+        this.stack.push(sb.toString());
 
         // increment counter for the next const
         this.counter += 1;
@@ -274,14 +261,16 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolBool(CoolBool cb) {
+        StringBuilder sb = new StringBuilder();
         boolean value = cb.getValue();
         String inst = "";
 
         // This may be incorrect - I'm not sure.
+        sb.append("# Bool constant: ").append(cb);
         if (value) {
-            inst = "la $a0 bool_const1\n";
+            sb.append("la $a0 bool_const1\n");
         } else {
-            inst = "la $a0 bool_const0\n";
+            sb.append("la $a0 bool_const0\n");
         }
 
         this.stack.push(inst);
@@ -289,25 +278,26 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolInteger(CoolInteger ci) {
+        StringBuilder sb = new StringBuilder();
         int contents = ci.getValue();
         String label = "int_const" + this.counter;
         MipsIntConst intConst = new MipsIntConst(label, this.tagTable.get("Int"), contents);
 
-        this.symbolTable.putSymbol(label, intConst);;
+        this.symbolTable.putSymbol(label, intConst);
+        sb.append("# integer literal:").append(ci);
+        sb.append("la $a0 ").append("label").append("\n");
 
-        String inst = "la $a0 " + label + "\n";
-
-        this.stack.push(inst);
+        this.stack.push(sb.toString());
         this.counter += 1;
     }
 
     @Override
     public void visitCoolSelf(CoolSelf cs) {
-
     }
 
     @Override
     public void visitCoolIdentifier(CoolIdentifier ci) {
-
+        // cannot access local vars from other classes so these are always local
+        // just need to figure out if they're local to the method or to the thing
     }
 }

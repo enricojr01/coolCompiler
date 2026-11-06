@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.enricojr.coollang.ast.program.CoolBaseNode;
-import com.enricojr.coollang.ast.program.CoolClass;
 import com.enricojr.coollang.codegen.*;
-import com.enricojr.coollang.codegen.models.*;
+import com.enricojr.coollang.codegen.ast.*;
+import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
 import com.enricojr.coollang.parser.CoolLexer;
 import com.enricojr.coollang.parser.CoolParser;
 import com.enricojr.coollang.parser.CoolParser.ProgContext;
@@ -111,11 +111,13 @@ public class Test {
         mctg.visitCoolProgram(top);
         HashMap<String, Integer> tagTable = mctg.getTagTable();
 //        System.out.println(tagTable);
+//        System.out.println();
 
         System.out.println("Generating class name strConsts and their corresponding intConst sizes...");
         MipsSymbolTable symbolTable = new MipsSymbolTable();
         MipsClassNameConstGenerator mcncg = new MipsClassNameConstGenerator(tagTable, symbolTable);
         mcncg.visitCoolProgram(top);
+
 //        System.out.println(symbolTable);
 
         System.out.println("Generating default consts (Bool, String, etc)...");
@@ -136,10 +138,16 @@ public class Test {
             }
         }
 
-        System.out.println("Generating protObjs...");
-        MipsClassProtObjGenerator mcpog = new MipsClassProtObjGenerator(symbolTable, tagTable);
-        mcpog.visitCoolProgram(top);
-        System.out.println(symbolTable);
+//        System.out.println("Generating protObjs...");
+//        MipsClassProtObjGenerator mcpog = new MipsClassProtObjGenerator(symbolTable, tagTable);
+//        mcpog.visitCoolProgram(top);
+
+//        for (Map.Entry<String, MipsBaseConst> entry : symbolTable.entrySet()) {
+//            String output = String.format("%s: %s", entry.getKey(), entry.getValue());
+//            System.out.println(output);
+//        }
+
+//        System.out.println();
 
         System.out.println("Generating class_objTab...");
         Set<Map.Entry<String, MipsBaseConst>> filtered = symbolTable
@@ -149,101 +157,122 @@ public class Test {
                 .collect(Collectors.toSet());
         String[] classObjTab = new String[filtered.size() * 2];
 
-        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-            if (e.getKey().endsWith("protObj")) {
-                MipsProtObj obj = (MipsProtObj) e.getValue();
-                String label = obj.getLabel();
-                int tag = obj.getTag();
-                int pos = (tag * 8) / 4;
-
-                classObjTab[pos] = label + "_protObj";
-                classObjTab[pos + 1] = label + "_init";
-            }
+        for (Map.Entry<String, MipsBaseConst> e : filtered) {
+            MipsProtObj obj = (MipsProtObj) e.getValue();
+            String label = obj.getLabel();
+            int tag = obj.getTag();
+            int pos = (tag * 8) / 4;
+            classObjTab[pos] = label + "_protObj";
+            classObjTab[pos + 1] = label + "_init";
         }
 
-        System.out.println("Printing MIPS data section...");
-        StringBuilder sb = new StringBuilder();
+        MipsAttribPositionCalculator mapc = new MipsAttribPositionCalculator();
+        mapc.visitCoolProgram(top);
 
-        // preamble
-        sb.append(".data\n");
-        sb.append(".align 2\n");
-        sb.append(".globl class_nameTab\n");
-        sb.append(".globl Main_protObj\n");
-        sb.append(".globl Int_protObj\n");
-        sb.append(".globl String_protObj\n");
-        sb.append(".globl _int_tag\n");
-        sb.append(".globl _bool_tag\n");
-        sb.append(".globl _string_tag\n");
-        sb.append(".globl bool_const0\n");
-        sb.append(".globl class_objTab\n");
+//        System.out.println("Printing classObjTab:");
+//        for (String s : classObjTab) {
+//            System.out.println(s);
+//        }
 
-        // int, str, and bool tags:
-        sb.append("_int_tag:\n");
-        sb.append(".word ").append(tagTable.get("Int")).append("\n");
-        sb.append("_bool_tag:\n");
-        sb.append(".word ").append(tagTable.get("Bool")).append("\n");
-        sb.append("_string_tag:\n");
-        sb.append(".word ").append(tagTable.get("String")).append("\n");
+//        System.out.println();
 
-        // garbage collector config (this will be fixed output for now)
-        sb.append(".globl _MemMgr_INITIALIZER\n");
-        sb.append("_MemMgr_INITIALIZER:\n");
-        sb.append(".word NoGC_Init\n");
-        sb.append(".globl _MemMgr_COLLECTOR\n");
-        sb.append("_MemMgr_COLLECTOR:\n");
-        sb.append(".word NoGC_Collect\n");
-        sb.append(".globl _MemMgr_TEST\n");
-        sb.append("_MemMgr_TEST\n");
-        sb.append(".word 0\n");
+//        MipsBaseConst tgt = symbolTable.getSymbol("Main_protObj");
+//        System.out.println(((MipsProtObj) tgt).getDispTab().toCode());
 
-        // str const
-        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-            if (e.getValue() instanceof MipsStrConst) {
-                sb.append(e.getValue().toCode());
-            }
-        }
+//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+//            if (e.getKey().endsWith("protObj")) {
+//                MipsProtObj obj = (MipsProtObj) e.getValue();
+//                String label = obj.getLabel();
+//                int tag = obj.getTag();
+//                int pos = (tag * 8) / 4;
+//
+//                classObjTab[pos] = label + "_protObj";
+//                classObjTab[pos + 1] = label + "_init";
+//            }
+//        }
 
-        // int const
-        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-            if (e.getValue() instanceof MipsStrConst) {
-                MipsIntConst size = ((MipsStrConst) e.getValue()).getSize();
-                sb.append(size.toCode());
-            }
-            if (e.getValue() instanceof MipsIntConst) {
-                sb.append(e.getValue().toCode());
-            }
-        }
-
-        // class nameTables
-        sb.append("class_nameTab:\n");
-        for (String entry : classNameTab) {
-            sb.append(entry).append("\n");
-        }
-        // class objTables
-        sb.append("class_objTab:\n");
-        for (String entry : classObjTab) {
-            sb.append(entry).append("\n");
-        }
-
-        // class dispatchTables
-        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-            if (e.getValue() instanceof MipsProtObj) {
-                MipsProtObj obj = (MipsProtObj) e.getValue();
-            }
-        }
-
-        // class prototype objects
-        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-            if (e.getValue() instanceof MipsProtObj) {
-                MipsProtObj obj = (MipsProtObj) e.getValue();
-                sb.append(obj.toCode());
-            }
-        }
-
-        System.out.println("Printing MIPS heap section:");
-        sb.append(".globl heap_start\n");
-        sb.append("heap_start:\n");
-
-        System.out.println(sb);
+//        System.out.println("Printing MIPS data section...");
+//        StringBuilder sb = new StringBuilder();
+//
+//        // preamble
+//        sb.append(".data\n");
+//        sb.append(".align 2\n");
+//        sb.append(".globl class_nameTab\n");
+//        sb.append(".globl Main_protObj\n");
+//        sb.append(".globl Int_protObj\n");
+//        sb.append(".globl String_protObj\n");
+//        sb.append(".globl _int_tag\n");
+//        sb.append(".globl _bool_tag\n");
+//        sb.append(".globl _string_tag\n");
+//        sb.append(".globl bool_const0\n");
+//        sb.append(".globl class_objTab\n");
+//
+//        // int, str, and bool tags:
+//        sb.append("_int_tag:\n");
+//        sb.append(".word ").append(tagTable.get("Int")).append("\n");
+//        sb.append("_bool_tag:\n");
+//        sb.append(".word ").append(tagTable.get("Bool")).append("\n");
+//        sb.append("_string_tag:\n");
+//        sb.append(".word ").append(tagTable.get("String")).append("\n");
+//
+//        // garbage collector config (this will be fixed output for now)
+//        sb.append(".globl _MemMgr_INITIALIZER\n");
+//        sb.append("_MemMgr_INITIALIZER:\n");
+//        sb.append(".word NoGC_Init\n");
+//        sb.append(".globl _MemMgr_COLLECTOR\n");
+//        sb.append("_MemMgr_COLLECTOR:\n");
+//        sb.append(".word NoGC_Collect\n");
+//        sb.append(".globl _MemMgr_TEST\n");
+//        sb.append("_MemMgr_TEST\n");
+//        sb.append(".word 0\n");
+//
+//        // str const
+//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+//            if (e.getValue() instanceof MipsStrConst) {
+//                sb.append(e.getValue().toCode());
+//            }
+//        }
+//
+//        // int const
+//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+//            if (e.getValue() instanceof MipsStrConst) {
+//                MipsIntConst size = ((MipsStrConst) e.getValue()).getSize();
+//                sb.append(size.toCode());
+//            }
+//            if (e.getValue() instanceof MipsIntConst) {
+//                sb.append(e.getValue().toCode());
+//            }
+//        }
+//
+//        // class nameTables
+//        sb.append("class_nameTab:\n");
+//        for (String entry : classNameTab) {
+//            sb.append(entry).append("\n");
+//        }
+//        // class objTables
+//        sb.append("class_objTab:\n");
+//        for (String entry : classObjTab) {
+//            sb.append(entry).append("\n");
+//        }
+//
+//        // class dispatchTables
+//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+//            if (e.getValue() instanceof MipsProtObj) {
+//                MipsProtObj obj = (MipsProtObj) e.getValue();
+//            }
+//        }
+//
+//        // class prototype objects
+//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+//            if (e.getValue() instanceof MipsProtObj) {
+//                MipsProtObj obj = (MipsProtObj) e.getValue();
+//                sb.append(obj.toCode());
+//            }
+//        }
+//
+//        sb.append(".globl heap_start\n");
+//        sb.append("heap_start:\n");
+//
+//        System.out.println(sb);
     }
 }

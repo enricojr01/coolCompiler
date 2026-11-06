@@ -5,6 +5,25 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### Variable resolution
+I've decided to (re)start by working on the smallest expressions possible in the language:
+literals and identifiers.
+
+Literals are turned into MIPS in the following manner: first a const is created 
+(assuming that we're talking about Int and String), then the address of the const is loaded
+into `$a0` and Object.copy is called. Object.copy places the address of the newly created object
+into `$a0`, in keeping with the "stack discipline" outlined in the notes (all results kept 
+in `$a0`, including the reference to `self`).
+
+Identifiers are resolved differently - if they're attributes, we need to offset the self 
+object in `$a0` to get the value (it will have already been filled in via the `_init` method).
+
+If the identifier has been introduced via `let` then each identifier is initialized the same way
+literals are, and then pushed onto the stack. This is repeated for any nested `let` statements. The
+official compiler seems to make use of `$s1` to `$s7` as temporary registers for the addressees of
+initialized objects, but I think I can just push them straight to stack immediately after they've been
+initialized to get hte same effect without having to worry about running out of registers.
+
 ### The object model!
 Can't believe I didn't realize this at first - the lectures showed code generation
 samples for straight 32-bit values, but there's a whole Object model employed

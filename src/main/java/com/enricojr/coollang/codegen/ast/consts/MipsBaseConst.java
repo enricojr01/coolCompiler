@@ -1,4 +1,4 @@
-package com.enricojr.coollang.codegen.models;
+package com.enricojr.coollang.codegen.ast.consts;
 
 public class MipsBaseConst {
     private String label;

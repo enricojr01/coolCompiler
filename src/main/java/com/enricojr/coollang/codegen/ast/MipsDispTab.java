@@ -1,4 +1,6 @@
-package com.enricojr.coollang.codegen.models;
+package com.enricojr.coollang.codegen.ast;
+
+import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
 
 import java.util.ArrayList;
 

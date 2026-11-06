@@ -1,25 +1,18 @@
 package com.enricojr.coollang.codegen;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
-import com.enricojr.coollang.codegen.models.MipsProtObj;
-import com.enricojr.coollang.codegen.models.MipsSymbolTable;
+import com.enricojr.coollang.codegen.ast.MipsDefaultInitEntry;
+import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
-public class MipsClassProtObjGenerator implements AstVisitor {
-    private MipsSymbolTable symbolTable;
-    private HashMap<String, Integer> tagTable;
-
-    public MipsClassProtObjGenerator(MipsSymbolTable symbols, HashMap<String, Integer> tags) {
-        this.symbolTable = symbols;
-        this.tagTable = tags;
-    }
-
+public class MipsAttribPositionCalculator implements AstVisitor {
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
 
@@ -57,15 +50,37 @@ public class MipsClassProtObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        int tag = this.tagTable.get(cc.getNameString());
-        MipsProtObj mpo = cc.toMipsProtObj(tag);
-        this.symbolTable.putSymbol(mpo.getLabel() + "_protObj", mpo);
+        System.out.println("Class: " + cc.getNameString());
+        SymbolTable current = cc.getSymbols();
+        ArrayList<CoolAttribute> attribs = cc.getOrderedAttributeChain();
+        ArrayList<CoolMethod> methods = cc.getOrderedMethodList();
+        HashMap<CoolAttribute, MipsDefaultInitEntry> attribMap = new HashMap<>();
+        HashMap<String, Integer> methodMap = new HashMap<>();
 
-        for (CoolClass child : cc.getChildren()) {
-            if (!child.getNameString().equals("void")) {
-                child.accept(this);
+        for (int i = 0; i < attribs.size(); i++) {
+            CoolAttribute ca = attribs.get(i);
+            CoolClass resolvedType = current.getSymbolType(ca.getTypeName());
+            if (resolvedType instanceof CoolBuiltInType cbit) {
+                String defaultValue = cbit.defaultInit();
+                MipsDefaultInitEntry mdie = new MipsDefaultInitEntry(i, defaultValue);
+                attribMap.put(ca, mdie);
             }
         }
+
+        for (int i = 0; i < methods.size(); i++) {
+            CoolMethod cm = methods.get(i);
+            methodMap.put(cm.getNameString(), i);
+        }
+
+        // generate an entire protObj from this thing
+        System.out.println(attribMap);
+        System.out.println(methodMap);
+        System.out.println();
+
+        for (CoolClass child : cc.getChildren()) {
+            child.accept(this);
+        }
+
     }
 
     @Override

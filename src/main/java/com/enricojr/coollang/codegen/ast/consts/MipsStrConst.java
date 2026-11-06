@@ -1,4 +1,4 @@
-package com.enricojr.coollang.codegen.models;
+package com.enricojr.coollang.codegen.ast.consts;
 
 import java.util.Objects;
 

@@ -22,7 +22,7 @@ public class CoolBool extends CoolLiteral {
     }
 
     public String toString() {
-        return String.format("<Boolean - %s>", this.value);
+        return String.format("<BoolLiteral: %s>", this.value);
     }
 
     public void accept(AstVisitor t) {
