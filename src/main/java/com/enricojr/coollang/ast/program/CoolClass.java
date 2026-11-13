@@ -4,13 +4,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
-import com.enricojr.coollang.codegen.ast.MipsDefaultInitEntry;
 import com.enricojr.coollang.codegen.ast.MipsDispTab;
 import com.enricojr.coollang.codegen.ast.MipsProtObj;
-import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolClass extends CoolBaseNode {
     // NOTE: starts at 5 because 2, 3, and 4 are reserved for Int, Bool, and String.
@@ -309,8 +306,8 @@ public class CoolClass extends CoolBaseNode {
     public LinkedList<String> getOrderedMethodList() {
         LinkedList<CoolClass> chain = this.generateClassChain();
         LinkedList<String> fullChain = new LinkedList<>();
+        HashSet<String> seen = new HashSet<>();
 
-        // TODO: method override needs to be handled
         for (CoolClass cc : chain) {
             ArrayList<CoolMethod> methods= cc.getMethods();
             for (CoolMethod cm : methods) {
@@ -319,7 +316,21 @@ public class CoolClass extends CoolBaseNode {
             }
         }
 
-        return fullChain;
+        // NOTE: for any overridden methods we need to remove the parent and leave the child
+        LinkedList<String> copy = new LinkedList<>(fullChain);
+        for (Iterator<String> it = fullChain.descendingIterator(); it.hasNext(); ) {
+            String method = it.next();
+            String[] parts = method.split("\\.");
+            String methodName = parts[1];
+
+            if (seen.contains(methodName)) {
+                copy.remove(method);
+            } else {
+                seen.add(methodName);
+            }
+        }
+
+        return copy;
     }
 
     public LinkedList<String> getOrderedAttributeChain() {
