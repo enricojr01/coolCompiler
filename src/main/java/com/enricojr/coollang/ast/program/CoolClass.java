@@ -1,6 +1,7 @@
 package com.enricojr.coollang.ast.program;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
@@ -132,14 +133,6 @@ public class CoolClass extends CoolBaseNode {
 
     private void setComputedType(CoolClass computedType) {
         this.computedType = computedType;
-    }
-
-    public int getMipsId() {
-        return mipsId;
-    }
-
-    public void setMipsId(int mipsId) {
-        this.mipsId = mipsId;
     }
 
     public String toString() {
@@ -297,89 +290,6 @@ public class CoolClass extends CoolBaseNode {
         t.visitCoolClass(this);
     }
 
-    private ArrayList<String> toMipsLocalDispTab() {
-        ArrayList<String> methods = new ArrayList<>();
-
-        for (CoolMethod cm : this.getMethods()) {
-            String name = String.format("%s.%s", this.getNameString(), cm.getNameString());
-            methods.add(name);
-        }
-
-        // The individual method list needs to be top -> bottom
-        Collections.reverse(methods);
-
-        return methods;
-    }
-
-    private MipsDispTab toMipsDispTab() {
-        MipsDispTab dispatchTable = new MipsDispTab(this.getNameString());
-
-        ArrayList<String> fqMethodNames = new ArrayList<>();
-        CoolClass current = this;
-
-        while (true) {
-            if (current != null) {
-                fqMethodNames.addAll(current.toMipsLocalDispTab());
-            }
-            if (current != null && current.getParentName() != null) {
-                current = current.getParent();
-            } else {
-                break;
-            }
-        }
-
-        Collections.reverse(fqMethodNames);
-
-        dispatchTable.addMethodNames(fqMethodNames);
-        return dispatchTable;
-    }
-
-    private ArrayList<String> getLocalDefaultInits() {
-        SymbolTable current = this.getSymbols();
-        ArrayList<String> defaults = new ArrayList<>();
-        // need to map the NAMES to their positions
-        for (CoolAttribute ca : this.getAttributes()) {
-            CoolClass theType = current.getSymbolType(ca.getTypeName());
-            // NOTE: The builtin types need to be initialized to the proper default values as follows:
-            // Int - int_zero
-            // Str - str_empty
-            // Bool - bool_false
-            // everything else gets 32-bit value 0 (i.e. void).
-            if (theType instanceof CoolBuiltInType) {
-                CoolBuiltInType cbit = (CoolBuiltInType) theType;
-                defaults.add(cbit.defaultInit());
-            } else {
-                defaults.add("0");
-            }
-        }
-
-        // The attributes need to be listed top -> bottom.
-        Collections.reverse(defaults);
-
-        return defaults;
-    }
-
-    protected ArrayList<String> getDefaultInits() {
-        ArrayList<String> defaults = new ArrayList<>();
-
-        CoolClass current = this;
-        while (true) {
-            if (current != null) {
-                defaults.addAll(current.getLocalDefaultInits());
-            }
-            if (current != null && current.getParentName() != null) {
-                current = current.getParent();
-            } else {
-                break;
-            }
-        }
-
-        // flip it around so grandparent attrs are first
-        Collections.reverse(defaults);
-
-        return defaults;
-    }
-
     protected LinkedList<CoolClass> generateClassChain() {
         LinkedList<CoolClass> chain = new LinkedList<>();
         CoolClass current = this;
@@ -392,29 +302,48 @@ public class CoolClass extends CoolBaseNode {
                 break;
             }
         }
+
         return chain;
     }
 
-    public ArrayList<CoolMethod> getOrderedMethodList() {
+    public LinkedList<String> getOrderedMethodList() {
         LinkedList<CoolClass> chain = this.generateClassChain();
-        ArrayList<CoolMethod> methods = new ArrayList<>();
-        // putting this here because we need parent class name AND method name
-        HashMap<String, Integer> methodMap = new HashMap<>();
+        LinkedList<String> fullChain = new LinkedList<>();
 
-
-        return methods;
-    }
-
-    public ArrayList<CoolAttribute> getOrderedAttributeChain() {
-        // needs to return a list of all attributes starting from grandparent class
-        // to bottom-most child class, in source order.
-        LinkedList<CoolClass> chain = this.generateClassChain();
-        ArrayList<CoolAttribute> attribs = new ArrayList<>();
-
+        // TODO: method override needs to be handled
         for (CoolClass cc : chain) {
-            attribs.addAll(cc.getAttributes());
+            ArrayList<CoolMethod> methods= cc.getMethods();
+            for (CoolMethod cm : methods) {
+                String fqnm = String.format("%s.%s", cc.getNameString(), cm.getNameString());
+                fullChain.add(fqnm);
+            }
         }
 
-        return attribs;
+        return fullChain;
+    }
+
+    public LinkedList<String> getOrderedAttributeChain() {
+        LinkedList<CoolClass> chain = this.generateClassChain();
+        LinkedList<String> fullChain = new LinkedList<>();
+
+        for (CoolClass cc : chain) {
+            ArrayList<CoolAttribute> attribs = cc.getAttributes();
+            for (CoolAttribute ca : attribs) {
+                String fqan = String.format("%s.%s", cc.getNameString(), ca.getIdentifier().getValueString());
+                fullChain.add(fqan);
+            }
+        }
+
+        return fullChain;
+    }
+
+    public MipsProtObj toMipsProtObj(int tag) {
+        LinkedList<String> dispTab = this.getOrderedMethodList();
+        LinkedList<String> attribTab = this.getOrderedAttributeChain();
+
+        MipsDispTab mdt = new MipsDispTab(this.getNameString(), dispTab);
+        MipsProtObj protObj = new MipsProtObj(this.getNameString(), tag, mdt, attribTab);
+
+        return protObj;
     }
 }

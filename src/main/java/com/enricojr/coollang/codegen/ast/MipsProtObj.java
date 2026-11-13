@@ -3,19 +3,18 @@ package com.enricojr.coollang.codegen.ast;
 import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class MipsProtObj extends MipsBaseConst {
     private MipsDispTab dispTab;
+    private LinkedList<String> attribTab;
     private ArrayList<String> attribs = new ArrayList<>();
 
-    public MipsProtObj(String label, int tag, MipsDispTab tab, ArrayList<String> attribs) {
+    public MipsProtObj(String label, int tag, MipsDispTab dispTab, LinkedList<String> attribTab) {
         super(label, tag);
-        this.dispTab = tab;
-        this.attribs.addAll(attribs);
-    }
-
-    public MipsDispTab getDispTab() {
-        return this.dispTab;
+        this.dispTab = dispTab;
+        this.attribTab = attribTab;
     }
 
     private int computeSize() {
@@ -25,8 +24,16 @@ public class MipsProtObj extends MipsBaseConst {
         return 3 + attribs.size();
     }
 
-    public String toString() {
-        return "<MipsProtObj " + this.getLabel() + ">";
+    public MipsDispTab getDispTab() {
+        return this.dispTab;
+    }
+
+    public int findMethodPos(String name) {
+        return this.dispTab.indexOf(name);
+    }
+
+    public int findAttribPos(String name) {
+        return this.attribTab.indexOf(name);
     }
 
     // TODO: consider moving this to an interface?
@@ -56,5 +63,10 @@ public class MipsProtObj extends MipsBaseConst {
         }
 
         return sb.toString();
+
+    }
+
+    public String toString() {
+        return "<MipsProtObj " + this.getLabel() + ">";
     }
 }

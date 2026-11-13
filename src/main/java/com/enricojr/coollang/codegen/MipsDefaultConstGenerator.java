@@ -13,10 +13,12 @@ import java.util.HashMap;
 public class MipsDefaultConstGenerator implements AstVisitor {
     private MipsSymbolTable symbolTable;
     private HashMap<String, Integer> tagTable;
+    private String fileName;
 
-    public MipsDefaultConstGenerator(HashMap<String, Integer> tags, MipsSymbolTable symbolTable) {
+    public MipsDefaultConstGenerator(HashMap<String, Integer> tags, MipsSymbolTable symbolTable, String fileName) {
         this.symbolTable = symbolTable;
         this.tagTable = tags;
+        this.fileName = fileName;
     }
 
     @Override
@@ -118,16 +120,20 @@ public class MipsDefaultConstGenerator implements AstVisitor {
     public void visitCoolProgram(CoolProgram cp) {
         MipsIntConst boolFalse = new MipsIntConst("bool_const0", this.tagTable.get("Bool"), 0);
         MipsIntConst boolTrue = new MipsIntConst("bool_const1", this.tagTable.get("Bool"), 1);
-//        MipsIntConst boolTrue = new MipsIntConst("bool_true", this.tagTable.get("Bool"), 1);
+
         MipsIntConst emptyStrSize = new MipsIntConst("str_empty_size", this.tagTable.get("Int"), 0);
         MipsStrConst emptyString = new MipsStrConst("str_empty", this.tagTable.get("String"), emptyStrSize, null);
+
         MipsIntConst intZero = new MipsIntConst("int_zero", this.tagTable.get("Int"), 0);
 
+        MipsIntConst fileNameSize = new MipsIntConst("filename_size", this.tagTable.get("Int"), this.fileName.length());
+        MipsStrConst fileName = new MipsStrConst("filename", this.tagTable.get("String"), fileNameSize, this.fileName);
 
         this.symbolTable.putSymbol("bool_const0", boolFalse);
-//        this.symbolTable.putSymbol("bool_true", boolTrue);
+        this.symbolTable.putSymbol("bool_true", boolTrue);
         this.symbolTable.putSymbol("str_empty", emptyString);
         this.symbolTable.putSymbol("int_zero", intZero);
+        this.symbolTable.putSymbol("filename", fileName);
     }
 
     @Override

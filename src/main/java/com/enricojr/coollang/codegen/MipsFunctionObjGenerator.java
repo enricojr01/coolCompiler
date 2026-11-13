@@ -5,6 +5,7 @@ import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
 import com.enricojr.coollang.codegen.ast.MipsFunctionObj;
+import com.enricojr.coollang.codegen.ast.MipsProtObj;
 import com.enricojr.coollang.codegen.ast.consts.MipsIntConst;
 import com.enricojr.coollang.codegen.ast.consts.MipsStrConst;
 import com.enricojr.coollang.codegen.ast.MipsSymbolTable;
@@ -13,8 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 public class MipsFunctionObjGenerator implements AstVisitor {
-    private CoolClass currentClass;
-    private CoolMethod currentMethod;
+    private MipsProtObj currentClass;
     private MipsSymbolTable symbolTable;
     private HashMap<String, Integer> tagTable;
     private LinkedList<String> stack = new LinkedList<>();
@@ -33,15 +33,33 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
-        // at this point this will only be called if the initExpression != null
-        // so no need to check here.
-        CoolExpr ce = ca.getInitExpression();
-        ce.accept(this);
+        if (ca.getInitExpression() == null) {
+            // do I even need this?
+            this.stack.push("");
+        } else {
+            StringBuilder sb = new StringBuilder();
+            CoolExpr ce = ca.getInitExpression();
+            ce.accept(this);
+
+            CoolIdentifier ci = ca.getTypeName();
+            int offset = (this.currentClass.findAttribPos(ci.getValueString()) + 3) * 4;
+            sb.append("# load attribute ").append(ca.getIdentifier().getValueString());
+            sb.append("lw $a0 ").append(offset).append("($s0)\n");
+        }
     }
 
     @Override
     public void visitCoolAssign(CoolAssign cas) {
+        StringBuilder sb = new StringBuilder();
+        CoolIdentifier id = cas.getName();
+        // note: + 3 is to account for the fact that attribs start at the 3rd word in the prototype.
+        int offset = (this.currentClass.findAttribPos(id.getValueString()) + 3) * 4;
 
+        CoolExpr expr = cas.getExpression();
+        expr.accept(this);
+
+        sb.append("sw ").append(offset).append("($s0)\n");
+        this.stack.push(sb.toString());
     }
 
     @Override
@@ -103,7 +121,8 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        this.currentClass = cc;
+        this.currentClass = ((MipsProtObj) this.symbolTable.getSymbol(cc.getNameString() + "_protObj"));
+
         MipsFunctionObj classInit = new MipsFunctionObj(cc.getNameString() + "_init");
         // generate _init function passing in each attribute
         // if it has an init expression.
@@ -120,10 +139,8 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         classInit.addCommand("move $a0 $s0");
 
         for (CoolAttribute ca : cc.getAttributes()) {
-            if (ca.getInitExpression() != null) {
-                ca.accept(this);
-                classInit.addCommand(this.stack.pop());
-            }
+            ca.accept(this);
+            classInit.addCommand(this.stack.pop());
         }
 
         // NOTE: it appears that my earlier assumption may have been false, the way the ASM is
@@ -135,9 +152,9 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         classInit.addCommand("addiu $sp $sp 12");
         classInit.addCommand("jr $ra");
 
-        // generate the code for the individual methods
         this.symbolTable.putSymbol(classInit.getLabel(), classInit);
 
+        // generate the code for the individual methods
         for (CoolMethod cm : cc.getMethods()) {
             cm.accept(this);
         }
@@ -185,8 +202,6 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     @Override
     public void visitCoolMethod(CoolMethod cm) {
         // note that this is the method _definition_ and not the dispatch
-        this.currentMethod = cm;
-
         MipsFunctionObj func = new MipsFunctionObj(this.currentClass + "." + cm.getNameString());
 
         func.addCommand("addiu $sp $sp -12");
@@ -285,10 +300,10 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
         this.symbolTable.putSymbol(label, intConst);
         sb.append("# integer literal:").append(ci);
-        sb.append("la $a0 ").append("label").append("\n");
+        sb.append("la $a0 ").append(label).append("\n");
 
-        this.stack.push(sb.toString());
         this.counter += 1;
+        this.stack.push(sb.toString());
     }
 
     @Override
@@ -297,7 +312,11 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolIdentifier(CoolIdentifier ci) {
-        // cannot access local vars from other classes so these are always local
-        // just need to figure out if they're local to the method or to the thing
+        StringBuilder sb = new StringBuilder();
+        int offset = (this.currentClass.findAttribPos(ci.getValueString()) + 3) * 4;
+        sb.append("# identifier ").append(ci.getValueString());
+        sb.append("la $a0 ").append(offset).append("($s0)\n");
+
+        this.stack.push(sb.toString());
     }
 }

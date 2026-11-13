@@ -13,16 +13,6 @@ public class CoolIntegerType extends CoolBuiltInType {
 
     }
 
-    @Override
-    protected ArrayList<String> getDefaultInits() {
-        // HACK: overrides default inits for classes because the prototype of Int
-        // should have a single attribute field set to the 32-bit int 0;
-        ArrayList<String> defaults = new ArrayList<>();
-        defaults.add("0");
-
-        return defaults;
-    }
-
     public String defaultInit() {
         return "int_zero";
     }

@@ -110,20 +110,15 @@ public class Test {
         MipsClassTagGenerator mctg = new MipsClassTagGenerator();
         mctg.visitCoolProgram(top);
         HashMap<String, Integer> tagTable = mctg.getTagTable();
-//        System.out.println(tagTable);
-//        System.out.println();
 
         System.out.println("Generating class name strConsts and their corresponding intConst sizes...");
         MipsSymbolTable symbolTable = new MipsSymbolTable();
         MipsClassNameConstGenerator mcncg = new MipsClassNameConstGenerator(tagTable, symbolTable);
         mcncg.visitCoolProgram(top);
 
-//        System.out.println(symbolTable);
-
         System.out.println("Generating default consts (Bool, String, etc)...");
-        MipsDefaultConstGenerator mdcg = new MipsDefaultConstGenerator(tagTable, symbolTable);
+        MipsDefaultConstGenerator mdcg = new MipsDefaultConstGenerator(tagTable, symbolTable, inputFile);
         mdcg.visitCoolProgram(top);
-//        System.out.println(symbolTable);
 
         System.out.println("Generating class_nameTab...");
         String[] classNameTab = new String[tagTable.size()];
@@ -131,23 +126,10 @@ public class Test {
             String label = e.getValue().getLabel();
             if (label.endsWith("_name")) {
                 int tag = e.getValue().getTag();
-                // I'm not sure if I can just do (tag * 4), so I'm going to leave it as is.
                 int pos = (tag * 4) / 4;
-//                    System.out.println(String.format("Inserting %s (tag: %s) at pos %s", label, tag, pos));
                 classNameTab[pos] = label;
             }
         }
-
-//        System.out.println("Generating protObjs...");
-//        MipsClassProtObjGenerator mcpog = new MipsClassProtObjGenerator(symbolTable, tagTable);
-//        mcpog.visitCoolProgram(top);
-
-//        for (Map.Entry<String, MipsBaseConst> entry : symbolTable.entrySet()) {
-//            String output = String.format("%s: %s", entry.getKey(), entry.getValue());
-//            System.out.println(output);
-//        }
-
-//        System.out.println();
 
         System.out.println("Generating class_objTab...");
         Set<Map.Entry<String, MipsBaseConst>> filtered = symbolTable
@@ -166,7 +148,7 @@ public class Test {
             classObjTab[pos + 1] = label + "_init";
         }
 
-        MipsAttribPositionCalculator mapc = new MipsAttribPositionCalculator();
+        MipsClassProtObjGenerator mapc = new MipsClassProtObjGenerator(tagTable, symbolTable);
         mapc.visitCoolProgram(top);
 
 //        System.out.println("Printing classObjTab:");
@@ -209,11 +191,11 @@ public class Test {
 //
 //        // int, str, and bool tags:
 //        sb.append("_int_tag:\n");
-//        sb.append(".word ").append(tagTable.get("Int")).append("\n");
+//        sb.append(".word ").append(tagTable.indexOf("Int")).append("\n");
 //        sb.append("_bool_tag:\n");
-//        sb.append(".word ").append(tagTable.get("Bool")).append("\n");
+//        sb.append(".word ").append(tagTable.indexOf("Bool")).append("\n");
 //        sb.append("_string_tag:\n");
-//        sb.append(".word ").append(tagTable.get("String")).append("\n");
+//        sb.append(".word ").append(tagTable.indexOf("String")).append("\n");
 //
 //        // garbage collector config (this will be fixed output for now)
 //        sb.append(".globl _MemMgr_INITIALIZER\n");

@@ -1,18 +1,24 @@
 package com.enricojr.coollang.codegen;
 
 import com.enricojr.coollang.ast.AstVisitor;
-import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
-import com.enricojr.coollang.codegen.ast.MipsDefaultInitEntry;
-import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
-import com.enricojr.coollang.semantic.symboltable.SymbolTable;
+import com.enricojr.coollang.codegen.ast.MipsDispTab;
+import com.enricojr.coollang.codegen.ast.MipsProtObj;
+import com.enricojr.coollang.codegen.ast.MipsSymbolTable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MipsAttribPositionCalculator implements AstVisitor {
+public class MipsClassProtObjGenerator implements AstVisitor {
+    private HashMap<String, Integer> tagTable;
+    private MipsSymbolTable symbolTable;
+
+    public MipsClassProtObjGenerator(HashMap<String, Integer> tagTable, MipsSymbolTable symbolTable) {
+        this.tagTable = tagTable;
+        this.symbolTable = symbolTable;
+    }
+
     @Override
     public void visitCoolAtMethodDispatch(CoolAtMethodDispatch camd) {
 
@@ -50,32 +56,19 @@ public class MipsAttribPositionCalculator implements AstVisitor {
 
     @Override
     public void visitCoolClass(CoolClass cc) {
-        System.out.println("Class: " + cc.getNameString());
-        SymbolTable current = cc.getSymbols();
-        ArrayList<CoolAttribute> attribs = cc.getOrderedAttributeChain();
-        ArrayList<CoolMethod> methods = cc.getOrderedMethodList();
-        HashMap<CoolAttribute, MipsDefaultInitEntry> attribMap = new HashMap<>();
-        HashMap<String, Integer> methodMap = new HashMap<>();
-
-        for (int i = 0; i < attribs.size(); i++) {
-            CoolAttribute ca = attribs.get(i);
-            CoolClass resolvedType = current.getSymbolType(ca.getTypeName());
-            if (resolvedType instanceof CoolBuiltInType cbit) {
-                String defaultValue = cbit.defaultInit();
-                MipsDefaultInitEntry mdie = new MipsDefaultInitEntry(i, defaultValue);
-                attribMap.put(ca, mdie);
-            }
+        // TODO: find a better way to express this? feels hack-ish
+        if (cc.getNameString().equals("void")) {
+            return;
         }
 
-        for (int i = 0; i < methods.size(); i++) {
-            CoolMethod cm = methods.get(i);
-            methodMap.put(cm.getNameString(), i);
-        }
-
-        // generate an entire protObj from this thing
-        System.out.println(attribMap);
-        System.out.println(methodMap);
+        MipsProtObj protObj = cc.toMipsProtObj(this.tagTable.get(cc.getNameString()));
+        MipsDispTab dispTab = protObj.getDispTab();
+        System.out.println("visiting class: " + cc.getNameString());
+        System.out.println(dispTab.toCode());
         System.out.println();
+
+//        this.symbolTable.putSymbol(dispTab.getLabel(), dispTab);
+//        this.symbolTable.putSymbol(protObj.getLabel(), protObj);
 
         for (CoolClass child : cc.getChildren()) {
             child.accept(this);

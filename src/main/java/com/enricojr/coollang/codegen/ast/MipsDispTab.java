@@ -2,42 +2,40 @@ package com.enricojr.coollang.codegen.ast;
 
 import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class MipsDispTab extends MipsBaseConst {
-    private ArrayList<String> methodNames = new ArrayList<>();
+    private LinkedList<String> methodMap;
 
-    // IMPLEMENTATION NOTE: method names need to be listed in "reverse order",
-    // i.e. the first methods in the table should be Object, and then the next
-    // child of object, and the next one, and so on until we get to the target class
-    // itself.
-    // I've decided as of right now that the CoolClass itself will be responsible for putting
-    // everything in the correct order to simplify this class.
-    public MipsDispTab(String label) {
+    public MipsDispTab(String label, LinkedList<String> methodMap) {
         super(label, -1);
+        this.methodMap = methodMap;
     }
 
-    public void addMethodName(String fullyQualifiedMethodName) {
-        String instr = ".word " + fullyQualifiedMethodName;
-        this.methodNames.add(instr);
+    public LinkedList<String> getMethodMap() {
+        return this.methodMap;
     }
 
-    public void addMethodNames(ArrayList<String> methodNames) {
-        this.methodNames.addAll(methodNames);
+    public int indexOf(String key) {
+        return this.methodMap.indexOf(key);
+    }
+
+    public int size() {
+        return this.methodMap.size();
     }
 
     public String toCode() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLabel()).append("_dispTab:").append("\n");
 
-        for (String mName : this.methodNames) {
-            sb.append(".word ").append(mName).append("\n");
+        for (String method : this.methodMap) {
+            sb.append(".word ").append(method).append("\n");
         }
 
         return sb.toString();
     }
 
     public String toString() {
-        return "<MipsDispTab>";
+        return "<MipsDispTab: " + this.getLabel() + ">";
     }
 }
