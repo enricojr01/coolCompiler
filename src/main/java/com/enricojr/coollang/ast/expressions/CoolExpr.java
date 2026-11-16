@@ -25,8 +25,7 @@ public class CoolExpr extends CoolBaseNode {
         this.computedValue = value;
     }
 
-    public void accept(AstVisitor t) {
-    }
+    public void accept(AstVisitor t) {}
 
     public String getMips() {
         return null;

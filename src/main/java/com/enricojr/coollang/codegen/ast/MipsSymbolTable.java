@@ -17,6 +17,16 @@ public class MipsSymbolTable {
         return this.table.get(symbol);
     }
 
+    public MipsProtObj findProtObj(String name) {
+        String fullName = String.format("%s_protObj", name);
+        MipsBaseConst result = this.table.get(fullName);
+        if (result instanceof MipsProtObj) {
+            return ((MipsProtObj) result);
+        } else {
+            return null;
+        }
+    }
+
     public void putSymbol(String symbol, MipsBaseConst object) {
         this.table.put(symbol, object);
     }

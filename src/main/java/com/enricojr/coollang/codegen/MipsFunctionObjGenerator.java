@@ -156,7 +156,6 @@ public class MipsFunctionObjGenerator implements AstVisitor {
             classInit.addCommand("lw $a0 " + offset + "($s0)\n");
         }
 
-
         // NOTE: it appears that my earlier assumption may have been false, the way the ASM is
         // structured kinda misled me into thinking that this would be moved into a branch or something
         // when in fact it can be pasted at the end of a function / class and would work fine.
@@ -182,6 +181,23 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
+        StringBuilder sb = new StringBuilder();
+        CoolExpr targetClassExpr = cdmd.getClassName();
+        targetClassExpr.accept(this);
+        sb.append(this.stack.pop());
+
+        for (CoolExpr ce : cdmd.getArguments()) {
+            ce.accept(this);
+            sb.append(this.stack.pop());
+            sb.append("sw $a0 0($sp)\n");
+            sb.append("addiu $sp $sp -4\n");
+        }
+
+        CoolClass target = targetClassExpr.getComputedType();
+        CoolIdentifier methodName = cdmd.getMethodName();
+        MipsProtObj targetProtObj = this.symbolTable.findProtObj(target.getNameString());
+
+        int offset = targetProtObj.findMethodPos(methodName.getValueString()) * 4;
 
     }
 
@@ -217,7 +233,6 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolMethod(CoolMethod cm) {
-        // note that this is the method _definition_ and not the dispatch
         MipsFunctionObj func = new MipsFunctionObj(this.currentClass + "." + cm.getNameString());
 
         func.addCommand("addiu $sp $sp -12\n");
@@ -251,7 +266,6 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         // 1. determine which class we need to look at (class resolution)
         // 1. find the method (load class' dispatch table, load pointer to method into $t1
         // 1. `jalr $t1`
-        // push arguments onto stack
         // increment stack pointer
         StringBuilder sb = new StringBuilder();
 
@@ -262,6 +276,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
         ArrayList<CoolExpr> arguments = cmd.getArguments();
 
+        // push arguments onto stack
         for (CoolExpr ce : arguments) {
             ce.accept(this);
             sb.append(this.stack.pop());
@@ -281,6 +296,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
         // load dispatch table for class, always the 3rd item in the layout
         sb.append("lw $t1 8($a0)\n");
+
         // determine the offset of the method, then multiply by 4
         String fqMethodName = String.format("%s.%s", this.currentClassName, methodName);
         int offset = this.currentClass.findMethodPos(fqMethodName) * 4;
