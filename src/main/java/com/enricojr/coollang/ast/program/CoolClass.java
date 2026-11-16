@@ -4,10 +4,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.enricojr.coollang.ast.AstVisitor;
+import com.enricojr.coollang.ast.builtins.CoolBuiltInType;
 import com.enricojr.coollang.ast.builtins.CoolSelfType;
 import com.enricojr.coollang.ast.constants.CoolIdentifier;
 import com.enricojr.coollang.codegen.ast.MipsDispTab;
 import com.enricojr.coollang.codegen.ast.MipsProtObj;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 public class CoolClass extends CoolBaseNode {
     // NOTE: starts at 5 because 2, 3, and 4 are reserved for Int, Bool, and String.
@@ -348,13 +350,44 @@ public class CoolClass extends CoolBaseNode {
         return fullChain;
     }
 
+    public HashMap<String, String> getLocalAttribDefaults() {
+        SymbolTable current = this.getSymbols();
+        HashMap<String, String> defaults = new HashMap<>();
+
+        for (CoolAttribute ca : this.getAttributes()) {
+            CoolIdentifier id = ca.getTypeName();
+            String attribName = ca.getIdentifier().getValueString();
+            String fqAttribName = String.format("%s.%s", this.getNameString(), attribName);
+            CoolClass type = current.getSymbolType(id);
+            defaults.put(fqAttribName, type.getDefaultInit());
+        }
+
+        return defaults;
+    }
+
+    public HashMap<String, String> getAttribDefaults() {
+        LinkedList<CoolClass> chain = this.generateClassChain();
+        HashMap<String, String> defaults = new HashMap<>();
+
+        for (CoolClass cc : chain) {
+            defaults.putAll(cc.getLocalAttribDefaults());
+        }
+
+        return defaults;
+    }
+
     public MipsProtObj toMipsProtObj(int tag) {
         LinkedList<String> dispTab = this.getOrderedMethodList();
         LinkedList<String> attribTab = this.getOrderedAttributeChain();
+        HashMap<String, String> defaults = this.getAttribDefaults();
 
         MipsDispTab mdt = new MipsDispTab(this.getNameString(), dispTab);
-        MipsProtObj protObj = new MipsProtObj(this.getNameString(), tag, mdt, attribTab);
+        MipsProtObj protObj = new MipsProtObj(this.getNameString(), tag, mdt, attribTab, defaults);
 
         return protObj;
+    }
+
+    public String getDefaultInit() {
+        return "0";
     }
 }

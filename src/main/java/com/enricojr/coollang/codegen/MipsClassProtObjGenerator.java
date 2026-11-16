@@ -62,10 +62,9 @@ public class MipsClassProtObjGenerator implements AstVisitor {
         }
 
         MipsProtObj protObj = cc.toMipsProtObj(this.tagTable.get(cc.getNameString()));
-        MipsDispTab dispTab = protObj.getDispTab();
-        System.out.println("visiting class: " + cc.getNameString());
-        System.out.println(dispTab.toCode());
-        System.out.println();
+//        MipsDispTab dispTab = protObj.getDispTab();
+//        System.out.println(dispTab.toCode());
+        System.out.println(protObj.toCode());
 
 //        this.symbolTable.putSymbol(dispTab.getLabel(), dispTab);
 //        this.symbolTable.putSymbol(protObj.getLabel(), protObj);

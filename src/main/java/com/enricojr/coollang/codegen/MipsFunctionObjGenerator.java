@@ -9,12 +9,16 @@ import com.enricojr.coollang.codegen.ast.MipsProtObj;
 import com.enricojr.coollang.codegen.ast.consts.MipsIntConst;
 import com.enricojr.coollang.codegen.ast.consts.MipsStrConst;
 import com.enricojr.coollang.codegen.ast.MipsSymbolTable;
+import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 public class MipsFunctionObjGenerator implements AstVisitor {
     private MipsProtObj currentClass;
+    // TODO: add the class name to the MipsProtObj ffs.
+    private String currentClassName;
     private MipsSymbolTable symbolTable;
     private HashMap<String, Integer> tagTable;
     private LinkedList<String> stack = new LinkedList<>();
@@ -122,11 +126,13 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     @Override
     public void visitCoolClass(CoolClass cc) {
         this.currentClass = ((MipsProtObj) this.symbolTable.getSymbol(cc.getNameString() + "_protObj"));
+        this.currentClassName = cc.getNameString();
 
         MipsFunctionObj classInit = new MipsFunctionObj(cc.getNameString() + "_init");
         // generate _init function passing in each attribute
         // if it has an init expression.
         // _init function has to invoke the constructor for the parent
+        classInit.addCommand("# entry procedure\n");
         classInit.addCommand("addiu $sp $sp -12");
         classInit.addCommand("sw $fp 12($sp)");
         classInit.addCommand("sw $s0 8($sp)");
@@ -135,17 +141,27 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         classInit.addCommand("move $s0 $a0");
 
         String parentInit = cc.getParentNameString() + "_init";
+        classInit.addCommand("# invoke parent constructor \n");
         classInit.addCommand("jal " + parentInit);
         classInit.addCommand("move $a0 $s0");
 
         for (CoolAttribute ca : cc.getAttributes()) {
             ca.accept(this);
             classInit.addCommand(this.stack.pop());
+            // find attribute offset (remember to multiply by 4 because word size)
+            String fqAttribName = String.format("%s.%s", cc.getNameString(), ca.getIdentifier().getValueString());
+            int offset = this.currentClass.findAttribPos(fqAttribName) * 4;
+
+            // do an lw $a0 offset($s0)
+            classInit.addCommand("lw $a0 " + offset + "($s0)\n");
         }
+
 
         // NOTE: it appears that my earlier assumption may have been false, the way the ASM is
         // structured kinda misled me into thinking that this would be moved into a branch or something
         // when in fact it can be pasted at the end of a function / class and would work fine.
+        classInit.addCommand("# Exit procedure \n");
+        classInit.addCommand("move $a0 $s0\n");
         classInit.addCommand("lw $fp 12($sp)");
         classInit.addCommand("lw $s0 8($sp)");
         classInit.addCommand("lw $ra 4($sp)");
@@ -204,23 +220,72 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         // note that this is the method _definition_ and not the dispatch
         MipsFunctionObj func = new MipsFunctionObj(this.currentClass + "." + cm.getNameString());
 
-        func.addCommand("addiu $sp $sp -12");
-        func.addCommand("sw $fp 12($sp)");
-        func.addCommand("sw $s0 8($sp)");
-        func.addCommand("sw $ra 4($sp)");
-        func.addCommand("addiu $fp $sp 4");
+        func.addCommand("addiu $sp $sp -12\n");
+        func.addCommand("sw $fp 12($sp)\n");
+        func.addCommand("sw $s0 8($sp)\n");
+        func.addCommand("sw $ra 4($sp)\n");
+        func.addCommand("addiu $fp $sp 4\n");
+        func.addCommand("move $s0 $a0\n");
 
-        for (CoolExpr expr : cm.getBody()) {
-            expr.accept(this);
-            func.addCommand(this.stack.pop());
-            func.addCommand("addiu $sp $sp -4");
+        if (cm.getBody() != null && !cm.getBody().isEmpty()) {
+            // the expression (may have) to be responsible for moving $s0 back into $a0
+            for (CoolExpr expr : cm.getBody()) {
+                expr.accept(this);
+                func.addCommand(this.stack.pop());
+            }
+        } else {
+            func.addCommand("move $a0 $s0\n");
         }
 
-
+        func.addCommand("lw $fp 12($sp)\n");
+        func.addCommand("lw $s0 8($sp)\n");
+        func.addCommand("lw $s0 4($sp)\n");
+        func.addCommand("addiu $sp $sp 12\n");
+        func.addCommand("jr $ra\n");
     }
 
     @Override
     public void visitCoolMethodDispatch(CoolMethodDispatch cmd) {
+        // the general steps for method dispatch are as follows:
+        // 1. push the appropriate arguments onto the stack, incrementing stack pointer as appropriate
+        // 1. determine which class we need to look at (class resolution)
+        // 1. find the method (load class' dispatch table, load pointer to method into $t1
+        // 1. `jalr $t1`
+        // push arguments onto stack
+        // increment stack pointer
+        StringBuilder sb = new StringBuilder();
+
+        CoolIdentifier ci = cmd.getIdentifier();
+        String methodName = ci.getValueString();
+        String labelName = String.format("label%s:", this.labelCounter);
+        this.labelCounter += 1;
+
+        ArrayList<CoolExpr> arguments = cmd.getArguments();
+
+        for (CoolExpr ce : arguments) {
+            ce.accept(this);
+            sb.append(this.stack.pop());
+            sb.append("sw $a0 0($sp)\n");
+            sb.append("addiu $sp $sp -4\n");
+        }
+
+        // target class is "self" for this variant of method dispatch:
+        sb.append("# self method dispatch: ").append(methodName).append("\n");
+        sb.append("move $a0 $s0\n");
+        sb.append("# if $a0 is somehow $zero (i.e. void) then we abort instead");
+        sb.append("bne $a0 $zero label0\n");
+        sb.append("la $a0 filename\n");
+        sb.append("li $t1 1\n");
+        sb.append("jal _dispatch_abort\n");
+        sb.append(labelName).append("\n");
+
+        // load dispatch table for class, always the 3rd item in the layout
+        sb.append("lw $t1 8($a0)\n");
+        // determine the offset of the method, then multiply by 4
+        String fqMethodName = String.format("%s.%s", this.currentClassName, methodName);
+        int offset = this.currentClass.findMethodPos(fqMethodName) * 4;
+        sb.append("lw $t1 ").append(offset).append("($t1)").append("\n");
+        sb.append("jalr $t1\n");
     }
 
     @Override
