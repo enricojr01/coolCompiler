@@ -193,10 +193,11 @@ public class MipsFunctionObjGenerator implements AstVisitor {
             sb.append("addiu $sp $sp -4\n");
         }
 
+        // load protObj for the target class
         CoolClass target = targetClassExpr.getComputedType();
+        // get class_objTab
         CoolIdentifier methodName = cdmd.getMethodName();
         MipsProtObj targetProtObj = this.symbolTable.findProtObj(target.getNameString());
-
         int offset = targetProtObj.findMethodPos(methodName.getValueString()) * 4;
 
     }

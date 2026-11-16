@@ -120,6 +120,14 @@ public class Test {
         MipsDefaultConstGenerator mdcg = new MipsDefaultConstGenerator(tagTable, symbolTable, inputFile);
         mdcg.visitCoolProgram(top);
 
+        System.out.println("Generating class prototypes...");
+        MipsClassProtObjGenerator mapc = new MipsClassProtObjGenerator(tagTable, symbolTable);
+        mapc.visitCoolProgram(top);
+
+//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
+//            System.out.println(String.format("%s: %s", e.getKey(), e.getValue()));
+//        }
+
         System.out.println("Generating class_nameTab...");
         String[] classNameTab = new String[tagTable.size()];
         for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
@@ -137,6 +145,7 @@ public class Test {
                 .stream()
                 .filter(x -> x.getKey().endsWith("protObj"))
                 .collect(Collectors.toSet());
+//        LinkedList<String> classObjTab = new LinkedList<>(filtered.size() * 2);
         String[] classObjTab = new String[filtered.size() * 2];
 
         for (Map.Entry<String, MipsBaseConst> e : filtered) {
@@ -148,8 +157,12 @@ public class Test {
             classObjTab[pos + 1] = label + "_init";
         }
 
-        MipsClassProtObjGenerator mapc = new MipsClassProtObjGenerator(tagTable, symbolTable);
-        mapc.visitCoolProgram(top);
+
+//        System.out.println("Printing classobjtab: ");
+//        for (int i = 0; i < classObjTab.length; i++) {
+//            System.out.println(classObjTab[i]);
+//        }
+
 
 //        System.out.println("Printing classObjTab:");
 //        for (String s : classObjTab) {
