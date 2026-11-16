@@ -289,7 +289,7 @@ public class CoolClass extends CoolBaseNode {
         t.visitCoolClass(this);
     }
 
-    protected LinkedList<CoolClass> generateClassChain() {
+    protected List<CoolClass> generateClassChain() {
         LinkedList<CoolClass> chain = new LinkedList<>();
         CoolClass current = this;
 
@@ -302,16 +302,16 @@ public class CoolClass extends CoolBaseNode {
             }
         }
 
-        return chain;
+        return chain.stream().toList();
     }
 
-    public LinkedList<String> getOrderedMethodList() {
-        LinkedList<CoolClass> chain = this.generateClassChain();
+    public List<String> getOrderedMethodList() {
+        List<CoolClass> chain = this.generateClassChain();
         LinkedList<String> fullChain = new LinkedList<>();
         HashSet<String> seen = new HashSet<>();
 
         for (CoolClass cc : chain) {
-            ArrayList<CoolMethod> methods= cc.getMethods();
+            ArrayList<CoolMethod> methods = cc.getMethods();
             for (CoolMethod cm : methods) {
                 String fqnm = String.format("%s.%s", cc.getNameString(), cm.getNameString());
                 fullChain.add(fqnm);
@@ -332,11 +332,11 @@ public class CoolClass extends CoolBaseNode {
             }
         }
 
-        return copy;
+        return copy.stream().toList();
     }
 
-    public LinkedList<String> getOrderedAttributeChain() {
-        LinkedList<CoolClass> chain = this.generateClassChain();
+    public List<String> getOrderedAttributeChain() {
+        List<CoolClass> chain = this.generateClassChain();
         LinkedList<String> fullChain = new LinkedList<>();
 
         for (CoolClass cc : chain) {
@@ -347,7 +347,7 @@ public class CoolClass extends CoolBaseNode {
             }
         }
 
-        return fullChain;
+        return fullChain.stream().toList();
     }
 
     public HashMap<String, String> getLocalAttribDefaults() {
@@ -366,7 +366,7 @@ public class CoolClass extends CoolBaseNode {
     }
 
     public HashMap<String, String> getAttribDefaults() {
-        LinkedList<CoolClass> chain = this.generateClassChain();
+        List<CoolClass> chain = this.generateClassChain();
         HashMap<String, String> defaults = new HashMap<>();
 
         for (CoolClass cc : chain) {
@@ -377,8 +377,8 @@ public class CoolClass extends CoolBaseNode {
     }
 
     public MipsProtObj toMipsProtObj(int tag) {
-        LinkedList<String> dispTab = this.getOrderedMethodList();
-        LinkedList<String> attribTab = this.getOrderedAttributeChain();
+        List<String> dispTab = this.getOrderedMethodList();
+        List<String> attribTab = this.getOrderedAttributeChain();
         HashMap<String, String> defaults = this.getAttribDefaults();
 
         MipsDispTab mdt = new MipsDispTab(this.getNameString(), dispTab);

@@ -5,17 +5,18 @@ import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 public class MipsProtObj extends MipsBaseConst {
     private MipsDispTab dispTab;
-    private LinkedList<String> attribTab;
+    private List<String> attribTab;
     private HashMap<String, String> attribDefaults;
 
     public MipsProtObj(
             String label,
             int tag,
             MipsDispTab dispTab,
-            LinkedList<String> attribTab,
+            List<String> attribTab,
             HashMap<String, String> attribDefaults
     ) {
         super(label, tag);
@@ -35,7 +36,7 @@ public class MipsProtObj extends MipsBaseConst {
         return this.dispTab;
     }
 
-    public LinkedList<String> getAttribTab() {
+    public List<String> getAttribTab() {
         return this.attribTab;
     }
 

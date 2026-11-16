@@ -3,16 +3,17 @@ package com.enricojr.coollang.codegen.ast;
 import com.enricojr.coollang.codegen.ast.consts.MipsBaseConst;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class MipsDispTab extends MipsBaseConst {
-    private LinkedList<String> methodMap;
+    private List<String> methodMap;
 
-    public MipsDispTab(String label, LinkedList<String> methodMap) {
+    public MipsDispTab(String label, List<String> methodMap) {
         super(label, -1);
         this.methodMap = methodMap;
     }
 
-    public LinkedList<String> getMethodMap() {
+    public List<String> getMethodMap() {
         return this.methodMap;
     }
 
