@@ -2,10 +2,7 @@ package com.enricojr.coollang;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.enricojr.coollang.ast.program.CoolBaseNode;
@@ -124,20 +121,18 @@ public class Test {
         MipsClassProtObjGenerator mapc = new MipsClassProtObjGenerator(tagTable, symbolTable);
         mapc.visitCoolProgram(top);
 
-//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-//            System.out.println(String.format("%s: %s", e.getKey(), e.getValue()));
-//        }
-
         System.out.println("Generating class_nameTab...");
-        String[] classNameTab = new String[tagTable.size()];
+        String[] classNameTabDraft = new String[tagTable.size()];
         for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
             String label = e.getValue().getLabel();
             if (label.endsWith("_name")) {
                 int tag = e.getValue().getTag();
                 int pos = (tag * 4) / 4;
-                classNameTab[pos] = label;
+                classNameTabDraft[pos] = label;
             }
         }
+
+        MipsClassNameTab classNameTab = new MipsClassNameTab(List.of(classNameTabDraft));
 
         System.out.println("Generating class_objTab...");
         Set<Map.Entry<String, MipsBaseConst>> filtered = symbolTable
@@ -145,129 +140,24 @@ public class Test {
                 .stream()
                 .filter(x -> x.getKey().endsWith("protObj"))
                 .collect(Collectors.toSet());
-//        LinkedList<String> classObjTab = new LinkedList<>(filtered.size() * 2);
-        String[] classObjTab = new String[filtered.size() * 2];
+        String[] classObjTabDraft = new String[filtered.size() * 2];
 
         for (Map.Entry<String, MipsBaseConst> e : filtered) {
             MipsProtObj obj = (MipsProtObj) e.getValue();
             String label = obj.getLabel();
             int tag = obj.getTag();
             int pos = (tag * 8) / 4;
-            classObjTab[pos] = label + "_protObj";
-            classObjTab[pos + 1] = label + "_init";
+            classObjTabDraft[pos] = label + "_protObj";
+            classObjTabDraft[pos + 1] = label + "_init";
         }
 
+        MipsClassObjTab classObjTab = new MipsClassObjTab(List.of(classObjTabDraft));
 
-//        System.out.println("Printing classobjtab: ");
-//        for (int i = 0; i < classObjTab.length; i++) {
-//            System.out.println(classObjTab[i]);
-//        }
+        System.out.println("class_objTab: " + classObjTab);
+        System.out.println("class_nameTab: " + classNameTab + "\n");
 
-
-//        System.out.println("Printing classObjTab:");
-//        for (String s : classObjTab) {
-//            System.out.println(s);
-//        }
-
-//        System.out.println();
-
-//        MipsBaseConst tgt = symbolTable.getSymbol("Main_protObj");
-//        System.out.println(((MipsProtObj) tgt).getDispTab().toCode());
-
-//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-//            if (e.getKey().endsWith("protObj")) {
-//                MipsProtObj obj = (MipsProtObj) e.getValue();
-//                String label = obj.getLabel();
-//                int tag = obj.getTag();
-//                int pos = (tag * 8) / 4;
-//
-//                classObjTab[pos] = label + "_protObj";
-//                classObjTab[pos + 1] = label + "_init";
-//            }
-//        }
-
-//        System.out.println("Printing MIPS data section...");
-//        StringBuilder sb = new StringBuilder();
-//
-//        // preamble
-//        sb.append(".data\n");
-//        sb.append(".align 2\n");
-//        sb.append(".globl class_nameTab\n");
-//        sb.append(".globl Main_protObj\n");
-//        sb.append(".globl Int_protObj\n");
-//        sb.append(".globl String_protObj\n");
-//        sb.append(".globl _int_tag\n");
-//        sb.append(".globl _bool_tag\n");
-//        sb.append(".globl _string_tag\n");
-//        sb.append(".globl bool_const0\n");
-//        sb.append(".globl class_objTab\n");
-//
-//        // int, str, and bool tags:
-//        sb.append("_int_tag:\n");
-//        sb.append(".word ").append(tagTable.indexOf("Int")).append("\n");
-//        sb.append("_bool_tag:\n");
-//        sb.append(".word ").append(tagTable.indexOf("Bool")).append("\n");
-//        sb.append("_string_tag:\n");
-//        sb.append(".word ").append(tagTable.indexOf("String")).append("\n");
-//
-//        // garbage collector config (this will be fixed output for now)
-//        sb.append(".globl _MemMgr_INITIALIZER\n");
-//        sb.append("_MemMgr_INITIALIZER:\n");
-//        sb.append(".word NoGC_Init\n");
-//        sb.append(".globl _MemMgr_COLLECTOR\n");
-//        sb.append("_MemMgr_COLLECTOR:\n");
-//        sb.append(".word NoGC_Collect\n");
-//        sb.append(".globl _MemMgr_TEST\n");
-//        sb.append("_MemMgr_TEST\n");
-//        sb.append(".word 0\n");
-//
-//        // str const
-//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-//            if (e.getValue() instanceof MipsStrConst) {
-//                sb.append(e.getValue().toCode());
-//            }
-//        }
-//
-//        // int const
-//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-//            if (e.getValue() instanceof MipsStrConst) {
-//                MipsIntConst size = ((MipsStrConst) e.getValue()).getSize();
-//                sb.append(size.toCode());
-//            }
-//            if (e.getValue() instanceof MipsIntConst) {
-//                sb.append(e.getValue().toCode());
-//            }
-//        }
-//
-//        // class nameTables
-//        sb.append("class_nameTab:\n");
-//        for (String entry : classNameTab) {
-//            sb.append(entry).append("\n");
-//        }
-//        // class objTables
-//        sb.append("class_objTab:\n");
-//        for (String entry : classObjTab) {
-//            sb.append(entry).append("\n");
-//        }
-//
-//        // class dispatchTables
-//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-//            if (e.getValue() instanceof MipsProtObj) {
-//                MipsProtObj obj = (MipsProtObj) e.getValue();
-//            }
-//        }
-//
-//        // class prototype objects
-//        for (Map.Entry<String, MipsBaseConst> e : symbolTable.entrySet()) {
-//            if (e.getValue() instanceof MipsProtObj) {
-//                MipsProtObj obj = (MipsProtObj) e.getValue();
-//                sb.append(obj.toCode());
-//            }
-//        }
-//
-//        sb.append(".globl heap_start\n");
-//        sb.append("heap_start:\n");
-//
-//        System.out.println(sb);
+        System.out.println("Generating function objects: ");
+        MipsFunctionObjGenerator mfog = new MipsFunctionObjGenerator(symbolTable, tagTable, classObjTab, classNameTab);
+        mfog.visitCoolProgram(top);
     }
 }

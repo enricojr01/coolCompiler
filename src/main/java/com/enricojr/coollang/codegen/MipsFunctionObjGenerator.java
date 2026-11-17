@@ -4,30 +4,35 @@ import com.enricojr.coollang.ast.AstVisitor;
 import com.enricojr.coollang.ast.constants.*;
 import com.enricojr.coollang.ast.expressions.*;
 import com.enricojr.coollang.ast.program.*;
-import com.enricojr.coollang.codegen.ast.MipsFunctionObj;
-import com.enricojr.coollang.codegen.ast.MipsProtObj;
+import com.enricojr.coollang.codegen.ast.*;
 import com.enricojr.coollang.codegen.ast.consts.MipsIntConst;
 import com.enricojr.coollang.codegen.ast.consts.MipsStrConst;
-import com.enricojr.coollang.codegen.ast.MipsSymbolTable;
-import com.enricojr.coollang.semantic.symboltable.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 public class MipsFunctionObjGenerator implements AstVisitor {
     private MipsProtObj currentClass;
-    // TODO: add the class name to the MipsProtObj ffs.
-    private String currentClassName;
     private MipsSymbolTable symbolTable;
     private HashMap<String, Integer> tagTable;
+    private MipsClassObjTab classObjTable;
+    private MipsClassNameTab classNameTable;
     private LinkedList<String> stack = new LinkedList<>();
     private int counter = 1;
     private int labelCounter = 1;
 
-    public MipsFunctionObjGenerator(MipsSymbolTable symbols, HashMap<String, Integer> tags) {
+    public MipsFunctionObjGenerator(
+            MipsSymbolTable symbols,
+            HashMap<String, Integer> tags,
+            MipsClassObjTab classObjTable,
+            MipsClassNameTab classNameTable
+    ) {
         this.symbolTable = symbols;
         this.tagTable = tags;
+        this.classObjTable = classObjTable;
+        this.classNameTable = classNameTable;
     }
 
     @Override
@@ -37,6 +42,8 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolAttribute(CoolAttribute ca) {
+        // TODO: revisit this - the initexpression should leave its result in $a0 at which point it should be loaded into a slot
+        // but should it done in this method or in the class method?
         if (ca.getInitExpression() == null) {
             // do I even need this?
             this.stack.push("");
@@ -100,6 +107,9 @@ public class MipsFunctionObjGenerator implements AstVisitor {
             case CoolBinaryOp.OPERATOR.DIV -> {
                 sb.append("div $t1 $t1 $t2\n");
             }
+            case CoolBinaryOp.OPERATOR.EQ -> {
+
+            }
         }
 
         sb.append("sw $t1 12($a0)\n");
@@ -126,7 +136,6 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     @Override
     public void visitCoolClass(CoolClass cc) {
         this.currentClass = ((MipsProtObj) this.symbolTable.getSymbol(cc.getNameString() + "_protObj"));
-        this.currentClassName = cc.getNameString();
 
         MipsFunctionObj classInit = new MipsFunctionObj(cc.getNameString() + "_init");
         // generate _init function passing in each attribute
@@ -182,9 +191,6 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     @Override
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
         StringBuilder sb = new StringBuilder();
-        CoolExpr targetClassExpr = cdmd.getClassName();
-        targetClassExpr.accept(this);
-        sb.append(this.stack.pop());
 
         for (CoolExpr ce : cdmd.getArguments()) {
             ce.accept(this);
@@ -193,13 +199,32 @@ public class MipsFunctionObjGenerator implements AstVisitor {
             sb.append("addiu $sp $sp -4\n");
         }
 
-        // load protObj for the target class
-        CoolClass target = targetClassExpr.getComputedType();
-        // get class_objTab
+        // load protObj for the target class, shoudld leave it in $a0
+        CoolExpr targetClassExpr = cdmd.getClassName();
+        targetClassExpr.accept(this);
+        sb.append(this.stack.pop());
+
+        String labelName = String.format("label%s:\n", this.labelCounter);
+        sb.append("# if $a0 is somehow $zero (i.e. void) then we abort instead");
+        sb.append("bne $a0 $zero ").append(labelName);
+        sb.append("la $a0 filename\n");
+        sb.append("li $t1 1\n");
+        sb.append("jal _dispatch_abort\n");
+
+        // load dispatch table for the class
+        sb.append(labelName).append("\n");
+        sb.append("lw $t1 8($a0)\n");
+
+        // this loads the protObj too but its for the code generator
         CoolIdentifier methodName = cdmd.getMethodName();
-        MipsProtObj targetProtObj = this.symbolTable.findProtObj(target.getNameString());
+        CoolClass targetClass = targetClassExpr.getComputedType();
+        MipsProtObj targetProtObj = this.symbolTable.findProtObj(targetClass.getNameString() + "_protObj");
         int offset = targetProtObj.findMethodPos(methodName.getValueString()) * 4;
 
+        sb.append("lw $t1 ").append(offset).append("($a0)\n");
+        sb.append("jalr $t1\n");
+
+        this.stack.push(sb.toString());
     }
 
     @Override
@@ -258,6 +283,8 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         func.addCommand("lw $s0 4($sp)\n");
         func.addCommand("addiu $sp $sp 12\n");
         func.addCommand("jr $ra\n");
+
+        this.symbolTable.putSymbol(func.getLabel(), func);
     }
 
     @Override
@@ -272,7 +299,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
         CoolIdentifier ci = cmd.getIdentifier();
         String methodName = ci.getValueString();
-        String labelName = String.format("label%s:", this.labelCounter);
+        String labelName = String.format("label%s:\n", this.labelCounter);
         this.labelCounter += 1;
 
         ArrayList<CoolExpr> arguments = cmd.getArguments();
@@ -288,21 +315,27 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         // target class is "self" for this variant of method dispatch:
         sb.append("# self method dispatch: ").append(methodName).append("\n");
         sb.append("move $a0 $s0\n");
+
+        // check for void and abort
         sb.append("# if $a0 is somehow $zero (i.e. void) then we abort instead");
-        sb.append("bne $a0 $zero label0\n");
+        sb.append("bne $a0 $zero ").append(labelName);
         sb.append("la $a0 filename\n");
         sb.append("li $t1 1\n");
         sb.append("jal _dispatch_abort\n");
-        sb.append(labelName).append("\n");
 
         // load dispatch table for class, always the 3rd item in the layout
+        sb.append(labelName).append("\n");
         sb.append("lw $t1 8($a0)\n");
 
         // determine the offset of the method, then multiply by 4
-        String fqMethodName = String.format("%s.%s", this.currentClassName, methodName);
+        String fqMethodName = String.format("%s.%s", this.currentClass.getLabel(), methodName);
         int offset = this.currentClass.findMethodPos(fqMethodName) * 4;
+        // load pointer to method
         sb.append("lw $t1 ").append(offset).append("($t1)").append("\n");
+        // finally jump
         sb.append("jalr $t1\n");
+
+        this.stack.push(sb.toString());
     }
 
     @Override

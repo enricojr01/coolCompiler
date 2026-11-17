@@ -117,10 +117,10 @@ public class TestCodeGenDispatchTables {
             TypeChecker tc = new TypeChecker(sample.getName());
             tc.visitCoolProgram(top);
 
-            System.out.println("Generating dispatch tables...");
-            for (CoolClass cc : top.getClasses()) {
-                System.out.println(cc.codeGenDispatchTable());
-            }
+//            System.out.println("Generating dispatch tables...");
+//            for (CoolClass cc : top.getClasses()) {
+//                System.out.println(cc.codeGenDispatchTable());
+//            }
         }
     }
 }
