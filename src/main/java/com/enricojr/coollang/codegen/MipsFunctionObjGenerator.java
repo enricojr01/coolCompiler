@@ -77,42 +77,215 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     public void visitCoolBinaryOp(CoolBinaryOp cbo) {
         StringBuilder sb = new StringBuilder();
         sb.append("# Binary Operation: ").append(cbo);
-        CoolExpr lh = cbo.getLhs();
-        lh.accept(this);
-        sb.append(this.stack.pop());
-        // note that it's always 12($a0) because $a0 is an Int _object_
-        // and the actual value we need to add is in the third slot
-        sb.append("lw $t1 12($a0)\n");
-
-        CoolExpr rh = cbo.getRhs();
-        rh.accept(this);
-        sb.append(this.stack.pop());
-        sb.append("lw $t2 12($a0)\n");
-
-        // creates an Int for the result and stores pointer to it in $a0
-        sb.append("jal Object.copy\n");
-
         CoolBinaryOp.OPERATOR op = cbo.getOp();
         switch(op) {
             case CoolBinaryOp.OPERATOR.ADD -> {
+                CoolExpr lh = cbo.getLhs();
+                // both lh.accept() and rh.accept() should leave the result in $a0
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                // note that it's always 12($a0) because $a0 is an Int _object_
+                // and the actual value we need to add is in the third slot
+                sb.append("lw $t1 12($a0)\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("lw $t2 12($a0)\n");
+
+                // if I got this right then Object.copy should place a new empty Int in $a0.
+                sb.append("jal Object.copy\n");
                 sb.append("add $t1 $t1 $t2\n");
+
+                sb.append("sw $t1 12($a0)\n");
             }
             case CoolBinaryOp.OPERATOR.SUB -> {
+                CoolExpr lh = cbo.getLhs();
+                // both lh.accept() and rh.accept() should leave the result in $a0
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                // note that it's always 12($a0) because $a0 is an Int _object_
+                // and the actual value we need to add is in the third slot
+                sb.append("lw $t1 12($a0)\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("lw $t2 12($a0)\n");
+
+                // if I got this right then Object.copy should place a new empty Int in $a0.
+                sb.append("jal Object.copy\n");
                 sb.append("sub $t1 $t1 $t2\n");
+
+                sb.append("sw $t1 12($a0)\n");
             }
             case CoolBinaryOp.OPERATOR.MUL -> {
+                CoolExpr lh = cbo.getLhs();
+                // both lh.accept() and rh.accept() should leave the result in $a0
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                // note that it's always 12($a0) because $a0 is an Int _object_
+                // and the actual value we need to add is in the third slot
+                sb.append("lw $t1 12($a0)\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("lw $t2 12($a0)\n");
+
+                // if I got this right then Object.copy should place a new empty Int in $a0.
+                sb.append("jal Object.copy\n");
                 sb.append("mul $t1 $t1 $t2\n");
+
+                sb.append("sw $t1 12($a0)\n");
             }
             // NOTE: keep an eye on this one
             case CoolBinaryOp.OPERATOR.DIV -> {
+                CoolExpr lh = cbo.getLhs();
+                // both lh.accept() and rh.accept() should leave the result in $a0
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                // note that it's always 12($a0) because $a0 is an Int _object_
+                // and the actual value we need to add is in the third slot
+                sb.append("lw $t1 12($a0)\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("lw $t2 12($a0)\n");
+
+                // if I got this right then Object.copy should place a new empty Int in $a0.
+                sb.append("jal Object.copy\n");
                 sb.append("div $t1 $t1 $t2\n");
+
+                sb.append("sw $t1 12($a0)\n");
             }
             case CoolBinaryOp.OPERATOR.EQ -> {
+                // - objects to be compared go in $t1 and $t2
+                // - label to be called is "equality_test"
+                // - bool_true and bool_false need to be loaded in
+                // $a0 and $a1 respectively BEFORE calling equality_test.
+                // - equality_test will either keep $a0 as is or replace it with
+                // $a1 , either case the result will be in $a0
+                CoolExpr lh = cbo.getLhs();
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t1 $a0\n");
 
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t2 $a0\n");
+
+                sb.append("la $a0 bool_const1\n");
+                sb.append("la $a1 bool_const0\n");
+
+                String label = String.format("label%s", this.labelCounter);
+                this.labelCounter += 1;
+                sb.append("beq $t1 $t2 ").append(label).append("\n");
+
+                sb.append("jal equality_test\n");
+                sb.append(label).append(":\n");
+                sb.append("move $a0 $s0\n");
+            }
+            case CoolBinaryOp.OPERATOR.LT -> {
+                CoolExpr lh = cbo.getLhs();
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t1 $a0\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t2 $a0\n");
+                // load true into $a0
+                sb.append("la $a0 bool_const1\n");
+
+                String label = String.format("label%s", this.labelCounter);
+                this.labelCounter += 1;
+
+                // if $t1 < $t2 execution jumps to the label and proceeds from there
+                sb.append("blt $t1 $t2 ").append(label).append("\n");
+                // if not load false into $a0.
+                sb.append("la $a0 bool_const0\n");
+
+                sb.append(label).append(":\n");
+                sb.append("move $a0 $s0\n");
+            }
+            case CoolBinaryOp.OPERATOR.LTE -> {
+                CoolExpr lh = cbo.getLhs();
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t1 $a0\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t2 $a0\n");
+                // load true into $a0
+                sb.append("la $a0 bool_const1\n");
+
+                String label = String.format("label%s", this.labelCounter);
+                this.labelCounter += 1;
+
+                // if $t1 < $t2 execution jumps to the label and proceeds from there
+                sb.append("ble $t1 $t2 ").append(label).append("\n");
+                // if not load false into $a0.
+                sb.append("la $a0 bool_const0\n");
+
+                sb.append(label).append(":\n");
+                sb.append("move $a0 $s0\n");
+            }
+            case CoolBinaryOp.OPERATOR.GT -> {
+                CoolExpr lh = cbo.getLhs();
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t1 $a0\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t2 $a0\n");
+                // load true into $a0
+                sb.append("la $a0 bool_const1\n");
+
+                String label = String.format("label%s", this.labelCounter);
+                this.labelCounter += 1;
+
+                // if $t1 < $t2 execution jumps to the label and proceeds from there
+                sb.append("bgt $t1 $t2 ").append(label).append("\n");
+                // if not load false into $a0.
+                sb.append("la $a0 bool_const0\n");
+
+                sb.append(label).append(":\n");
+                sb.append("move $a0 $s0\n");
+            }
+            case CoolBinaryOp.OPERATOR.GTE -> {
+                CoolExpr lh = cbo.getLhs();
+                lh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t1 $a0\n");
+
+                CoolExpr rh = cbo.getRhs();
+                rh.accept(this);
+                sb.append(this.stack.pop());
+                sb.append("move $t2 $a0\n");
+                // load true into $a0
+                sb.append("la $a0 bool_const1\n");
+
+                String label = String.format("label%s", this.labelCounter);
+                this.labelCounter += 1;
+
+                // if $t1 < $t2 execution jumps to the label and proceeds from there
+                sb.append("bge $t1 $t2 ").append(label).append("\n");
+                // if not load false into $a0.
+                sb.append("la $a0 bool_const0\n");
+
+                sb.append(label).append(":\n");
+                sb.append("move $a0 $s0\n");
             }
         }
 
-        sb.append("sw $t1 12($a0)\n");
         this.stack.push(sb.toString());
     }
 
@@ -204,7 +377,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         targetClassExpr.accept(this);
         sb.append(this.stack.pop());
 
-        String labelName = String.format("label%s:\n", this.labelCounter);
+        String labelName = String.format("label%s", this.labelCounter);
         sb.append("# if $a0 is somehow $zero (i.e. void) then we abort instead");
         sb.append("bne $a0 $zero ").append(labelName);
         sb.append("la $a0 filename\n");
@@ -212,7 +385,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         sb.append("jal _dispatch_abort\n");
 
         // load dispatch table for the class
-        sb.append(labelName).append("\n");
+        sb.append(labelName).append(":\n");
         sb.append("lw $t1 8($a0)\n");
 
         // this loads the protObj too but its for the code generator
@@ -275,9 +448,11 @@ public class MipsFunctionObjGenerator implements AstVisitor {
                 func.addCommand(this.stack.pop());
             }
         } else {
+            // TODO: At what points during execution is it important that self is moved back into $a0?
             func.addCommand("move $a0 $s0\n");
         }
 
+//        func.addCommand("move $a0 $s0\n");
         func.addCommand("lw $fp 12($sp)\n");
         func.addCommand("lw $s0 8($sp)\n");
         func.addCommand("lw $s0 4($sp)\n");
@@ -299,7 +474,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
         CoolIdentifier ci = cmd.getIdentifier();
         String methodName = ci.getValueString();
-        String labelName = String.format("label%s:\n", this.labelCounter);
+        String labelName = String.format("label%s", this.labelCounter);
         this.labelCounter += 1;
 
         ArrayList<CoolExpr> arguments = cmd.getArguments();
@@ -324,7 +499,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         sb.append("jal _dispatch_abort\n");
 
         // load dispatch table for class, always the 3rd item in the layout
-        sb.append(labelName).append("\n");
+        sb.append(labelName).append(":\n");
         sb.append("lw $t1 8($a0)\n");
 
         // determine the offset of the method, then multiply by 4
@@ -430,6 +605,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         StringBuilder sb = new StringBuilder();
         int offset = (this.currentClass.findAttribPos(ci.getValueString()) + 3) * 4;
         sb.append("# identifier ").append(ci.getValueString());
+        // should this be la or lw? la
         sb.append("la $a0 ").append(offset).append("($s0)\n");
 
         this.stack.push(sb.toString());

@@ -5,6 +5,73 @@ my dumb ass will forget this stuff at some point, and I'd like to not have to
 fumble around in the dark if I ever take a break and come back. Latest notes are
 at the top.
 
+### At what points during execution is it important to restore self (i.e. `move $a0 $s0`)?
+Whenever I look at certain Cool methods translated to MIPS I spot a certain pattern:
+
+```MIPS
+Main_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	# --------here
+	move	$s0 $a0
+	jal	IO_init
+	la	$a0 int_const0
+	sw	$a0 12($s0)
+	la	$a0 int_const1
+	sw	$a0 16($s0)
+	move	$a0 $s0
+	# --------and here
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+```
+
+Specifically that combination of `move $s0 $a0` bookended by `move $a0 $s0`. I know that
+on entry `$a0` holds `self` (i.e. the class owning the method being executed), and that it is set aside 
+in `$s0` so that initialization code (for attributes and such) can act on it but how often is it relevant really?
+
+I'm struggling to figure out exactly what part of my code generator ought to be responsible for generating this
+bit of code here because it seems that not every compiled method will bother doing this and I can't tell why.
+
+The above bit of code has it, but the code in this next snippet does not:
+
+```
+Main.addByFunction:
+	addiu	$sp $sp -16
+	sw	$fp 16($sp)
+	sw	$s0 12($sp)
+	sw	$ra 8($sp)
+	addiu	$fp $sp 4
+	# this next line does not have a corresponding `move $a0 $s0`
+	move	$s0 $a0
+	lw	$s1 24($fp)
+	lw	$a0 20($fp)
+	jal	Object.copy
+	lw	$t2 12($a0)
+	lw	$t1 12($s1)
+	add	$t1 $t1 $t2
+	sw	$t1 12($a0)
+	move	$s1 $a0
+	lw	$a0 16($fp)
+	jal	Object.copy
+	lw	$t2 12($a0)
+	lw	$t1 12($s1)
+	add	$t1 $t1 $t2
+	sw	$t1 12($a0)
+	lw	$fp 16($sp)
+	lw	$s0 12($sp)
+	lw	$ra 8($sp)
+	addiu	$sp $sp 28
+	jr	$ra
+```
+
+Does it have something to do with the operations in question? 
+
 ### Variable resolution
 I've decided to (re)start by working on the smallest expressions possible in the language:
 literals and identifiers.
