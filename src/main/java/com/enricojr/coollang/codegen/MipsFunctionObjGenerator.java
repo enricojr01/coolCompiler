@@ -365,6 +365,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     public void visitCoolDotMethodDispatch(CoolDotMethodDispatch cdmd) {
         StringBuilder sb = new StringBuilder();
 
+        // TODO: the last argument needs to be pushed first! refactor this and the other method dispatch
         for (CoolExpr ce : cdmd.getArguments()) {
             ce.accept(this);
             sb.append(this.stack.pop());
@@ -448,6 +449,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         MipsFunctionObj func = new MipsFunctionObj(this.currentClass + "." + cm.getNameString());
 
         // TODO: gotta take into account the arguments pushed onto the stack, runtime expects the callee to pop them off
+        // n args
         func.addCommand("addiu $sp $sp -12\n");
         func.addCommand("sw $fp 12($sp)\n");
         func.addCommand("sw $s0 8($sp)\n");
