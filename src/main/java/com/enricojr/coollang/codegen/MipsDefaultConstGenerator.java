@@ -130,7 +130,7 @@ public class MipsDefaultConstGenerator implements AstVisitor {
         MipsStrConst fileName = new MipsStrConst("filename", this.tagTable.get("String"), fileNameSize, this.fileName);
 
         this.symbolTable.putSymbol("bool_const0", boolFalse);
-        this.symbolTable.putSymbol("bool_true", boolTrue);
+        this.symbolTable.putSymbol("bool_const1", boolTrue);
         this.symbolTable.putSymbol("str_empty", emptyString);
         this.symbolTable.putSymbol("int_zero", intZero);
         this.symbolTable.putSymbol("filename", fileName);

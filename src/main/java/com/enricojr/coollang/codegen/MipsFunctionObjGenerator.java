@@ -20,7 +20,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     private MipsClassObjTab classObjTable;
     private MipsClassNameTab classNameTable;
     private LinkedList<String> stack = new LinkedList<>();
-    private int counter = 1;
+    private int constCounter = 1;
     private int labelCounter = 1;
 
     public MipsFunctionObjGenerator(
@@ -33,6 +33,12 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         this.tagTable = tags;
         this.classObjTable = classObjTable;
         this.classNameTable = classNameTable;
+    }
+
+    private String generateNewLabel() {
+        String label = String.format("label%s", this.labelCounter);
+        this.labelCounter += 1;
+        return label;
     }
 
     @Override
@@ -69,7 +75,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         CoolExpr expr = cas.getExpression();
         expr.accept(this);
 
-        sb.append("sw ").append(offset).append("($s0)\n");
+        sb.append("sw $a0").append(offset).append("($s0)\n");
         this.stack.push(sb.toString());
     }
 
@@ -180,8 +186,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
                 sb.append("la $a0 bool_const1\n");
                 sb.append("la $a1 bool_const0\n");
 
-                String label = String.format("label%s", this.labelCounter);
-                this.labelCounter += 1;
+                String label = this.generateNewLabel();
                 sb.append("beq $t1 $t2 ").append(label).append("\n");
 
                 sb.append("jal equality_test\n");
@@ -201,9 +206,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
                 // load true into $a0
                 sb.append("la $a0 bool_const1\n");
 
-                String label = String.format("label%s", this.labelCounter);
-                this.labelCounter += 1;
-
+                String label = this.generateNewLabel();
                 // if $t1 < $t2 execution jumps to the label and proceeds from there
                 sb.append("blt $t1 $t2 ").append(label).append("\n");
                 // if not load false into $a0.
@@ -225,8 +228,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
                 // load true into $a0
                 sb.append("la $a0 bool_const1\n");
 
-                String label = String.format("label%s", this.labelCounter);
-                this.labelCounter += 1;
+                String label = this.generateNewLabel();
 
                 // if $t1 < $t2 execution jumps to the label and proceeds from there
                 sb.append("ble $t1 $t2 ").append(label).append("\n");
@@ -249,8 +251,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
                 // load true into $a0
                 sb.append("la $a0 bool_const1\n");
 
-                String label = String.format("label%s", this.labelCounter);
-                this.labelCounter += 1;
+                String label = this.generateNewLabel();
 
                 // if $t1 < $t2 execution jumps to the label and proceeds from there
                 sb.append("bgt $t1 $t2 ").append(label).append("\n");
@@ -273,8 +274,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
                 // load true into $a0
                 sb.append("la $a0 bool_const1\n");
 
-                String label = String.format("label%s", this.labelCounter);
-                this.labelCounter += 1;
+                String label = this.generateNewLabel();
 
                 // if $t1 < $t2 execution jumps to the label and proceeds from there
                 sb.append("bge $t1 $t2 ").append(label).append("\n");
@@ -417,6 +417,12 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolInstantiate(CoolInstantiate ci) {
+        // "new Bazz" ->
+        //        la	$a0 Bazz_protObj
+        //        jal	Object.copy
+        //        jal	Bazz_init
+        //        # this last bit maybe needs to be outside the instantiate visitor
+        //        sw	$a0 12($s0)
 
     }
 
@@ -427,6 +433,13 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
     @Override
     public void visitCoolLet(CoolLet cl) {
+        // NOTE: generated code seems to store let vars in the temp
+        // registers $s1 - $s6
+        // - I wonder if I can simulate the same thing by pushing onto the stack
+        // so I don't run out of registers
+        // - use $fp as the basis for offset
+        // nested let can be handled by...?
+        // - official compiler seems to use $s1 to $s6 and then pushes onto the stack
 
     }
 
@@ -434,6 +447,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     public void visitCoolMethod(CoolMethod cm) {
         MipsFunctionObj func = new MipsFunctionObj(this.currentClass + "." + cm.getNameString());
 
+        // TODO: gotta take into account the arguments pushed onto the stack, runtime expects the callee to pop them off
         func.addCommand("addiu $sp $sp -12\n");
         func.addCommand("sw $fp 12($sp)\n");
         func.addCommand("sw $s0 8($sp)\n");
@@ -474,8 +488,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
 
         CoolIdentifier ci = cmd.getIdentifier();
         String methodName = ci.getValueString();
-        String labelName = String.format("label%s", this.labelCounter);
-        this.labelCounter += 1;
+        String labelName = this.generateNewLabel();
 
         ArrayList<CoolExpr> arguments = cmd.getArguments();
 
@@ -544,7 +557,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     public void visitCoolString(CoolString cs) {
         StringBuilder sb = new StringBuilder();
         String contents = cs.getValue();
-        String label = "str_const" + this.counter;
+        String label = "str_const" + this.constCounter;
         MipsIntConst strSize = new MipsIntConst(label + "_size", this.tagTable.get("Int"), contents.length());
 
         // create MipsStrConst
@@ -561,7 +574,7 @@ public class MipsFunctionObjGenerator implements AstVisitor {
         this.stack.push(sb.toString());
 
         // increment counter for the next const
-        this.counter += 1;
+        this.constCounter += 1;
     }
 
     @Override
@@ -585,14 +598,14 @@ public class MipsFunctionObjGenerator implements AstVisitor {
     public void visitCoolInteger(CoolInteger ci) {
         StringBuilder sb = new StringBuilder();
         int contents = ci.getValue();
-        String label = "int_const" + this.counter;
+        String label = "int_const" + this.constCounter;
         MipsIntConst intConst = new MipsIntConst(label, this.tagTable.get("Int"), contents);
 
         this.symbolTable.putSymbol(label, intConst);
         sb.append("# integer literal:").append(ci);
         sb.append("la $a0 ").append(label).append("\n");
 
-        this.counter += 1;
+        this.constCounter += 1;
         this.stack.push(sb.toString());
     }
 
